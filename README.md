@@ -544,7 +544,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
             showModule('survey');
-            loadDemoData();
         });
 
         function setupEventListeners() {
@@ -836,12 +835,13 @@
         async function createCompanyIfNotExists(companyName) {
             if (!systemData.surveyData) await loadFromJSONBin();
             if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
-            let companyKey = Object.keys(systemData.surveyData.companies).find(key => systemData.surveyData.companies[key].name === companyName);
+            const normalizedName = companyName.trim().toLowerCase();
+            let companyKey = Object.keys(systemData.surveyData.companies).find(key => (systemData.surveyData.companies[key].name || '').trim().toLowerCase() === normalizedName);
             if (!companyKey) {
                 // Yeni şifre üret
                 const password = generateCompanyPassword();
                 companyKey = Date.now().toString();
-                systemData.surveyData.companies[companyKey] = { name: companyName, password, createdAt: new Date().toISOString() };
+                systemData.surveyData.companies[companyKey] = { name: companyName.trim(), password, createdAt: new Date().toISOString() };
                 const saveResult = await saveToJSONBin(systemData.surveyData);
                 if (!saveResult.success) {
                     return { success: false, error: saveResult.error };
@@ -955,630 +955,7 @@
             }
         }
 
-        async function loginCompany() {
-            const companyName = document.getElementById('companyLoginName').value.trim();
-            const password = document.getElementById('companyPassword').value.trim();
-            
-            if (!companyName || !password) {
-                showModal('⚠️ Eksik Bilgi', 'Lütfen kurum adı ve şifrenizi girin.');
-                return;
-            }
-            
-            try {
-                if (!systemData.surveyData) {
-                    systemData.surveyData = await loadFromJSONBin();
-                }
-                
-                const companyEntry = Object.entries(systemData.surveyData.companies || {})
-                    .find(([key, company]) => 
-                        company.name.toLowerCase() === companyName.toLowerCase() && 
-                        company.password === password
-                    );
-                
-                if (companyEntry) {
-                    loggedInCompany = {
-                        key: companyEntry[0],
-                        ...companyEntry[1]
-                    };
-                    document.getElementById('companyLogin').classList.add('hidden');
-                    document.getElementById('companyDashboard').classList.remove('hidden');
-                    loadCompanyDashboard();
-                } else {
-                    showModal('❌ Giriş Hatası', 'Okul/kurum adı veya şifre hatalı. Lütfen yöneticinizden doğru bilgileri alın.');
-                }
-            } catch (error) {
-                showModal('❌ Hata', 'Giriş sırasında bir hata oluştu. Lütfen tekrar deneyin.');
-                console.error('Giriş hatası:', error);
-            }
-        }
-
-        function loadCompanyDashboard() {
-            if (!loggedInCompany || !systemData.surveyData) return;
-            
-            document.getElementById('companyNameDisplay').textContent = loggedInCompany.name;
-            
-            const companySurveys = systemData.surveyData.responses.filter(s => 
-                s.companyName.toLowerCase() === loggedInCompany.name.toLowerCase()
-            );
-            
-            document.getElementById('totalParticipants').textContent = companySurveys.length;
-            
-            if (companySurveys.length > 0) {
-                let totalScore = 0;
-                let totalAnswers = 0;
-                companySurveys.forEach(s => {
-                    totalScore += s.totalScore;
-                    totalAnswers += s.answers.length;
-                });
-                const avgScore = totalAnswers > 0 ? (totalScore / totalAnswers).toFixed(1) : '0.0';
-                document.getElementById('averageScore').textContent = avgScore;
-                
-                let highSatisfactionAnswers = 0;
-                companySurveys.forEach(s => {
-                    s.answers.forEach(answer => {
-                        if (answer.score >= 4) highSatisfactionAnswers++;
-                    });
-                });
-                const overallSatisfactionPercent = totalAnswers > 0 ? 
-                    Math.round((highSatisfactionAnswers / totalAnswers) * 100) : 0;
-                document.getElementById('satisfactionRate').textContent = overallSatisfactionPercent + '%';
-            } else {
-                document.getElementById('averageScore').textContent = '0.0';
-                document.getElementById('satisfactionRate').textContent = '0%';
-            }
-            
-            generateSimpleReport(companySurveys);
-            generateCharts(companySurveys);
-        }
-
-        // PDF ve rapor başlıkları için yeni roller ve başlıklar
-        const roleLabels = {
-            "Hasta": "Hasta",
-            "Doktor": "Doktor",
-            "Personel": "Personel"
-        };
-        const categoryLabels = [
-            { title: "🏥 1. Tıbbi Hizmet Kalitesi", desc: "Bu başlık, hastanede sunulan tıbbi hizmetlerin güvenilirliğini, tedavi süreçlerinin şeffaflığını ve hasta güvenliğini ölçer." },
-            { title: "🧑‍⚕️ 2. Personel Davranışları ve İletişim", desc: "Sağlık personelinin iletişimi, yaklaşımı ve hasta ile etkileşimi bu kategorinin temelini oluşturur." },
-            { title: "🏨 3. Hastane Ortamı ve İmkanlar", desc: "Fiziksel ortam, temizlik, konfor ve hastane imkanlarının kalitesi değerlendirilir." },
-            { title: "🗺️ 4. Yönlendirme ve Bilgilendirme", desc: "Hastane içi yönlendirme, bilgilendirme süreçleri ve hasta hakları konusundaki şeffaflık ölçülür." },
-            { title: "🌟 5. Genel Deneyim ve Tavsiye", desc: "Hastaların genel memnuniyeti, tekrar tercih etme ve tavsiye etme eğilimleri analiz edilir." }
-        ];
-
-        function generateSimpleReport(surveys) {
-            if (surveys.length === 0) {
-                document.getElementById('detailedReport').innerHTML = '<p class="text-gray-500 text-center py-8 text-lg">Henüz anket verisi bulunmuyor.</p>';
-                return;
-            }
-            const positionData = {};
-            surveys.forEach(s => {
-                if (validRoles.includes(s.jobType)) {
-                    positionData[s.jobType] = (positionData[s.jobType] || 0) + 1;
-                }
-            });
-            
-            const satisfactionLevels = ['Düşük (1-2)', 'Orta (3)', 'Yüksek (4-5)'];
-            const satisfactionCounts = [0, 0, 0];
-            
-            surveys.forEach(s => {
-                const avgScore = parseFloat(s.averageScore);
-                if (avgScore < 2.5) satisfactionCounts[0]++;
-                else if (avgScore >= 2.5 && avgScore < 3.5) satisfactionCounts[1]++;
-                else satisfactionCounts[2]++;
-            });
-            
-            // Katılımcı grubu dışında bir şey varsa gösterme
-            const report = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-blue-50 p-6 rounded-lg">
-                        <h4 class="font-semibold text-blue-800 mb-4 text-lg">👥 Katılımcı Grupları</h4>
-                        ${Object.entries(positionData).map(([pos, count]) =>
-                            `<div class="flex justify-between items-center mb-2">
-                                <span class="font-medium">${pos}</span>
-                                <span class="text-xl font-bold">${count}</span>
-                            </div>`
-                        ).join('')}
-                    </div>
-                    <div class="bg-green-50 p-6 rounded-lg">
-                        <h4 class="font-semibold text-green-800 mb-4 text-lg">📊 Değerlendirme Seviyeleri</h4>
-                        ${satisfactionLevels.map((level, i) => 
-                            `<div class="flex justify-between items-center mb-2">
-                                <span class="font-medium">${level}</span>
-                                <span class="text-xl font-bold">${satisfactionCounts[i]}</span>
-                            </div>`
-                        ).join('')}
-                    </div>
-                </div>
-                
-                <div class="mt-6 bg-gray-50 p-6 rounded-lg">
-                    <h4 class="font-semibold text-gray-800 mb-3 text-lg">📈 Özet</h4>
-                    <p class="text-base text-gray-700">
-                        Toplam ${surveys.length} hasta anketi tamamladı. 
-                        Ortalama değerlendirme skoru ${(surveys.reduce((sum, s) => sum + parseFloat(s.averageScore), 0) / surveys.length).toFixed(1)}/5.0 olarak hesaplandı.
-                    </p>
-                </div>
-            `;
-            
-            document.getElementById('detailedReport').innerHTML = report;
-        }
-
-        // Özet bölümünde sadece geçerli rolü yaz
-        function getSummaryText(surveys) {
-            if (!surveys || surveys.length === 0) return '';
-            const last = surveys[surveys.length - 1];
-            if (!validRoles.includes(last.jobType)) return '';
-            const avg = last.averageScore ? parseFloat(last.averageScore).toFixed(1) : '';
-            return `Toplam 1 ${last.jobType.toLowerCase()} anketi tamamlandı. Ortalama değerlendirme skoru ${avg}/5.0 olarak hesaplandı.`;
-        }
-
-        // PDF çıktısı için başlık ve grup isimleri güncellendi, sadece geçerli roller dahil edildi.
-        function generateAdminPDFContent(companyName, surveys) {
-            const totalParticipants = surveys.length;
-            
-            let totalScore = 0;
-            let totalAnswers = 0;
-            surveys.forEach(s => {
-                totalScore += s.totalScore;
-                totalAnswers += s.answers.length;
-            });
-            const avgScore = totalAnswers > 0 ? (totalScore / totalAnswers).toFixed(1) : '0.0';
-            
-            // Profesyonel memnuniyet yüzdesi hesaplama (50-250 puan arası)
-            // Formül: ((Alınan Puan - Minimum Puan) / (Maksimum Puan - Minimum Puan)) * 100
-            const minPossibleScore = totalAnswers * 1; // Her soru minimum 1 puan
-            const maxPossibleScore = totalAnswers * 5; // Her soru maksimum 5 puan
-            const satisfactionPercentage = totalAnswers > 0 ? 
-                Math.round(((totalScore - minPossibleScore) / (maxPossibleScore - minPossibleScore)) * 100) : 0;
-            
-            const positionData = {};
-            const positionScores = {};
-            surveys.forEach(s => {
-                positionData[s.jobType] = (positionData[s.jobType] || 0) + 1;
-                if (!positionScores[s.jobType]) positionScores[s.jobType] = [];
-                positionScores[s.jobType].push(parseFloat(s.averageScore));
-            });
-            
-            // Pozisyon bazlı memnuniyet yüzdeleri
-            const positionSatisfaction = {};
-            Object.keys(positionScores).forEach(pos => {
-                const avgPosScore = positionScores[pos].reduce((a, b) => a + b, 0) / positionScores[pos].length;
-                positionSatisfaction[pos] = Math.round(((avgPosScore - 1) / 4) * 100);
-            });
-            
-            // Durum analizi
-            let statusAnalysis = '';
-            let recommendations = '';
-            
-            if (satisfactionPercentage <= 50) {
-                statusAnalysis = 'Düşük Memnuniyet - Acil Müdahale Gerekli';
-                recommendations = 'Acil bir eylem planı oluşturulmalıdır. Hastanenin fiziki koşulları ve temel iletişim kanalları gözden geçirilmelidir. Hastalar, doktorlar ve personel ile düzenli toplantılar düzenlenerek çözüm süreçleri şeffaf bir şekilde paylaşılmalıdır.';
-            } else if (satisfactionPercentage <= 75) {
-                statusAnalysis = 'Orta Seviye Memnuniyet - İyileştirme Fırsatları';
-                recommendations = 'Gelecek odaklı bir strateji belirlenmelidir. Hastanenin dijital dönüşüm stratejisi tüm paydaşlara net bir şekilde duyurulmalı ve bu alandaki yatırımlar artırılmalıdır. Doktorlar ve personel için profesyonel gelişim programları hayata geçirilmelidir.';
-            } else {
-                statusAnalysis = 'Yüksek Memnuniyet - Sürdürülebilirlik Odaklı';
-                recommendations = 'Bu başarıyı sürdürmek için düzenli nabız anketleri yapılmalı ve paydaşların beklentileri sürekli takip edilmelidir. En güçlü olduğunuz alanlarda bile sürekli iyileştirme hedefleri belirlenmelidir.';
-            }
-            
-            const satisfactionCounts = [0, 0, 0];
-            surveys.forEach(s => {
-                s.answers.forEach(answer => {
-                    if (answer.score <= 2) satisfactionCounts[0]++;
-                    else if (answer.score === 3) satisfactionCounts[1]++;
-                    else satisfactionCounts[2]++;
-                });
-            });
-            
-            return `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>${companyName} - Yönetici Raporu</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 15px; line-height: 1.4; font-size: 12px; }
-                        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
-                        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; }
-                        .stat-box { background: #f5f5f5; padding: 10px; border-radius: 5px; text-align: center; width: 30%; }
-                        .stat-number { font-size: 1.5em; font-weight: bold; color: #333; }
-                        .section { margin-bottom: 20px; }
-                        .section h3 { color: #333; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 11px; }
-                        th, td { border: 1px solid #ddd; padding: 5px; text-align: left; }
-                        th { background-color: #f2f2f2; }
-                        .analysis-box { background: #e8f4fd; padding: 10px; border-radius: 5px; margin: 10px 0; }
-                        .recommendations { background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; }
-                        .chart-placeholder { width: 100%; height: 150px; background: #f8f9fa; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
-                        .footer { margin-top: 30px; text-align: center; font-size: 10px; color: #666; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>📊 ${companyName}</h1>
-                        <h2>Yönetici Kurum Değerlendirme Raporu</h2>
-                        <p>Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')}</p>
-                    </div>
-                    
-                    <div class="stats">
-                        <div class="stat-box">
-                            <div class="stat-number">${totalParticipants}</div>
-                            <div>Toplam Katılımcı</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number">${avgScore}</div>
-                            <div>Ortalama Puan</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number">${satisfactionPercentage}%</div>
-                            <div>Genel Memnuniyet</div>
-                        </div>
-                    </div>
-                    
-                    <div class="analysis-box">
-                        <h4>📈 Genel Durum Değerlendirmesi</h4>
-                        <div class="status-indicator" style="background-color: ${statusColor};">${statusAnalysis}</div>
-                        <p style="margin-top: 10px;"><strong>Memnuniyet Hesaplama Formülü:</strong> ((${totalScore} - ${minPossibleScore}) / (${maxPossibleScore} - ${minPossibleScore})) × 100 = %${satisfactionPercentage}</p>
-                        <p style="margin-top: 5px;">${detailedAnalysis}</p>
-                    </div>
-                    
-                    <div class="section">
-                        <h3>👥 Paydaş Grupları Analizi</h3>
-                        <table>
-                            <tr><th>Paydaş Grubu</th><th>Katılımcı</th><th>Memnuniyet %</th><th>Değerlendirme</th></tr>
-                            ${Object.entries(positionData).map(([pos, count]) => {
-                                const satisfaction = positionSatisfaction[pos] || 0;
-                                const status = satisfaction <= 50 ? 'Düşük' : satisfaction <= 75 ? 'Orta' : 'Yüksek';
-                                const statusColor = satisfaction <= 50 ? '#dc3545' : satisfaction <= 75 ? '#ffc107' : '#28a745';
-                                return `<tr><td>${pos}</td><td>${count}</td><td>%${satisfaction}</td><td style="color: ${statusColor}; font-weight: bold;">${status}</td></tr>`;
-                            }).join('')}
-                        </table>
-                    </div>
-                    
-                    ${comparisonAnalysis ? `<div class="comparison-box">
-                        <h4>🔍 Paydaş Grupları Karşılaştırması</h4>
-                        <p>${comparisonAnalysis}</p>
-                        ${specialScenarioAnalysis ? `<div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
-                            <strong>⚠️ Özel Durum Analizi:</strong><br>
-                            ${specialScenarioAnalysis}
-                        </div>` : ''}
-                    </div>` : ''}
-                    
-                    <div class="chart-placeholder">
-                        <div style="text-align: center;">
-                            <div style="font-size: 14px; margin-bottom: 10px;">📊 Memnuniyet Dağılımı</div>
-                            ${Object.entries(positionData).map(([pos, count]) => 
-                                `<div style="margin: 3px 0; font-size: 11px;">${pos}: ${count} kişi (%${positionSatisfaction[pos] || 0} memnuniyet)</div>`
-                            ).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="section">
-                        <h3>📈 Yanıt Dağılımı</h3>
-                        <table>
-                            <tr><th>Değerlendirme Seviyesi</th><th>Yanıt Sayısı</th><th>Oran</th></tr>
-                            <tr><td>Düşük Memnuniyet (1-2)</td><td>${satisfactionCounts[0]}</td><td>${totalAnswers > 0 ? Math.round((satisfactionCounts[0]/totalAnswers)*100) : 0}%</td></tr>
-                            <tr><td>Orta Memnuniyet (3)</td><td>${satisfactionCounts[1]}</td><td>${totalAnswers > 0 ? Math.round((satisfactionCounts[1]/totalAnswers)*100) : 0}%</td></tr>
-                            <tr><td>Yüksek Memnuniyet (4-5)</td><td>${satisfactionCounts[2]}</td><td>${totalAnswers > 0 ? Math.round((satisfactionCounts[2]/totalAnswers)*100) : 0}%</td></tr>
-                        </table>
-                    </div>
-                    
-                    <div class="section">
-                        <h3>🎯 Detaylı Kategori Analizleri</h3>
-                        
-                        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                            <h4 style="color: #333; margin-bottom: 8px;">📚 1. Tıbbi Hizmet Kalitesi</h4>
-                            <p style="font-size: 11px; margin-bottom: 5px;"><strong>Tanım:</strong> Bu başlık, hastanede sunulan tıbbi hizmetlerin güvenilirliğini, tedavi süreçlerinin şeffaflığını ve hasta güvenliğini ölçer.</p>
-                            
-                            ${satisfactionPercentage <= 50 ? `
-                            <div style="background: #f8d7da; padding: 8px; border-radius: 3px; border-left: 4px solid #dc3545;">
-                                <strong>Puan Aralığı: Düşük (%0-50)</strong><br>
-                                Hastalar, tedavi süreçlerinin belirsiz olduğunu, doktorların yetersiz bilgi verdiğini veya tıbbi hatalar yapıldığını düşünüyor. Bu durum, hastane için ciddi bir güven kaybı yaratır ve acil önlem alınması gerektiğini gösterir. Tıbbi süreçler gözden geçirilmeli, hasta bilgilendirme standartları artırılmalı ve düzenli kalite kontrolü yapılmalıdır.
-                            </div>
-                            ` : satisfactionPercentage <= 75 ? `
-                            <div style="background: #fff3cd; padding: 8px; border-radius: 3px; border-left: 4px solid #ffc107;">
-                                <strong>Puan Aralığı: Orta (%51-75)</strong><br>
-                                Tıbbi hizmet kalitesi genel olarak kabul edilebilir düzeyde, ancak bazı alanlarda (örneğin, acil servisler, özel tedavi yöntemleri) iyileştirme potansiyeli var. Hastane, hasta güvenliğini artırmak ve tedavi süreçlerini daha şeffaf hale getirmek için ek önlemler almalıdır. Ayrıca, hasta geri bildirimlerine dayalı düzenli hizmet değerlendirmeleri yapılmalıdır.
-                            </div>
-                            ` : `
-                            <div style="background: #d4edda; padding: 8px; border-radius: 3px; border-left: 4px solid #28a745;">
-                                <strong>Puan Aralığı: Yüksek (%76-100)</strong><br>
-                                Hastalar, aldıkları tıbbi hizmetlerin kalitesinden son derece memnun. Bu, hastanenin tıbbi alanda yüksek standartlara sahip olduğunu ve hasta odaklı bir yaklaşım benimsediğini gösterir. Bu başarıyı sürdürmek için sürekli eğitimler, güncel tıbbi protokoller ve hasta memnuniyeti anketleri ile kalite güvencesi sağlanmalıdır.
-                            </div>
-                            `}
-                        </div>
-                        
-                        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                            <h4 style="color: #333; margin-bottom: 8px;">🧑‍⚕️ 2. Personel Davranışları ve İletişim</h4>
-                            <p style="font-size: 11px; margin-bottom: 5px;"><strong>Tanım:</strong> Sağlık personelinin iletişimi, yaklaşımı ve hasta ile etkileşimi bu kategorinin temelini oluşturur.</p>
-                            
-                            ${satisfactionPercentage <= 50 ? `
-                            <div style="background: #f8d7da; padding: 8px; border-radius: 3px; border-left: 4px solid #dc3545;">
-                                <strong>Puan Aralığı: Düşük (%0-50)</strong><br>
-                                Personelin hasta haklarına saygı göstermediği, iletişimde yetersiz kaldığı veya olumsuz tutum sergilediği düşünülüyor. Bu durum, hastaların kendilerini değersiz hissetmelerine ve tedavi süreçlerine güven duymamalarına yol açar. Personel eğitimi acilen gözden geçirilmeli, hasta iletişimi ve empati konularında güçlendirilmelidir.
-                            </div>
-                            ` : satisfactionPercentage <= 75 ? `
-                            <div style="background: #fff3cd; padding: 8px; border-radius: 3px; border-left: 4px solid #ffc107;">
-                                <strong>Puan Aralığı: Orta (%51-75)</strong><br>
-                                Personel davranışları genelde olumlu, ancak bazı durumlarda (örneğin, yoğun bakım, acil servis) iletişim eksiklikleri veya yetersiz bilgi verme gibi sorunlar yaşanabiliyor. Bu tür durumların azaltılması için, stresli durumlar için özel iletişim protokolleri geliştirilmeli ve personel bu konularda düzenli olarak eğitilmelidir.
-                            </div>
-                            ` : `
-                            <div style="background: #d4edda; padding: 8px; border-radius: 3px; border-left: 4px solid #28a745;">
-                                <strong>Puan Aralığı: Yüksek (%76-100)</strong><br>
-                                Hastalar, sağlık personelinin yaklaşımından ve iletişiminden son derece memnun. Personel, hastalara karşı nazik, saygılı ve yardımsever davranıyor. Bu, hastane ortamının ne kadar destekleyici ve hasta odaklı olduğunu gösteriyor. Bu başarıyı sürdürmek için, personelin motivasyonu yüksek tutulmalı ve başarılı iletişim örnekleri teşvik edilmelidir.
-                            </div>
-                            `}
-                        </div>
-                        
-                        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                            <h4 style="color: #333; margin-bottom: 8px;">🏨 3. Hastane Ortamı ve İmkanlar</h4>
-                            <p style="font-size: 11px; margin-bottom: 5px;"><strong>Tanım:</strong> Fiziksel ortam, temizlik, konfor ve hastane imkanlarının kalitesi değerlendirilir.</p>
-                            
-                            ${satisfactionPercentage <= 50 ? `
-                            <div style="background: #f8d7da; padding: 8px; border-radius: 3px; border-left: 4px solid #dc3545;">
-                                <strong>Puan Aralığı: Düşük (%0-50)</strong><br>
-                                Hastane ortamının hijyenik olmadığı, odaların konforsuz ve gürültülü olduğu, tıbbi ekipmanların yetersiz veya eski olduğu düşünülüyor. Bu durum, hastaların tedavi süreçlerinde olumsuz etkiler yaratabilir. Acil olarak, hastane fiziki koşulları gözden geçirilmeli, temizlik standartları artırılmalı ve hasta konforunu artırıcı önlemler alınmalıdır.
-                            </div>
-                            ` : satisfactionPercentage <= 75 ? `
-                            <div style="background: #fff3cd; padding: 8px; border-radius: 3px; border-left: 4px solid #ffc107;">
-                                <strong>Puan Aralığı: Orta (%51-75)</strong><br>
-                                Hastane ortamı genel olarak kabul edilebilir düzeyde, ancak bazı alanlarda (örneğin, tuvaletler, bekleme alanları) iyileştirme yapılması gerekiyor. Ayrıca, yemek hizmetleri ve ulaşım imkanları gibi konularda da geliştirmeler yapılabilir. Hastane yönetimi, bu alanlarda hasta geri bildirimlerini dikkate alarak iyileştirmeler yapmalıdır.
-                            </div>
-                            ` : `
-                            <div style="background: #d4edda; padding: 8px; border-radius: 3px; border-left: 4px solid #28a745;">
-                                <strong>Puan Aralığı: Yüksek (%76-100)</strong><br>
-                                Hastane, fiziksel ortam ve imkanlar açısından yüksek standartlara sahip. Temizlik, konfor ve güvenlik önlemleri üst düzeyde. Bu, hastanenin hasta memnuniyetine verdiği önemi ve hizmet kalitesini gösteriyor. Bu başarıyı sürdürmek için, düzenli bakım ve yenileme çalışmaları yapılmalı, hasta memnuniyeti anketleri ile sürekli geri bildirim alınmalıdır.
-                            </div>
-                            `}
-                        </div>
-                        
-                        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                            <h4 style="color: #333; margin-bottom: 8px;">🗺️ 4. Yönlendirme ve Bilgilendirme</h4>
-                            <p style="font-size: 11px; margin-bottom: 5px;"><strong>Tanım:</strong> Hastane içi yönlendirme, bilgilendirme süreçleri ve hasta hakları konusundaki şeffaflık ölçülür.</p>
-                            
-                            ${satisfactionPercentage <= 50 ? `
-                            <div style="background: #f8d7da; padding: 8px; border-radius: 3px; border-left: 4px solid #dc3545;">
-                                <strong>Puan Aralığı: Düşük (%0-50)</strong><br>
-                                Hastalar, hastaneye yatış, taburcu işlemleri ve randevu sistemleri gibi konularda yetersiz bilgilendirildiğini düşünüyor. Ayrıca, hasta hakları konusunda da yeterli bilgiye sahip olmadıklarını belirtiyorlar. Bu durum, hastaların tedavi süreçlerinde belirsizlik yaşamasına ve haklarını tam olarak bilememesine yol açıyor. Hastane, bilgilendirme süreçlerini gözden geçirmeli, hasta hakları konusunda daha şeffaf ve erişilebilir olmalıdır.
-                            </div>
-                            ` : satisfactionPercentage <= 75 ? `
-                            <div style="background: #fff3cd; padding: 8px; border-radius: 3px; border-left: 4px solid #ffc107;">
-                                <strong>Puan Aralığı: Orta (%51-75)</strong><br>
-                                Yönlendirme ve bilgilendirme süreçleri genel olarak iyi, ancak bazı durumlarda (örneğin, acil durumlar, yoğun bakım) yetersiz kalabiliyor. Hastane, bu tür durumlar için özel protokoller geliştirmeli ve personeli bu konularda eğitmelidir. Ayrıca, hasta bilgilendirme materyalleri güncellenmeli ve hastaların kolayca erişebileceği yerlere konulmalıdır.
-                            </div>
-                            ` : `
-                            <div style="background: #d4edda; padding: 8px; border-radius: 3px; border-left: 4px solid #28a745;">
-                                <strong>Puan Aralığı: Yüksek (%76-100)</strong><br>
-                                Hastalar, hastane içindeki yönlendirme ve bilgilendirme süreçlerinden son derece memnun. Tüm bilgilere kolayca erişebiliyor ve hakları konusunda yeterli bilgiye sahip olduklarını düşünüyorlar. Bu, hastanenin şeffaflık ve hasta memnuniyeti konusundaki başarısını gösteriyor. Bu başarıyı sürdürmek için, düzenli olarak hasta geri bildirimleri alınmalı ve bilgilendirme süreçleri sürekli olarak iyileştirilmelidir.
-                            </div>
-                            `}
-                        </div>
-                        
-                        <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                            <h4 style="color: #333; margin-bottom: 8px;">🌟 5. Genel Deneyim ve Tavsiye</h4>
-                            <p style="font-size: 11px; margin-bottom: 5px;"><strong>Tanım:</strong> Hastaların genel memnuniyeti, tekrar tercih etme ve tavsiye etme eğilimleri analiz edilir.</p>
-                            
-                            ${satisfactionPercentage <= 50 ? `
-                            <div style="background: #f8d7da; padding: 8px; border-radius: 3px; border-left: 4px solid #dc3545;">
-                                <strong>Puan Aralığı: Düşük (%0-50)</strong><br>
-                                Hastalar, genel olarak hastane deneyimlerinden memnun değil. Bu durum, hastanenin hizmet kalitesinde ciddi sorunlar olduğunu ve acil önlem alınması gerektiğini gösteriyor. Hastane yönetimi, hasta memnuniyetini artırmak için köklü değişiklikler yapmalı ve hasta geri bildirimlerini dikkate alarak iyileştirmeler gerçekleştirmelidir.
-                            </div>
-                            ` : satisfactionPercentage <= 75 ? `
-                            <div style="background: #fff3cd; padding: 8px; border-radius: 3px; border-left: 4px solid #ffc107;">
-                                <strong>Puan Aralığı: Orta (%51-75)</strong><br>
-                                Hastalar, hastane deneyimlerini genel olarak yeterli buluyor, ancak bazı alanlarda (örneğin, randevu sistemleri, bekleme süreleri) iyileştirmeler yapılabileceğini düşünüyor. Hastane, bu alanlarda hasta memnuniyetini artırmak için çalışmalar yapmalı ve süreçlerini daha da iyileştirmelidir.
-                            </div>
-                            ` : `
-                            <div style="background: #d4edda; padding: 8px; border-radius: 3px; border-left: 4px solid #28a745;">
-                                <strong>Puan Aralığı: Yüksek (%76-100)</strong><br>
-                                Hastalar, hastane deneyimlerinden son derece memnun. Bu, hastanenin hasta odaklı bir yaklaşım benimsediğini ve yüksek kaliteli hizmet sunduğunu gösteriyor. Bu başarıyı sürdürmek için, hastane sürekli olarak hizmet kalitesini izlemeli ve hasta geri bildirimlerine dayalı iyileştirmeler yapmalıdır.
-                            </div>
-                            `}
-                        </div>
-                    </div>
-                    
-                    <div class="recommendations">
-                        <h4>💡 Öneriler ve Eylem Planı</h4>
-                        <p><strong>Öncelikli Aksiyonlar:</strong> ${recommendations}</p>
-                        <p><strong>Takip:</strong> Bu rapor sonuçlarını 3-6 ay sonra tekrar değerlendirmek için yeni anket düzenleyiniz.</p>
-                    </div>
-                    
-                    <div class="footer">
-                        <p>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${new Date().toLocaleString('tr-TR')}</p>
-                        <p>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.</p>
-                    </div>
-                </body>
-                </html>
-            `;
-        }
-
-        function generateCharts(surveys) {
-            if (surveys.length === 0) return;
-            
-            // Pozisyon grafiği
-            const positionData = {};
-            surveys.forEach(s => {
-                positionData[s.jobType] = (positionData[s.jobType] || 0) + 1;
-            });
-            
-            const positionCtx = document.getElementById('positionChart').getContext('2d');
-            new Chart(positionCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(positionData),
-                    datasets: [{
-                        data: Object.values(positionData),
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-            
-            // Değerlendirme grafiği
-            const satisfactionCounts = [0, 0, 0];
-            surveys.forEach(s => {
-                const avgScore = parseFloat(s.averageScore);
-                if (avgScore < 2.5) satisfactionCounts[0]++;
-                else if (avgScore < 3.5) satisfactionCounts[1]++;
-                else satisfactionCounts[2]++;
-            });
-            
-            const satisfactionCtx = document.getElementById('satisfactionChart').getContext('2d');
-            new Chart(satisfactionCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Düşük', 'Orta', 'Yüksek'],
-                    datasets: [{
-                        data: satisfactionCounts,
-                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-            
-            // Süre dağılımı grafiği
-            const timeCounts = { '0-5dk': 0, '5-10dk': 0, '10dk+': 0 };
-            surveys.forEach(s => {
-                const duration = s.duration || '00:00';
-                const minutes = parseInt(duration.split(':')[0]) || 0;
-                if (minutes <= 5) timeCounts['0-5dk']++;
-                else if (minutes <= 10) timeCounts['5-10dk']++;
-                else timeCounts['10dk+']++;
-            });
-            
-            const timeCtx = document.getElementById('timeChart').getContext('2d');
-            new Chart(timeCtx, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(timeCounts),
-                    datasets: [{
-                        data: Object.values(timeCounts),
-                        backgroundColor: ['#8b5cf6', '#06b6d4', '#f97316']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-            
-            // Puan dağılımı grafiği
-            const scoreRanges = { '1-2': 0, '2-3': 0, '3-4': 0, '4-5': 0 };
-            surveys.forEach(s => {
-                const avgScore = parseFloat(s.averageScore);
-                if (avgScore < 2) scoreRanges['1-2']++;
-                else if (avgScore < 3) scoreRanges['2-3']++;
-                else if (avgScore < 4) scoreRanges['3-4']++;
-                else scoreRanges['4-5']++;
-            });
-            
-            const trendCtx = document.getElementById('trendChart').getContext('2d');
-            new Chart(trendCtx, {
-                type: 'line',
-                data: {
-                    labels: Object.keys(scoreRanges),
-                    datasets: [{
-                        data: Object.values(scoreRanges),
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        }
-
-        function toggleParticipantDetails() {
-            const detailsDiv = document.getElementById('participantDetails');
-            const toggleBtn = document.getElementById('toggleParticipantsBtn');
-            
-            if (detailsDiv.classList.contains('hidden')) {
-                detailsDiv.classList.remove('hidden');
-                toggleBtn.textContent = '📋 Katılımcıları Gizle';
-                loadParticipantTable();
-            } else {
-                detailsDiv.classList.add('hidden');
-                toggleBtn.textContent = '📋 Katılımcıları Görüntüle';
-            }
-        }
-
-        function loadParticipantTable() {
-            if (!loggedInCompany || !systemData.surveyData) return;
-            
-            const companySurveys = systemData.surveyData.responses.filter(s => 
-                s.companyName.toLowerCase() === loggedInCompany.name.toLowerCase()
-            );
-            
-            const tbody = document.getElementById('participantTableBody');
-            
-            if (companySurveys.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Henüz katılımcı bulunmuyor.</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = companySurveys.map(survey => {
-                const displayName = (survey.firstName && survey.lastName) ? 
-                    `${survey.firstName} ${survey.lastName}` : 
-                    (survey.firstName || survey.lastName || 'İsimsiz');
-                
-                const avgScore = parseFloat(survey.averageScore);
-                let evaluation = '';
-                let evaluationColor = '';
-                
-                if (avgScore < 2.5) {
-                    evaluation = 'Düşük';
-                    evaluationColor = 'text-red-600';
-                } else if (avgScore < 3.5) {
-                    evaluation = 'Orta';
-                    evaluationColor = 'text-yellow-600';
-                } else {
-                    evaluation = 'Yüksek';
-                    evaluationColor = 'text-green-600';
-                }
-                
-                return `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-3 py-2">${displayName}</td>
-                        <td class="px-3 py-2">${survey.jobType}</td>
-                        <td class="px-3 py-2 text-center font-semibold">${avgScore}</td>
-                        <td class="px-3 py-2 text-center ${evaluationColor} font-semibold">${evaluation}</td>
-                        <td class="px-3 py-2 text-center text-sm">${new Date(survey.submittedAt).toLocaleDateString('tr-TR')}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function loadDemoData() {
-            // Demo veri yükleme fonksiyonu
-        }
-
-        function loginAdmin() {
+        async function loginAdmin() {
             const input = document.getElementById('adminPassword').value.trim();
             if (input === systemData.adminPassword) {
                 isAdminLoggedIn = true;
@@ -1616,6 +993,317 @@
                     }).join('');
                 }
             });
+        }
+
+        // Kurum portalı giriş fonksiyonu ve dashboard yükleyici (sadece bir kez ve doğru yerde)
+        async function loginCompany() {
+            const companyName = document.getElementById('companyLoginName').value.trim();
+            const password = document.getElementById('companyPassword').value.trim();
+            if (!companyName || !password) {
+                showModal('❌ Eksik Bilgi', 'Kurum adı ve şifre gereklidir.');
+                return;
+            }
+            await loadFromJSONBin();
+            const companies = systemData.surveyData.companies || {};
+            const normalizedName = companyName.trim().toLowerCase();
+            const companyKey = Object.keys(companies).find(key => (companies[key].name || '').trim().toLowerCase() === normalizedName);
+            if (!companyKey) {
+                showModal('❌ Kurum Bulunamadı', 'Girilen kurum adı ile eşleşen bir kurum bulunamadı.');
+                return;
+            }
+            if (companies[companyKey].password !== password) {
+                showModal('❌ Hatalı Şifre', 'Girilen şifre yanlış.');
+                return;
+            }
+            loggedInCompany = companies[companyKey];
+            document.getElementById('companyLogin').classList.add('hidden');
+            document.getElementById('companyDashboard').classList.remove('hidden');
+            loadCompanyDashboard();
+        }
+
+        function loadCompanyDashboard() {
+            if (!loggedInCompany || !systemData.surveyData) return;
+            const companySurveys = systemData.surveyData.responses.filter(s => 
+                s.companyName.toLowerCase() === loggedInCompany.name.toLowerCase()
+            );
+            document.getElementById('companyNameDisplay').textContent = loggedInCompany.name;
+            document.getElementById('totalParticipants').textContent = companySurveys.length;
+            let totalScore = 0;
+            let totalAnswers = 0;
+            companySurveys.forEach(s => {
+                totalScore += s.totalScore;
+                totalAnswers += s.answers.length;
+            });
+            const avgScore = totalAnswers > 0 ? (totalScore / totalAnswers).toFixed(1) : '0.0';
+            document.getElementById('averageScore').textContent = avgScore;
+            let highSatisfactionAnswers = 0;
+            companySurveys.forEach(s => {
+                s.answers.forEach(answer => {
+                    if (answer.score >= 4) highSatisfactionAnswers++;
+                });
+            });
+            const overallSatisfactionPercent = totalAnswers > 0 ? 
+                Math.round((highSatisfactionAnswers / totalAnswers) * 100) : 0;
+            document.getElementById('satisfactionRate').textContent = overallSatisfactionPercent + '%';
+            generateSimpleReport(companySurveys);
+            generateCharts(companySurveys);
+        }
+        // HASTANE PDF RAPORU OLUŞTURMA
+        function showPDFReport() {
+            const companyName = loggedInCompany ? loggedInCompany.name : '';
+            const surveys = systemData.surveyData.responses.filter(s => s.companyName.toLowerCase() === companyName.toLowerCase());
+            const win = window.open('', '_blank');
+            win.document.write(generateHospitalPDFContent(companyName, surveys));
+            setTimeout(() => win.print(), 500);
+        }
+
+        function generateHospitalPDFContent(companyName, surveys) {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('tr-TR');
+            const timeStr = now.toLocaleTimeString('tr-TR');
+            const totalParticipants = surveys.length;
+            let totalScore = 0;
+            let totalAnswers = 0;
+            surveys.forEach(s => {
+                totalScore += s.totalScore;
+                totalAnswers += s.answers.length;
+            });
+            const avgScore = totalAnswers > 0 ? (totalScore / totalAnswers).toFixed(1) : '0.0';
+            const minPossibleScore = totalAnswers * 1;
+            const maxPossibleScore = totalAnswers * 5;
+            const satisfactionPercent = totalAnswers > 0 ? Math.round(((totalScore - minPossibleScore) / (maxPossibleScore - minPossibleScore)) * 100) : 0;
+            // Genel durum kutusu
+            let statusBox = '';
+            if (satisfactionPercent < 50) {
+                statusBox = `<div style='background:#fee2e2;padding:16px;border-radius:8px;margin-bottom:12px;'><b>Düşük Memnuniyet (%0-50) - Acil Müdahale Gerekli</b></div>`;
+            } else if (satisfactionPercent < 80) {
+                statusBox = `<div style='background:#fef9c3;padding:16px;border-radius:8px;margin-bottom:12px;'><b>Orta Memnuniyet (%51-80) - İyileştirme Gerekli</b></div>`;
+            } else {
+                statusBox = `<div style='background:#dcfce7;padding:16px;border-radius:8px;margin-bottom:12px;'><b>Yüksek Memnuniyet (%81-100)</b></div>`;
+            }
+            // Pozisyon analizi
+            const positionData = {};
+            surveys.forEach(s => {
+                positionData[s.jobType] = (positionData[s.jobType] || 0) + 1;
+            });
+            // Değerlendirme dağılımı
+            const satisfactionCounts = [0, 0, 0];
+            surveys.forEach(s => {
+                const avg = parseFloat(s.averageScore);
+                if (avg < 2.5) satisfactionCounts[0]++;
+                else if (avg < 3.5) satisfactionCounts[1]++;
+                else satisfactionCounts[2]++;
+            });
+            // Yanıt dağılımı
+            const answerLevels = ['Düşük Memnuniyet (1-2)', 'Orta Memnuniyet (3)', 'Yüksek Memnuniyet (4-5)'];
+            const answerCounts = [0, 0, 0];
+            surveys.forEach(s => {
+                s.answers.forEach(a => {
+                    if (a.score < 2.5) answerCounts[0]++;
+                    else if (a.score < 3.5) answerCounts[1]++;
+                    else answerCounts[2]++;
+                });
+            });
+            // Kategori analizleri (örnek başlıklar)
+            const hospitalCategories = [
+                { title: '1. Tıbbi Hizmet Kalitesi', desc: 'Hastanede sunulan tıbbi hizmetlerin güvenilirliği, tedavi süreçlerinin şeffaflığı ve hasta güvenliği.' },
+                { title: '2. Personel Davranışları ve İletişim', desc: 'Sağlık personelinin iletişimi, yaklaşımı ve hasta ile etkileşimi.' },
+                { title: '3. Hastane Ortamı ve İmkanlar', desc: 'Fiziksel ortam, temizlik, konfor ve hastane imkanlarının kalitesi.' },
+                { title: '4. Yönlendirme ve Bilgilendirme', desc: 'Hastane içi yönlendirme, bilgilendirme süreçleri ve hasta hakları.' },
+                { title: '5. Genel Deneyim ve Tavsiye', desc: 'Genel memnuniyet, tekrar tercih etme ve tavsiye etme eğilimleri.' }
+            ];
+            // PDF HTML
+            return `
+            <html><head><title>${companyName} - Kurum Değerlendirme Raporu</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+                .header { text-align: center; margin-top: 24px; }
+                .summary-grid { display: flex; justify-content: center; gap: 32px; margin: 24px 0; }
+                .summary-box { background: #f8fafc; border-radius: 12px; padding: 24px 32px; min-width: 180px; text-align: center; font-size: 1.5rem; }
+                .section { margin: 24px 0; }
+                .section-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; }
+                .table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+                .table th, .table td { border: 1px solid #e5e7eb; padding: 8px 12px; text-align: left; }
+                .table th { background: #f1f5f9; }
+                .highlight { font-weight: bold; color: #dc2626; }
+                .info-box { background: #f1f5f9; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+                .category-box { background: #fef2f2; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+                .advice-box { background: #fef9c3; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+            </style></head><body>
+                <div class='header'>
+                    <div style='font-size:2.2rem;font-weight:bold;margin-bottom:8px;'>🏥 ${companyName}</div>
+                    <div style='font-size:1.3rem;font-weight:bold;'>Kurum Değerlendirme Raporu</div>
+                    <div style='font-size:1rem;margin-top:4px;'>Rapor Tarihi: ${dateStr}</div>
+                </div>
+                <div class='summary-grid'>
+                    <div class='summary-box'><div style='font-size:1.1rem;'>${totalParticipants}</div>Toplam Katılımcı</div>
+                    <div class='summary-box'><div style='font-size:1.1rem;'>${avgScore}</div>Ortalama Puan</div>
+                    <div class='summary-box'><div style='font-size:1.1rem;'>${satisfactionPercent}%</div>Genel Memnuniyet</div>
+                </div>
+                <div class='section info-box'>
+                    <div class='section-title'>☑️ Genel Durum Değerlendirmesi</div>
+                    ${statusBox}
+                    <div>Memnuniyet Hesaplama Formülü: ((Alınan Puan - Minimum Puan) / (Maksimum Puan - Minimum Puan)) × 100 = ${satisfactionPercent}%</div>
+                    <div style='margin-top:8px;'>Kurumunuzun tüm paydaş gruplarında genel memnuniyet düzeyi yukarıda gösterilmiştir.</div>
+                </div>
+                <div class='section'>
+                    <div class='section-title'>👥 Paydaş Grupları Analizi</div>
+                    <table class='table'>
+                        <tr><th>Paydaş Grubu</th><th>Katılımcı</th></tr>
+                        ${Object.entries(positionData).map(([pos, count]) => `<tr><td>${pos}</td><td>${count}</td></tr>`).join('')}
+                    </table>
+                </div>
+                <div class='section'>
+                    <div class='section-title'>☑️ Yanıt Dağılımı</div>
+                    <table class='table'>
+                        <tr><th>Değerlendirme Seviyesi</th><th>Yanıt Sayısı</th></tr>
+                        ${answerLevels.map((level, i) => `<tr><td>${level}</td><td>${answerCounts[i]}</td></tr>`).join('')}
+                    </table>
+                </div>
+                <div class='section'>
+                    <div class='section-title'>📊 Detaylı Kategori Analizleri</div>
+                    ${hospitalCategories.map(cat => `
+                        <div class='category-box'>
+                            <b>${cat.title}</b><br>
+                            <span style='font-size:0.95rem;'>${cat.desc}</span>
+                            <div style='margin-top:8px;background:#fee2e2;padding:8px;border-radius:6px;'><b>Puan Aralığı: Düşük (%0-50)</b> - Bu kategoride ciddi iyileştirme gereklidir.</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class='section advice-box'>
+                    <b>💡 Öneriler ve Eylem Planı</b><br>
+                    <b>Öncelikli Aksiyonlar:</b> Acil bir eylem planı oluşturulmalı. Hastanenin fiziki koşulları, tıbbi hizmet süreçleri ve iletişim kanalları gözden geçirilmelidir.<br>
+                    <b>Takip:</b> Bu rapor sonuçlarını 3-6 ay sonra tekrar değerlendirmek için yeni anket düzenleyiniz.
+                </div>
+                <div style='text-align:right;font-size:0.9rem;color:#888;margin-top:32px;'>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${dateStr} ${timeStr}<br>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.</div>
+            </body></html>
+            `;
+        }
+
+        // Chart.js grafiklerini oluşturan fonksiyon
+        let positionChartObj, satisfactionChartObj, timeChartObj, trendChartObj;
+        function generateCharts(surveys) {
+            // Pozisyon grafiği
+            const positionData = {};
+            surveys.forEach(s => {
+                positionData[s.jobType] = (positionData[s.jobType] || 0) + 1;
+            });
+            if (positionChartObj) positionChartObj.destroy();
+            const positionCtx = document.getElementById('positionChart').getContext('2d');
+            positionChartObj = new Chart(positionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(positionData),
+                    datasets: [{
+                        data: Object.values(positionData),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+            // Değerlendirme grafiği
+            const satisfactionCounts = [0, 0, 0];
+            surveys.forEach(s => {
+                const avgScore = parseFloat(s.averageScore);
+                if (avgScore < 2.5) satisfactionCounts[0]++;
+                else if (avgScore < 3.5) satisfactionCounts[1]++;
+                else satisfactionCounts[2]++;
+            });
+            if (satisfactionChartObj) satisfactionChartObj.destroy();
+            const satisfactionCtx = document.getElementById('satisfactionChart').getContext('2d');
+            satisfactionChartObj = new Chart(satisfactionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Düşük', 'Orta', 'Yüksek'],
+                    datasets: [{
+                        data: satisfactionCounts,
+                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+            // Süre dağılımı grafiği
+            const timeCounts = { '0-5dk': 0, '5-10dk': 0, '10dk+': 0 };
+            surveys.forEach(s => {
+                const duration = s.duration || '00:00';
+                const minutes = parseInt(duration.split(':')[0]) || 0;
+                if (minutes <= 5) timeCounts['0-5dk']++;
+                else if (minutes <= 10) timeCounts['5-10dk']++;
+                else timeCounts['10dk+']++;
+            });
+            if (timeChartObj) timeChartObj.destroy();
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            timeChartObj = new Chart(timeCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(timeCounts),
+                    datasets: [{
+                        data: Object.values(timeCounts),
+                        backgroundColor: ['#8b5cf6', '#06b6d4', '#f97316']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+            // Puan dağılımı grafiği
+            const scoreRanges = { '1-2': 0, '2-3': 0, '3-4': 0, '4-5': 0 };
+            surveys.forEach(s => {
+                const avgScore = parseFloat(s.averageScore);
+                if (avgScore < 2) scoreRanges['1-2']++;
+                else if (avgScore < 3) scoreRanges['2-3']++;
+                else if (avgScore < 4) scoreRanges['3-4']++;
+                else scoreRanges['4-5']++;
+            });
+            if (trendChartObj) trendChartObj.destroy();
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            trendChartObj = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(scoreRanges),
+                    datasets: [{
+                        data: Object.values(scoreRanges),
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        // Katılımcı detay tablosunu dolduran fonksiyon
+        function generateSimpleReport(surveys) {
+            const tbody = document.getElementById('participantTableBody');
+            if (!tbody) return;
+            if (!surveys || surveys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-400 py-4">Kayıtlı katılımcı yok.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = surveys.map(s => {
+                const avg = parseFloat(s.averageScore).toFixed(2);
+                let evalLabel = '';
+                if (avg < 2.5) evalLabel = '<span class="text-red-600 font-semibold">Düşük</span>';
+                else if (avg < 3.5) evalLabel = '<span class="text-yellow-600 font-semibold">Orta</span>';
+                else evalLabel = '<span class="text-green-600 font-semibold">Yüksek</span>';
+                const date = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('tr-TR') : '-';
+                return `<tr>
+                    <td class="px-3 py-2">${s.firstName || ''} ${s.lastName || ''}</td>
+                    <td class="px-3 py-2">${s.jobType || '-'}</td>
+                    <td class="px-3 py-2 text-center">${avg}</td>
+                    <td class="px-3 py-2 text-center">${evalLabel}</td>
+                    <td class="px-3 py-2 text-center">${date}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Katılımcı detaylarını aç/kapat
+        function toggleParticipantDetails() {
+            const details = document.getElementById('participantDetails');
+            if (!details) return;
+            details.classList.toggle('hidden');
+            const btn = document.getElementById('toggleParticipantsBtn');
+            if (btn) {
+                btn.textContent = details.classList.contains('hidden') ? '📋 Katılımcıları Görüntüle' : '📋 Katılımcıları Gizle';
+            }
         }
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
