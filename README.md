@@ -44,8 +44,8 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
     <!-- Ana Navigasyon -->
-    <nav class="gradient-bg text-white p-3 shadow-lg">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
+    <nav class="gradient-bg text-white p-3 shadow-lg sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0">
             <div class="flex items-center gap-2">
                 <!-- Gizli yönetici erişimi -->
                 <div onclick="showModule('admin')" class="w-3 h-3 cursor-pointer opacity-15 hover:opacity-50 transition-opacity" title="">
@@ -66,11 +66,11 @@
     </nav>
 
     <!-- Anket Modülü -->
-    <div id="surveyModule" class="max-w-4xl mx-auto p-4">
-        <div class="bg-white shadow-xl rounded-xl max-w-xl mx-auto p-6">
+    <div id="surveyModule" class="max-w-5xl mx-auto p-2 md:p-4">
+        <div class="bg-white shadow-xl rounded-2xl max-w-2xl mx-auto p-4 md:p-8">
             <div class="text-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-1">Kurum Değerlendirme Anketi</h2>
-                <p class="text-gray-600 mb-2 text-sm">Görüşleriniz bizim için değerli</p>
+                <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 mb-1 tracking-tight">Kurum Değerlendirme Anketi</h2>
+                <p class="text-gray-600 mb-2 text-base md:text-lg">Görüşleriniz bizim için değerli</p>
                 <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">v3.0.0 - JSONBin.io Entegre</span>
             </div>
 
@@ -139,7 +139,7 @@
 
             <!-- Anket Alanı -->
             <div id="surveySection" class="hidden">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
                     <span id="progressText" class="text-gray-600 font-medium">Anket İlerlemesi 0/50 Yanıtlandı</span>
                     <span id="timeElapsed" class="text-sm text-gray-500">Süre: 00:00</span>
                 </div>
@@ -147,7 +147,7 @@
                     <div id="progressBar" class="bg-purple-600 h-3 rounded-full transition-all duration-300" style="width:0%"></div>
                 </div>
                 <div id="questionContainer" class="space-y-6"></div>
-                <button id="submitSurvey" class="hidden w-full mt-8 py-4 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 transition-colors text-lg">
+                <button id="submitSurvey" class="hidden w-full mt-8 py-4 rounded-xl text-white font-semibold bg-green-600 hover:bg-green-700 transition-colors text-lg">
                     ✅ Anketi Tamamla
                 </button>
             </div>
@@ -155,8 +155,8 @@
     </div>
 
     <!-- Şirket Portalı -->
-    <div id="companyModule" class="max-w-4xl mx-auto p-4 hidden">
-        <div class="bg-white shadow-xl rounded-xl max-w-4xl mx-auto p-6">
+    <div id="companyModule" class="max-w-5xl mx-auto p-2 md:p-4 hidden">
+        <div class="bg-white shadow-xl rounded-2xl max-w-5xl mx-auto p-4 md:p-8">
             <div id="companyLogin" class="max-w-md mx-auto">
                 <h2 class="text-3xl font-bold text-center mb-8">🏫 Kurum Portalı Girişi</h2>
                 <div class="space-y-6">
@@ -184,7 +184,7 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
                     <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
                         <h3 class="text-lg font-semibold mb-2">Toplam Katılımcı</h3>
                         <p class="text-4xl font-bold" id="totalParticipants">0</p>
@@ -199,47 +199,45 @@
                     </div>
                 </div>
 
-                <div class="bg-white border rounded-lg p-6">
-                    <div class="flex justify-between items-center mb-6">
+                <div class="bg-white border rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
                         <h3 class="text-xl font-semibold">Anket Sonuçları</h3>
-                        <button onclick="showPDFReport()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold">
+                        <button onclick="showPDFReport()" class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-semibold">
                             📄 PDF Göster
                         </button>
                     </div>
-                    
                     <!-- Grafikler Bölümü -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gray-50 p-4 rounded-xl min-h-[200px] flex flex-col">
                             <h4 class="font-semibold text-gray-800 mb-3 text-sm">📊 Pozisyon</h4>
-                            <div style="height: 150px; position: relative;">
+                            <div class="flex-1 flex items-center justify-center" style="min-height: 150px;">
                                 <canvas id="positionChart"></canvas>
                             </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="bg-gray-50 p-4 rounded-xl min-h-[200px] flex flex-col">
                             <h4 class="font-semibold text-gray-800 mb-3 text-sm">📈 Değerlendirme</h4>
-                            <div style="height: 150px; position: relative;">
+                            <div class="flex-1 flex items-center justify-center" style="min-height: 150px;">
                                 <canvas id="satisfactionChart"></canvas>
                             </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="bg-gray-50 p-4 rounded-xl min-h-[200px] flex flex-col">
                             <h4 class="font-semibold text-gray-800 mb-3 text-sm">⏰ Süre Dağılımı</h4>
-                            <div style="height: 150px; position: relative;">
+                            <div class="flex-1 flex items-center justify-center" style="min-height: 150px;">
                                 <canvas id="timeChart"></canvas>
                             </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="bg-gray-50 p-4 rounded-xl min-h-[200px] flex flex-col">
                             <h4 class="font-semibold text-gray-800 mb-3 text-sm">🎯 Puan Dağılımı</h4>
-                            <div style="height: 150px; position: relative;">
+                            <div class="flex-1 flex items-center justify-center" style="min-height: 150px;">
                                 <canvas id="trendChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    
                     <!-- Katılımcı Detayları Bölümü -->
-                    <div class="bg-white border rounded-lg p-4 mb-6">
-                        <div class="flex justify-between items-center mb-4">
+                    <div class="bg-white border rounded-xl p-2 md:p-4 mb-6">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
                             <h4 class="font-semibold text-gray-800">👥 Katılımcı Detayları</h4>
-                            <button onclick="toggleParticipantDetails()" id="toggleParticipantsBtn" class="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                            <button onclick="toggleParticipantDetails()" id="toggleParticipantsBtn" class="px-4 py-2 bg-blue-600 text-white text-sm rounded-xl hover:bg-blue-700">
                                 📋 Katılımcıları Görüntüle
                             </button>
                         </div>
@@ -262,7 +260,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div id="detailedReport" class="space-y-4"></div>
                 </div>
             </div>
@@ -270,8 +267,8 @@
     </div>
 
     <!-- Yönetici Portalı -->
-    <div id="adminModule" class="max-w-4xl mx-auto p-4 hidden">
-        <div class="bg-white shadow-xl rounded-xl max-w-4xl mx-auto p-6">
+    <div id="adminModule" class="max-w-5xl mx-auto p-2 md:p-4 hidden">
+        <div class="bg-white shadow-xl rounded-2xl max-w-5xl mx-auto p-4 md:p-8">
             <div id="adminLogin" class="max-w-md mx-auto">
                 <h2 class="text-3xl font-bold text-center mb-8">⚙️ Yönetici Portalı</h2>
                 <div class="space-y-6">
@@ -1587,6 +1584,7 @@
                 isAdminLoggedIn = true;
                 document.getElementById('adminLogin').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
+                loadAdminDashboard();
             } else {
                 showModal('❌ Hatalı Şifre', 'Yönetici şifresi yanlış. Lütfen tekrar deneyin.');
             }
@@ -1597,6 +1595,27 @@
             document.getElementById('adminDashboard').classList.add('hidden');
             document.getElementById('adminLogin').classList.remove('hidden');
             document.getElementById('adminPassword').value = '';
+        }
+
+        function loadAdminDashboard() {
+            loadFromJSONBin().then(() => {
+                // Toplam kurum
+                const totalCompanies = systemData.surveyData.companies ? Object.keys(systemData.surveyData.companies).length : 0;
+                document.getElementById('totalCompanies').textContent = totalCompanies;
+                // Toplam katılımcı
+                const totalUsers = systemData.surveyData.responses ? systemData.surveyData.responses.length : 0;
+                document.getElementById('totalUsers').textContent = totalUsers;
+                // Aktif anketler (örnek: toplam kurum sayısı)
+                document.getElementById('activeSurveys').textContent = totalCompanies;
+                // Şirket tablosu
+                const tbody = document.getElementById('companyList');
+                if (tbody) {
+                    tbody.innerHTML = Object.entries(systemData.surveyData.companies || {}).map(([key, c]) => {
+                        const count = (systemData.surveyData.responses || []).filter(r => r.companyName === c.name).length;
+                        return `<tr><td class='px-4 py-2'>${c.name}</td><td class='px-4 py-2'>${c.password}</td><td class='px-4 py-2'>${count}</td><td class='px-4 py-2'>Aktif</td><td class='px-4 py-2'>-</td></tr>`;
+                    }).join('');
+                }
+            });
         }
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
