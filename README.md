@@ -361,6 +361,7 @@
         const auth = firebase.auth();
 
         // Google Sign-In logic
+        let googleUser = null;
         document.addEventListener('DOMContentLoaded', function() {
             const googleBtn = document.getElementById('googleSignInBtn');
             const userInfoDiv = document.getElementById('googleUserInfo');
@@ -371,6 +372,7 @@
                         .then((result) => {
                             const user = result.user;
                             if (user) {
+                                googleUser = user;
                                 // Oturum açan kullanıcının adı ve e-postası
                                 document.getElementById('firstName').value = user.displayName ? user.displayName.split(' ')[0] : '';
                                 document.getElementById('lastName').value = user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '';
@@ -384,6 +386,19 @@
                             alert('Google ile giriş başarısız: ' + error.message);
                         });
                 });
+            }
+        });
+
+        // Anket başlatma butonuna Google ile giriş kontrolü ekle
+        document.addEventListener('DOMContentLoaded', function() {
+            const startBtn = document.getElementById('startSurvey');
+            if (startBtn) {
+                startBtn.addEventListener('click', function(e) {
+                    if (!googleUser) {
+                        e.preventDefault();
+                        alert('Ankete başlamadan önce Google ile giriş yapmalısınız.');
+                    }
+                }, true);
             }
         });
     // ...existing code...
