@@ -711,16 +711,7 @@
         }
 
         function startSurvey() {
-            console.log('Anket başlatma fonksiyonu çalışıyor...');
-
-            const companyName = document.getElementById('companyName').value.trim();
-            const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-
-            console.log('Form verileri:', { companyName, selectedJobType, disclaimerAccepted, firstName, lastName });
-
-            // Google Sign-In enforcement
+            // Google ile giriş zorunluluğu (isletme.html ile birebir)
             if (!googleUser) {
                 showModal(
                     '🔒 Giriş Gerekli',
@@ -735,6 +726,12 @@
                 );
                 return;
             }
+            console.log('Anket başlatma fonksiyonu çalışıyor...');
+            const companyName = document.getElementById('companyName').value.trim();
+            const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            console.log('Form verileri:', { companyName, selectedJobType, disclaimerAccepted, firstName, lastName });
 
             if (!disclaimerAccepted) {
                 showModal('⚠️ Uyarı', 'Devam etmek için veri koruma beyanını kabul etmelisiniz.');
