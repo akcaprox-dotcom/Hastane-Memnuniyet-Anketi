@@ -6,6 +6,10 @@
     <title>Akça Pro X - Kurum Değerlendirme Anketi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -94,12 +98,17 @@
             <!-- Şirket Bilgileri -->
             <div id="companyInfoSection">
                 <h3 class="text-base font-semibold text-gray-700 mb-3">Kurum ve Kişisel Bilgiler</h3>
-                
+                <!-- Google ile Giriş Yap butonu -->
+                <div class="mb-3 flex flex-col items-center">
+                    <button id="googleSignInBtn" type="button" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded shadow hover:bg-gray-100 text-gray-700 font-semibold mb-2">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5"> Google ile Giriş Yap
+                    </button>
+                    <div id="googleUserInfo" class="text-xs text-green-700 font-medium hidden"></div>
+                </div>
                 <div class="mb-3">
                     <input type="text" id="companyName" placeholder="Kurum adınızı girin (Okul, Üniversite vb.)" 
                            class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                 </div>
-                
                 <div class="mb-3">
                     <p class="text-xs text-gray-600 mb-2">Rolünüzü seçin:</p>
                     <div class="grid grid-cols-3 gap-2">
@@ -120,18 +129,13 @@
                         </button>
                     </div>
                 </div>
-                
-                <div id="selectedJobDisplay" class="text-center text-sm text-gray-600 mb-3 min-h-[20px]">
-                    <!-- Seçilen rol burada gösterilecek -->
-                </div>
-                
+                <div id="selectedJobDisplay" class="text-center text-sm text-gray-600 mb-3 min-h-[20px]"></div>
                 <div class="grid grid-cols-2 gap-2 mb-4">
-                    <input type="text" id="firstName" placeholder="Adınız (İsteğe bağlı)" 
-                           class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                    <input type="text" id="lastName" placeholder="Soyadınız (İsteğe bağlı)" 
-                           class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <input type="text" id="firstName" placeholder="Adınız" 
+                        class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <input type="text" id="lastName" placeholder="Soyadınız" 
+                        class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                 </div>
-                
                 <button id="startSurvey" class="w-full py-3 rounded text-white font-semibold gradient-bg hover:opacity-90 transition-opacity text-sm">
                     📊 Anketi Başlat
                 </button>
@@ -200,12 +204,17 @@
                 </div>
 
                 <div class="bg-white border rounded-2xl p-4 md:p-6">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
-                        <h3 class="text-xl font-semibold">Anket Sonuçları</h3>
-                        <button onclick="showPDFReport()" class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-semibold">
-                            📄 PDF Göster
-                        </button>
-                    </div>
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
+                            <h3 class="text-xl font-semibold mb-2 md:mb-0">Anket Sonuçları</h3>
+                            <div class="flex flex-col md:flex-row gap-2 items-center">
+                                <input type="date" id="reportStartDate" class="border rounded px-2 py-1 text-sm" />
+                                <span class="mx-1">-</span>
+                                <input type="date" id="reportEndDate" class="border rounded px-2 py-1 text-sm" />
+                                <button onclick="filterByDateRange()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Tarihe Göre Rapor</button>
+                                <button onclick="showPDFReport(true)" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">📄 PDF Göster (Filtreli)</button>
+                                <button onclick="showPDFReport(false)" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">📄 PDF Göster (Tümü)</button>
+                            </div>
+                        </div>
                     <!-- Grafikler Bölümü -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <div class="bg-gray-50 p-4 rounded-xl min-h-[200px] flex flex-col">
@@ -337,8 +346,47 @@
         </div>
     </div>
 
-    <script>
-        // Global değişkenler
+        <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDp2Yh8hamXi6OTfw03MT0S4rp5CjnlAcg",
+            authDomain: "akcaprox-anket.firebaseapp.com",
+            projectId: "akcaprox-anket",
+            storageBucket: "akcaprox-anket.appspot.com",
+            messagingSenderId: "426135179922",
+            appId: "1:426135179922:web:c16b3fd6fa5f3d9224cc4b",
+            measurementId: "G-CD1ET7RGX1"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Google Sign-In logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const googleBtn = document.getElementById('googleSignInBtn');
+            const userInfoDiv = document.getElementById('googleUserInfo');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', function() {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider)
+                        .then((result) => {
+                            const user = result.user;
+                            if (user) {
+                                // Oturum açan kullanıcının adı ve e-postası
+                                document.getElementById('firstName').value = user.displayName ? user.displayName.split(' ')[0] : '';
+                                document.getElementById('lastName').value = user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '';
+                                userInfoDiv.textContent = `Giriş yapıldı: ${user.displayName} (${user.email})`;
+                                userInfoDiv.classList.remove('hidden');
+                                document.getElementById('firstName').readOnly = true;
+                                document.getElementById('lastName').readOnly = true;
+                            }
+                        })
+                        .catch((error) => {
+                            alert('Google ile giriş başarısız: ' + error.message);
+                        });
+                });
+            }
+        });
+    // ...existing code...
         let currentModule = 'survey';
         let surveyStartTime = null;
         let timerInterval = null;
@@ -348,6 +396,7 @@
         let selectedJobType = '';
         let loggedInCompany = null;
         let isAdminLoggedIn = false;
+    let filteredSurveys = null;
 
         // JSONBin.io konfigürasyonu
         const JSONBIN_CONFIG = {
@@ -620,8 +669,10 @@
             
             const companyName = document.getElementById('companyName').value.trim();
             const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
             
-            console.log('Form verileri:', { companyName, selectedJobType, disclaimerAccepted });
+            console.log('Form verileri:', { companyName, selectedJobType, disclaimerAccepted, firstName, lastName });
             
             if (!disclaimerAccepted) {
                 showModal('⚠️ Uyarı', 'Devam etmek için veri koruma beyanını kabul etmelisiniz.');
@@ -635,6 +686,11 @@
             
             if (!selectedJobType) {
                 showModal('⚠️ Eksik Bilgi', 'Lütfen rolünüzü seçin (Hasta, Doktor veya Personel).');
+                return;
+            }
+            
+            if (!firstName || !lastName) {
+                showModal('⚠️ Eksik Bilgi', 'Lütfen adınızı ve soyadınızı girin.');
                 return;
             }
             
@@ -1026,18 +1082,52 @@
             const companySurveys = systemData.surveyData.responses.filter(s => 
                 s.companyName.toLowerCase() === loggedInCompany.name.toLowerCase()
             );
+            filteredSurveys = null;
+            updateDashboardData(companySurveys);
+        }
+
+        function filterByDateRange() {
+            if (!loggedInCompany || !systemData.surveyData) return;
+            const start = document.getElementById('reportStartDate').value;
+            const end = document.getElementById('reportEndDate').value;
+            const allSurveys = systemData.surveyData.responses.filter(s => 
+                s.companyName.toLowerCase() === loggedInCompany.name.toLowerCase()
+            );
+            if (!start && !end) {
+                filteredSurveys = null;
+                updateDashboardData(allSurveys);
+                return;
+            }
+            const startDate = start ? new Date(start) : null;
+            const endDate = end ? new Date(end) : null;
+            const filtered = allSurveys.filter(s => {
+                const d = new Date(s.submittedAt);
+                if (startDate && d < startDate) return false;
+                if (endDate) {
+                    // Bitiş gününü de dahil et
+                    const endOfDay = new Date(endDate);
+                    endOfDay.setHours(23,59,59,999);
+                    if (d > endOfDay) return false;
+                }
+                return true;
+            });
+            filteredSurveys = filtered;
+            updateDashboardData(filtered);
+        }
+        
+        function updateDashboardData(surveys) {
             document.getElementById('companyNameDisplay').textContent = loggedInCompany.name;
-            document.getElementById('totalParticipants').textContent = companySurveys.length;
+            document.getElementById('totalParticipants').textContent = surveys.length;
             let totalScore = 0;
             let totalAnswers = 0;
-            companySurveys.forEach(s => {
+            surveys.forEach(s => {
                 totalScore += s.totalScore;
                 totalAnswers += s.answers.length;
             });
             const avgScore = totalAnswers > 0 ? (totalScore / totalAnswers).toFixed(1) : '0.0';
             document.getElementById('averageScore').textContent = avgScore;
             let highSatisfactionAnswers = 0;
-            companySurveys.forEach(s => {
+            surveys.forEach(s => {
                 s.answers.forEach(answer => {
                     if (answer.score >= 4) highSatisfactionAnswers++;
                 });
@@ -1045,19 +1135,31 @@
             const overallSatisfactionPercent = totalAnswers > 0 ? 
                 Math.round((highSatisfactionAnswers / totalAnswers) * 100) : 0;
             document.getElementById('satisfactionRate').textContent = overallSatisfactionPercent + '%';
-            generateSimpleReport(companySurveys);
-            generateCharts(companySurveys);
+            generateSimpleReport(surveys);
+            generateCharts(surveys);
         }
         // HASTANE PDF RAPORU OLUŞTURMA
-        function showPDFReport() {
+        // showPDFReport(true) => filtreli, showPDFReport(false) => tümü
+        function showPDFReport(filtered) {
             const companyName = loggedInCompany ? loggedInCompany.name : '';
-            const surveys = systemData.surveyData.responses.filter(s => s.companyName.toLowerCase() === companyName.toLowerCase());
+            let surveys;
+            let dateInfo = '';
+            if (filtered && filteredSurveys !== null) {
+                surveys = filteredSurveys;
+                const start = document.getElementById('reportStartDate').value;
+                const end = document.getElementById('reportEndDate').value;
+                if (start && end) dateInfo = ` - ${start} / ${end}`;
+                else if (start) dateInfo = ` - ${start} sonrası`;
+                else if (end) dateInfo = ` - ${end} öncesi`;
+            } else {
+                surveys = systemData.surveyData.responses.filter(s => s.companyName.toLowerCase() === companyName.toLowerCase());
+            }
             const win = window.open('', '_blank');
-            win.document.write(generateHospitalPDFContent(companyName, surveys));
+            win.document.write(generateHospitalPDFContent(companyName, surveys, dateInfo));
             setTimeout(() => win.print(), 500);
         }
 
-        function generateHospitalPDFContent(companyName, surveys) {
+        function generateHospitalPDFContent(companyName, surveys, dateInfo = '') {
             const now = new Date();
             const dateStr = now.toLocaleDateString('tr-TR');
             const timeStr = now.toLocaleTimeString('tr-TR');
@@ -1129,12 +1231,14 @@
                 .info-box { background: #f1f5f9; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
                 .category-box { background: #fef2f2; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
                 .advice-box { background: #fef9c3; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+                .date-info { background: #dbeafe; border-radius: 8px; padding: 12px; margin-bottom: 16px; text-align: center; font-weight: bold; color: #1e40af; }
             </style></head><body>
                 <div class='header'>
                     <div style='font-size:2.2rem;font-weight:bold;margin-bottom:8px;'>🏥 ${companyName}</div>
-                    <div style='font-size:1.3rem;font-weight:bold;'>Kurum Değerlendirme Raporu</div>
+                    <div style='font-size:1.3rem;font-weight:bold;'>Kurum Değerlendirme Raporu${dateInfo}</div>
                     <div style='font-size:1rem;margin-top:4px;'>Rapor Tarihi: ${dateStr}</div>
                 </div>
+                ${dateInfo ? `<div class='date-info'>📅 Filtrelenmiş Rapor${dateInfo}</div>` : ''}
                 <div class='summary-grid'>
                     <div class='summary-box'><div style='font-size:1.1rem;'>${totalParticipants}</div>Toplam Katılımcı</div>
                     <div class='summary-box'><div style='font-size:1.1rem;'>${avgScore}</div>Ortalama Puan</div>
@@ -1144,7 +1248,7 @@
                     <div class='section-title'>☑️ Genel Durum Değerlendirmesi</div>
                     ${statusBox}
                     <div>Memnuniyet Hesaplama Formülü: ((Alınan Puan - Minimum Puan) / (Maksimum Puan - Minimum Puan)) × 100 = ${satisfactionPercent}%</div>
-                    <div style='margin-top:8px;'>Kurumunuzun tüm paydaş gruplarında genel memnuniyet düzeyi yukarıda gösterilmiştir.</div>
+                    <div style='margin-top:8px;'>Kurumunuzun ${dateInfo ? 'seçilen tarih için' : 'tüm paydaş gruplarında'} genel memnuniyet düzeyi yukarıda gösterilmiştir.</div>
                 </div>
                 <div class='section'>
                     <div class='section-title'>👥 Paydaş Grupları Analizi</div>
@@ -1175,7 +1279,7 @@
                     <b>Öncelikli Aksiyonlar:</b> Acil bir eylem planı oluşturulmalı. Hastanenin fiziki koşulları, tıbbi hizmet süreçleri ve iletişim kanalları gözden geçirilmelidir.<br>
                     <b>Takip:</b> Bu rapor sonuçlarını 3-6 ay sonra tekrar değerlendirmek için yeni anket düzenleyiniz.
                 </div>
-                <div style='text-align:right;font-size:0.9rem;color:#888;margin-top:32px;'>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${dateStr} ${timeStr}<br>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.</div>
+                <div style='text-align:right;font-size:0.9rem;color:#888;margin-top:32px;'>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${dateStr} ${timeStr}<br>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.${dateInfo ? `<br>Filtre: ${dateInfo}` : ''}</div>
             </body></html>
             `;
         }
