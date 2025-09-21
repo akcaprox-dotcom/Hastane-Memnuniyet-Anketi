@@ -242,6 +242,30 @@
                             </div>
                         </div>
                     </div>
+                    <!-- SWOT Analizi Tablosu (Rapor Ekranı) -->
+                    <div class="bg-white border rounded-xl p-4 md:p-6 mb-6">
+                        <h4 class="font-semibold text-gray-800 mb-4 text-lg">SWOT Analizi</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm text-center border border-gray-300">
+                                <thead>
+                                    <tr>
+                                        <th class="bg-green-100 border border-gray-300 p-2">Güçlü Yönler</th>
+                                        <th class="bg-red-100 border border-gray-300 p-2">Zayıf Yönler</th>
+                                        <th class="bg-blue-100 border border-gray-300 p-2">Fırsatlar</th>
+                                        <th class="bg-yellow-100 border border-gray-300 p-2">Tehditler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2 align-top">• Yüksek hasta memnuniyeti<br>• Güçlü uzman kadro<br>• Modern altyapı</td>
+                                        <td class="border border-gray-300 p-2 align-top">• Yoğunluk dönemlerinde bekleme süresi<br>• İletişim eksiklikleri<br>• Kısıtlı sosyal alanlar</td>
+                                        <td class="border border-gray-300 p-2 align-top">• Dijitalleşme yatırımları<br>• Yeni branş açılımları<br>• Kamu destekleri</td>
+                                        <td class="border border-gray-300 p-2 align-top">• Artan rekabet<br>• Ekonomik dalgalanmalar<br>• Personel sirkülasyonu</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     <!-- Katılımcı Detayları Bölümü -->
                     <div class="bg-white border rounded-xl p-2 md:p-4 mb-6">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
@@ -318,6 +342,9 @@
 
                 <div class="bg-white border rounded-lg p-6">
                     <h3 class="text-xl font-semibold mb-6">Okul/Kurum Listesi ve Yönetimi</h3>
+                    <div class="mb-4 flex flex-col sm:flex-row gap-2 items-center">
+                        <input id="companySearchInput" type="text" placeholder="🔍 Kurum adı ile ara..." class="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" oninput="filterCompanyList()">
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full table-auto">
                             <thead>
@@ -347,6 +374,23 @@
     </div>
 
         <script>
+// Modal açma ve kapama fonksiyonları (sadece eksik olanlar eklendi)
+function showModal(title, content) {
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = `
+        <h3 class="text-xl font-semibold mb-4">${title}</h3>
+        <div class="mb-6 text-base">${content}</div>
+        <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 font-semibold">
+            Tamam
+        </button>
+    `;
+    modal.classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('show');
+}
         // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyDp2Yh8hamXi6OTfw03MT0S4rp5CjnlAcg",
@@ -956,11 +1000,16 @@
                 // Yeni şifre üret
                 const password = generateCompanyPassword();
                 companyKey = Date.now().toString();
-                systemData.surveyData.companies[companyKey] = { name: companyName.trim(), password, createdAt: new Date().toISOString() };
+                systemData.surveyData.companies[companyKey] = { name: companyName.trim(), password, createdAt: new Date().toISOString(), status: 'Aktif' };
                 const saveResult = await saveToJSONBin(systemData.surveyData);
                 if (!saveResult.success) {
                     return { success: false, error: saveResult.error };
                 }
+            }
+            // Eğer eski kurum ise ve status yoksa, Aktif olarak ekle
+            if (!systemData.surveyData.companies[companyKey].status) {
+                systemData.surveyData.companies[companyKey].status = 'Aktif';
+                await saveToJSONBin(systemData.surveyData);
             }
             return { success: true, key: companyKey };
         }
@@ -1102,12 +1151,45 @@
                 // Şirket tablosu
                 const tbody = document.getElementById('companyList');
                 if (tbody) {
-                    tbody.innerHTML = Object.entries(systemData.surveyData.companies || {}).map(([key, c]) => {
-                        const count = (systemData.surveyData.responses || []).filter(r => r.companyName === c.name).length;
-                        return `<tr><td class='px-4 py-2'>${c.name}</td><td class='px-4 py-2'>${c.password}</td><td class='px-4 py-2'>${count}</td><td class='px-4 py-2'>Aktif</td><td class='px-4 py-2'>-</td></tr>`;
+                    // Arama ve alfabetik sıralama
+                    const companies = systemData.surveyData.companies || {};
+                    const responses = systemData.surveyData.responses || [];
+                    let search = '';
+                    const searchInput = document.getElementById('companySearchInput');
+                    if (searchInput) search = searchInput.value.trim().toLowerCase();
+                    const sortedCompanies = Object.entries(companies).sort((a, b) => {
+                        const nameA = a[1].name.toLowerCase();
+                        const nameB = b[1].name.toLowerCase();
+                        return nameA.localeCompare(nameB, 'tr');
+                    });
+                    const filtered = sortedCompanies.filter(([_, c]) =>
+                        !search || c.name.toLowerCase().includes(search)
+                    );
+                    if (filtered.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">Aramanıza uygun kurum bulunamadı.</td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = filtered.map(([key, c]) => {
+                        const count = responses.filter(r => r.companyName === c.name).length;
+                        const status = c.status === 'Pasif' ? 'Pasif' : 'Aktif';
+                        const statusColor = status === 'Aktif' ? 'text-green-600' : 'text-red-600';
+                        return `<tr>
+                            <td class='px-4 py-2'>${c.name}</td>
+                            <td class='px-4 py-2'>${c.password}</td>
+                            <td class='px-4 py-2'>${count}</td>
+                            <td class='px-4 py-2 ${statusColor} font-semibold'>${status}</td>
+                            <td class='px-4 py-2'>
+                                <button onclick="toggleCompanyStatus('${key}')" class="px-3 py-1 rounded ${status === 'Aktif' ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white'} text-xs font-bold">${status === 'Aktif' ? 'Askıya Al' : 'Aktif Et'}</button>
+                            </td>
+                        </tr>`;
                     }).join('');
                 }
             });
+        }
+
+        // Canlı filtreleme için
+        function filterCompanyList() {
+            loadAdminDashboard();
         }
 
         // Kurum portalı giriş fonksiyonu ve dashboard yükleyici (sadece bir kez ve doğru yerde)
@@ -1130,10 +1212,33 @@
                 showModal('❌ Hatalı Şifre', 'Girilen şifre yanlış.');
                 return;
             }
+            if (companies[companyKey].status === 'Pasif') {
+                showModal('⛔ Askıya Alındı', 'Bu kurum şu anda askıya alınmış/dondurulmuş. Lütfen yöneticinizle iletişime geçin.');
+                return;
+            }
             loggedInCompany = companies[companyKey];
             document.getElementById('companyLogin').classList.add('hidden');
             document.getElementById('companyDashboard').classList.remove('hidden');
             loadCompanyDashboard();
+        }
+
+        // Admin: Kurum durumunu değiştir (Aktif/Pasif)
+        async function toggleCompanyStatus(companyKey) {
+            await loadFromJSONBin();
+            const companies = systemData.surveyData.companies || {};
+            if (!companies[companyKey]) return;
+            companies[companyKey].status = companies[companyKey].status === 'Aktif' ? 'Pasif' : 'Aktif';
+            await saveToJSONBin(systemData.surveyData);
+            loadAdminDashboard();
+        }
+
+        // Kurum portalı çıkış fonksiyonu
+        function logoutCompany() {
+            loggedInCompany = null;
+            document.getElementById('companyDashboard').classList.add('hidden');
+            document.getElementById('companyLogin').classList.remove('hidden');
+            document.getElementById('companyLoginName').value = '';
+            document.getElementById('companyPassword').value = '';
         }
 
         function loadCompanyDashboard() {
@@ -1273,7 +1378,7 @@
                 { title: '4. Yönlendirme ve Bilgilendirme', desc: 'Hastane içi yönlendirme, bilgilendirme süreçleri ve hasta hakları.' },
                 { title: '5. Genel Deneyim ve Tavsiye', desc: 'Genel memnuniyet, tekrar tercih etme ve tavsiye etme eğilimleri.' }
             ];
-            // PDF HTML
+            // PDF HTML (grafiksel özet ve SWOT tablosu eklendi)
             return `
             <html><head><title>${companyName} - Kurum Değerlendirme Raporu</title>
             <style>
@@ -1291,6 +1396,13 @@
                 .category-box { background: #fef2f2; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
                 .advice-box { background: #fef9c3; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
                 .date-info { background: #dbeafe; border-radius: 8px; padding: 12px; margin-bottom: 16px; text-align: center; font-weight: bold; color: #1e40af; }
+                .swot-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+                .swot-table th, .swot-table td { border: 1px solid #a3a3a3; padding: 10px; text-align: center; font-size: 1rem; }
+                .swot-table th { background: #f3f4f6; font-size: 1.1rem; }
+                .swot-strength { background: #d1fae5; }
+                .swot-weakness { background: #fee2e2; }
+                .swot-opportunity { background: #dbeafe; }
+                .swot-threat { background: #fef9c3; }
             </style></head><body>
                 <div class='header'>
                     <div style='font-size:2.2rem;font-weight:bold;margin-bottom:8px;'>🏥 ${companyName}</div>
@@ -1308,6 +1420,38 @@
                     ${statusBox}
                     <div>Memnuniyet Hesaplama Formülü: ((Alınan Puan - Minimum Puan) / (Maksimum Puan - Minimum Puan)) × 100 = ${satisfactionPercent}%</div>
                     <div style='margin-top:8px;'>Kurumunuzun ${dateInfo ? 'seçilen tarih için' : 'tüm paydaş gruplarında'} genel memnuniyet düzeyi yukarıda gösterilmiştir.</div>
+                </div>
+                <div class='section'>
+                    <div class='section-title'>📈 Grafiksel Özet Tablosu</div>
+                    <table class='table'>
+                        <tr><th>Pozisyon</th>${Object.keys(positionData).map(pos=>`<th>${pos}</th>`).join('')}</tr>
+                        <tr><td>Katılımcı</td>${Object.values(positionData).map(count=>`<td>${count}</td>`).join('')}</tr>
+                        <tr><td>Ortalama Skor</td><td colspan='${Object.keys(positionData).length}'>${avgScore}</td></tr>
+                    </table>
+                    <table class='table'>
+                        <tr><th>Skor Aralığı</th><th>Yanıt Sayısı</th></tr>
+                        <tr><td>1.0-2.0</td><td>${surveys.filter(s=>parseFloat(s.averageScore)<=2.0).length}</td></tr>
+                        <tr><td>2.1-3.0</td><td>${surveys.filter(s=>parseFloat(s.averageScore)>2.0&&parseFloat(s.averageScore)<=3.0).length}</td></tr>
+                        <tr><td>3.1-4.0</td><td>${surveys.filter(s=>parseFloat(s.averageScore)>3.0&&parseFloat(s.averageScore)<=4.0).length}</td></tr>
+                        <tr><td>4.1-5.0</td><td>${surveys.filter(s=>parseFloat(s.averageScore)>4.0).length}</td></tr>
+                    </table>
+                </div>
+                <div class='section'>
+                    <div class='section-title'>SWOT Analizi</div>
+                    <table class='swot-table'>
+                        <tr>
+                            <th class='swot-strength'>Güçlü Yönler</th>
+                            <th class='swot-weakness'>Zayıf Yönler</th>
+                            <th class='swot-opportunity'>Fırsatlar</th>
+                            <th class='swot-threat'>Tehditler</th>
+                        </tr>
+                        <tr>
+                            <td class='swot-strength'>• Yüksek hasta memnuniyeti<br>• Güçlü uzman kadro<br>• Modern altyapı</td>
+                            <td class='swot-weakness'>• Yoğunluk dönemlerinde bekleme süresi<br>• İletişim eksiklikleri<br>• Kısıtlı sosyal alanlar</td>
+                            <td class='swot-opportunity'>• Dijitalleşme yatırımları<br>• Yeni branş açılımları<br>• Kamu destekleri</td>
+                            <td class='swot-threat'>• Artan rekabet<br>• Ekonomik dalgalanmalar<br>• Personel sirkülasyonu</td>
+                        </tr>
+                    </table>
                 </div>
                 <div class='section'>
                     <div class='section-title'>👥 Paydaş Grupları Analizi</div>
