@@ -363,6 +363,11 @@
         // Google Sign-In logic
         let googleUser = null;
         document.addEventListener('DOMContentLoaded', function() {
+            // Anket başlatma butonunu startSurvey fonksiyonuna bağla
+            const startBtn = document.getElementById('startSurvey');
+            if (startBtn) {
+                startBtn.addEventListener('click', startSurvey);
+            }
             const googleBtn = document.getElementById('googleSignInBtn');
             const userInfoDiv = document.getElementById('googleUserInfo');
             if (googleBtn) {
@@ -402,6 +407,32 @@
             }
         });
     // ...existing code...
+        // Anket başlatma fonksiyonu: Google ile giriş zorunluluğu ve erişilebilir uyarı
+        function startSurvey(e) {
+            const companyName = document.getElementById('companyName').value.trim();
+            const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const selectedJobType = window.selectedJobType || '';
+
+            // Google Sign-In enforcement
+            if (!googleUser) {
+                showModal(
+                    '🔒 Giriş Gerekli',
+                    `<div class=\"text-2xl font-extrabold text-red-700 mb-4\">Google ile Giriş Yapmalısınız</div>
+                    <div class=\"text-base text-gray-800 mb-2\">Ankete başlamadan önce kimliğinizi doğrulamanız gerekmektedir.</div>
+                    <ul class=\"list-disc pl-6 text-base text-gray-700 mb-4\">
+                        <li>Yukarıdaki <b>Google ile Giriş Yap</b> butonunu kullanarak hesabınızla oturum açın.</li>
+                        <li>Giriş yaptıktan sonra ad ve soyad alanlarınız otomatik doldurulacak ve düzenlenebilir olacaktır.</li>
+                        <li>Gizliliğiniz korunur, bilgileriniz üçüncü kişilerle paylaşılmaz.</li>
+                    </ul>
+                    <div class=\"text-sm text-gray-500\">Herhangi bir sorun yaşarsanız lütfen yöneticinizle iletişime geçin.</div>`
+                );
+                if (e) e.preventDefault();
+                return;
+            }
+            // ...devamında eski anket başlatma kontrolleriniz...
+        }
         let currentModule = 'survey';
         let surveyStartTime = null;
         let timerInterval = null;
