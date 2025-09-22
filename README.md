@@ -203,12 +203,6 @@
                     </div>
                 </div>
 
-                <!-- Frekans Analizi Tablosu -->
-                <div class="bg-white border rounded-xl p-4 md:p-6 mb-6">
-                    <h4 class="font-semibold text-gray-800 mb-4 text-lg">Frekans Analizi</h4>
-                    <div id="detailedFrequencyTables"></div>
-                </div>
-
                 <div class="bg-white border rounded-2xl p-4 md:p-6">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
                             <h3 class="text-xl font-semibold mb-2 md:mb-0">Anket Sonuçları</h3>
@@ -217,7 +211,8 @@
                                 <span class="mx-1">-</span>
                                 <input type="date" id="reportEndDate" class="border rounded px-2 py-1 text-sm" />
                                 <button onclick="filterByDateRange()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Tarihe Göre Rapor</button>
-                                <!-- PDF butonları kaldırıldı -->
+                                <button onclick="showPDFReport(true)" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">📄 PDF Göster (Filtreli)</button>
+                                <button onclick="showPDFReport(false)" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">📄 PDF Göster (Tümü)</button>
                             </div>
                         </div>
                     <!-- Grafikler Bölümü -->
@@ -298,11 +293,6 @@
                             </div>
                         </div>
                     </div>
-                <!-- EN ALTA EKLENEN Frekans Analizi Tablosu (test için) -->
-                <div class="bg-white border rounded-xl p-4 md:p-6 mb-6 mt-8">
-                    <h4 class="font-semibold text-gray-800 mb-4 text-lg">Frekans Analizi (En Alt Test)</h4>
-                    <div id="detailedFrequencyTablesBottom"></div>
-                </div>
                     <div id="detailedReport" class="space-y-4"></div>
                 </div>
             </div>
@@ -384,92 +374,6 @@
     </div>
 
         <script>
-// Frekans tablosu için şık isimleri
-const CHOICE_LABELS = [
-    'Çok Memnunum',
-    'Memnunum',
-    'Kararsızım',
-    'Memnun Değilim',
-    'Hiç Memnun Değilim'
-];
-
-// Daha görsel ve okunabilir frekans tablosu (üst ve alt için)
-function renderDetailedFrequencyTables(surveys) {
-    let questions = [];
-    if (window.systemData && systemData.surveyData && Array.isArray(systemData.surveyData.questions)) {
-        questions = systemData.surveyData.questions;
-    } else if (window.currentQuestions && Array.isArray(window.currentQuestions)) {
-        questions = window.currentQuestions;
-    } else if (surveys && surveys.length > 0 && surveys[0].answers) {
-        questions = Array(surveys[0].answers.length).fill('').map((_, i) => `Soru ${i+1}`);
-    }
-    if (!questions.length || !surveys || !surveys.length) {
-        document.getElementById('detailedFrequencyTables').innerHTML = '<div class="text-gray-500">Veri bulunamadı.</div>';
-        var bottomDiv = document.getElementById('detailedFrequencyTablesBottom');
-        if (bottomDiv) bottomDiv.innerHTML = '<div class="text-gray-500">Veri bulunamadı.</div>';
-        return;
-    }
-    let html = '';
-    for (let i = 0; i < questions.length; i++) {
-        // Her şık için sayım
-        const counts = [0, 0, 0, 0, 0];
-        surveys.forEach(resp => {
-            if (resp.answers && resp.answers[i] && typeof resp.answers[i].score === 'number') {
-                const score = resp.answers[i].score;
-                if (score >= 1 && score <= 5) counts[score - 1]++;
-            }
-        });
-        // Toplam cevap sayısı
-        const total = counts.reduce((a, b) => a + b, 0);
-        html += `<div class="mb-8">
-            <div class="font-semibold mb-2 text-base text-blue-900">${i+1}. Soru: <span class="font-normal text-gray-800">${questions[i]}</span></div>
-            <div class="overflow-x-auto">
-            <table class="min-w-full text-base text-center border border-gray-300 shadow rounded-lg bg-white">
-                <thead><tr class="bg-blue-100">`;
-        for (let label of CHOICE_LABELS) {
-            html += `<th class="p-3 font-semibold text-blue-900">${label}</th>`;
-        }
-        html += `<th class="p-3 font-semibold text-blue-900">Toplam</th>`;
-        html += `</tr></thead><tbody><tr>`;
-        for (let c of counts) {
-            html += `<td class="border p-3 text-lg font-bold text-blue-700">${c}</td>`;
-        }
-        html += `<td class="border p-3 text-lg font-bold text-gray-900">${total}</td>`;
-        html += `</tr></tbody></table></div>`;
-        // Oranlar
-        if (total > 0) {
-            html += `<div class="flex flex-wrap gap-2 mt-2">`;
-            for (let j = 0; j < CHOICE_LABELS.length; j++) {
-                const percent = ((counts[j] / total) * 100).toFixed(1);
-                html += `<span class="inline-block bg-blue-50 text-blue-800 rounded-full px-3 py-1 text-xs font-semibold">${CHOICE_LABELS[j]}: ${percent}%</span>`;
-            }
-            html += `</div>`;
-        }
-        html += `</div>`;
-    }
-    document.getElementById('detailedFrequencyTables').innerHTML = html;
-    var bottomDiv = document.getElementById('detailedFrequencyTablesBottom');
-    if (bottomDiv) bottomDiv.innerHTML = html;
-}
-
-// Tarih filtresiyle uyumlu şekilde tabloyu güncelle
-function updateFrequencyTablesWithFilter() {
-    let filtered = window.filteredSurveys;
-    if (!filtered) {
-        filtered = (window.systemData && systemData.surveyData && systemData.surveyData.responses) || [];
-    }
-    renderDetailedFrequencyTables(filtered);
-}
-
-// Sayfa yüklendiğinde ve filtre değiştiğinde tabloyu güncelle
-document.addEventListener('DOMContentLoaded', updateFrequencyTablesWithFilter);
-if (window.filterByDateRange) {
-    const _oldFilterByDateRange = window.filterByDateRange;
-    window.filterByDateRange = function() {
-        _oldFilterByDateRange();
-        setTimeout(updateFrequencyTablesWithFilter, 100);
-    }
-}
 // Modal açma ve kapama fonksiyonları (sadece eksik olanlar eklendi)
 function showModal(title, content) {
     const modal = document.getElementById('modal');
@@ -1708,55 +1612,6 @@ function closeModal() {
                 btn.textContent = details.classList.contains('hidden') ? '📋 Katılımcıları Görüntüle' : '📋 Katılımcıları Gizle';
             }
         }
-    // Frekans Analizi Tablosunu Oluştur
-    function renderFrequencyTable(surveys) {
-        // Soru listesi güvenli şekilde alınır
-        let questions = [];
-        if (systemData && systemData.surveyData && Array.isArray(systemData.surveyData.questions)) {
-            questions = systemData.surveyData.questions;
-        } else if (window.currentQuestions && Array.isArray(window.currentQuestions)) {
-            questions = window.currentQuestions;
-        } else if (surveys && surveys.length > 0 && surveys[0].answers) {
-            // Cevaplardan soru sayısı kadar boş başlık üret
-            questions = Array(surveys[0].answers.length).fill('').map((_, i) => `Soru ${i+1}`);
-        }
-        if (!questions.length || !surveys || !surveys.length) {
-            document.getElementById('frequencyTableBody').innerHTML = '';
-            return;
-        }
-        let freqRows = '';
-        for (let i = 0; i < questions.length; i++) {
-            const counts = [0, 0, 0, 0, 0];
-            surveys.forEach(resp => {
-                if (resp.answers && resp.answers[i] && typeof resp.answers[i].score === 'number') {
-                    const score = resp.answers[i].score;
-                    if (score >= 1 && score <= 5) counts[score - 1]++;
-                }
-            });
-            freqRows += `<tr><td class="border p-2 text-left">${questions[i]}</td>`;
-            for (let j = 0; j < 5; j++) {
-                freqRows += `<td class="border p-2">${counts[j]}</td>`;
-            }
-            freqRows += `</tr>`;
-        }
-        document.getElementById('frequencyTableBody').innerHTML = freqRows;
-    }
-
-    // Dashboard açıldığında ve filtre değiştiğinde tabloyu doldur
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('companyDashboard')) {
-            // Varsayılan olarak tüm verilerle başlat
-            const allSurveys = (systemData && systemData.surveyData && systemData.surveyData.responses) || [];
-            renderFrequencyTable(allSurveys);
-        }
-    });
-
-    // filterByDateRange ve updateDashboardData fonksiyonlarında tabloyu güncelle
-    const _oldUpdateDashboardData = updateDashboardData;
-    updateDashboardData = function(surveys) {
-        _oldUpdateDashboardData(surveys);
-        renderFrequencyTable(surveys);
-    }
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
