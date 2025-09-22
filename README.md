@@ -436,6 +436,14 @@ function closeModal() {
             const lastName = document.getElementById('lastName').value.trim();
             const selectedJobType = window.selectedJobType || '';
 
+            // Zorunlu alanlar kontrolü
+            let missingFields = [];
+            if (!disclaimerAccepted) missingFields.push('Veri koruma beyanı');
+            if (!companyName) missingFields.push('Kurum adı');
+            if (!firstName) missingFields.push('Adınız');
+            if (!lastName) missingFields.push('Soyadınız');
+            if (!selectedJobType) missingFields.push('Rolünüz');
+
             // Google Sign-In enforcement
             if (!googleUser) {
                 showModal(
@@ -448,6 +456,15 @@ function closeModal() {
                         <li>Gizliliğiniz korunur, bilgileriniz üçüncü kişilerle paylaşılmaz.</li>
                     </ul>
                     <div class=\"text-sm text-gray-500\">Herhangi bir sorun yaşarsanız lütfen yöneticinizle iletişime geçin.</div>`
+                );
+                if (e) e.preventDefault();
+                return;
+            }
+
+            if (missingFields.length > 0) {
+                showModal(
+                    '❌ Eksik Bilgi',
+                    `<div class=\"text-lg text-red-700 font-bold mb-2\">Aşağıdaki alan(lar)ı doldurmalısınız:</div><ul class=\"list-disc pl-6 text-base text-gray-700 mb-4\">${missingFields.map(f=>`<li>${f}</li>`).join('')}</ul>`
                 );
                 if (e) e.preventDefault();
                 return;
@@ -586,61 +603,63 @@ function closeModal() {
                 "Hastanedeki genel çalışan refahı seviyesini nasıl değerlendiriyorsunuz?"
             ],
             "Personel": [
-                // Çalışma Koşulları ve Ücretler (10 Soru)
-                "Maaşınızın, sektör ortalamasına ve yaptığınız işe göre adil olduğunu düşünüyor musunuz?",
-                "Çalışma saatlerinizin makul ve yönetilebilir olduğunu düşünüyor musunuz?",
-                "Fazla mesai ücretlerinin adil bir şekilde ödendiğine inanıyor musunuz?",
-                "Hastanenin sunduğu yan haklardan (sağlık sigortası, yemek vb.) memnun musunuz?",
-                "Çalışma ortamınızın fiziksel koşullarının (temizlik, aydınlatma) yeterli olduğunu düşünüyor musunuz?",
-                "İşinizde kullandığınız araç ve ekipmanların yeterli olduğuna inanıyor musunuz?",
-                "Hastanenin iş güvenliği ve sağlığına yönelik önlemlerini yeterli buluyor musunuz?",
-                "İzin kullanma süreçlerinin kolay ve adil olduğunu düşünüyor musunuz?",
-                "Hastanenin genel hijyen standartlarından memnun musunuz?",
-                "Aldığınız ücret ve yan haklardan genel olarak memnun musunuz?",
-                // Yönetim ve Takım İlişkileri (10 Soru)
-                "Yöneticinizin, size karşı saygılı ve adil davrandığına inanıyor musunuz?",
-                "Yöneticinizden geri bildirim almanın yapıcı ve yol gösterici olduğunu düşünüyor musunuz?",
-                "Yöneticinizle iletişim kanallarınızın açık ve etkili olduğunu düşünüyor musunuz?",
-                "Yönetimin, çalışanların fikirlerine ve önerilerine değer verdiğine inanıyor musunuz?",
-                "Meslektaşlarınızla olan iş birliğinizin verimli ve pozitif olduğunu düşünüyor musunuz?",
-                "Hastanedeki farklı birimler arasında iyi bir koordinasyon ve iş birliği olduğuna inanıyor musunuz?",
-                "Yöneticinizin, işinizde size yeterli özerkliği tanıdığını düşünüyor musunuz?",
-                "Yönetimin, başarılarınızı ve çabalarınızı takdir ettiğine inanıyor musunuz?",
-                "Yönetimle olan ilişkinizin genel olarak güvene dayalı olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin, çalışan memnuniyetini önemsediğine inanıyor musunuz?",
-                // İş Yükü ve Verimlilik (10 Soru)
-                "İş yükünüzün, işin kalitesini düşürmeyecek kadar makul olduğunu düşünüyor musunuz?",
-                "Hastanede çalışan sayısının, işin gerekliliklerini karşılayacak kadar yeterli olduğuna inanıyor musunuz?",
-                "İş süreçlerinizin verimli ve düzenli olduğunu düşünüyor musunuz?",
-                "Hasta bilgilerine ve kayıtlarına kolayca erişebildiğinize inanıyor musunuz?",
-                "Yaptığınız işin, hastaların yaşamına olumlu katkı sağladığını düşünüyor musunuz?",
-                "Çalışma ortamınızın, odaklanmanıza ve verimli olmanıza yardımcı olduğunu düşünüyor musunuz?",
-                "İş süreçlerinin dijitalleşmesinin, iş yükünüzü hafiflettiğine inanıyor musunuz?",
-                "İşinizi yapmak için yeterli zaman ve kaynağa sahip olduğunuzu düşünüyor musunuz?",
-                "Hastaların ihtiyaçlarını karşılamak için yeterli yetkiye sahip olduğunuza inanıyor musunuz?",
-                "Yaptığınız işten genel olarak memnun musunuz?",
-                // Eğitim ve Kariyer Fırsatları (10 Soru)
-                "Hastanenin, mesleki gelişiminize yönelik eğitim ve seminerler sunduğunu düşünüyor musunuz?",
-                "Hastanedeki kariyer ve terfi olanaklarının adil ve şeffaf olduğuna inanıyor musunuz?",
-                "Yönetimin, yeni beceriler kazanmanız için size destek verdiğini düşünüyor musunuz?",
-                "Hastanenin, çalışanların kişisel gelişimine önem verdiğine inanıyor musunuz?",
-                "İşinizde yeni şeyler öğrenme ve kendinizi geliştirme fırsatlarınızın yeterli olduğunu düşünüyor musunuz?",
-                "Hastanenin, çalışanların potansiyelini keşfetme ve kullanma konusunda yardımcı olduğuna inanıyor musunuz?",
-                "Aldığınız eğitimlerin, iş performansınızı artırdığına inanıyor musunuz?",
-                "Kariyer hedeflerinize ulaşmanız için hastanenin size rehberlik ettiğini düşünüyor musunuz?",
-                "Hastanenin, çalışanların yeteneklerini ve deneyimlerini takdir ettiğine inanıyor musunuz?",
-                "Hastane içinde yeni bir pozisyona başvurma süreçlerinin kolay ve adil olduğunu düşünüyor musunuz?",
-                // Hasta Hizmeti ve Etik (10 Soru)
-                "Hastaların memnuniyetini artırmaya yönelik hastane politikalarını başarılı buluyor musunuz?",
-                "Hasta haklarına ve etik kurallara hastanenin yeterince önem verdiğine inanıyor musunuz?",
-                "Hastaların şikayetlerinin ciddiye alındığını ve çözüme kavuşturulduğunu düşünüyor musunuz?",
-                "Hasta güvenliğinin, en büyük öncelik olduğuna inanıyor musunuz?",
-                "Hastalarla olan iletişiminizin verimli ve empatik olduğunu düşünüyor musunuz?",
-                "Hastane personelinin, hastalara karşı saygılı ve yardımsever davrandığına inanıyor musunuz?",
-                "Hastane içinde şeffaflık ve dürüstlüğün ön planda olduğuna inanıyor musunuz?",
-                "Yaptığınız işin hastaların yaşam kalitesine olumlu katkı sağladığını düşünüyor musunuz?",
-                "Hastanenin, hasta hizmetleri konusunda sürekli iyileştirme çabası içinde olduğuna inanıyor musunuz?",
-                "Hastaların hastanede geçirdikleri süreden genel olarak memnun kaldıklarına inanıyor musunuz?"
+            ],
+            "Yönetim": [
+                // Finansal Performans ve Operasyonel Verimlilik (10 Soru)
+                "Hastanenin genel finansal performansından ne kadar memnunsunuz?",
+                "Bütçe planlama ve yönetim süreçlerinin verimliliğinden ne kadar memnunsunuz?",
+                "Gelir ve gider takibinin doğruluğundan ne kadar memnunsunuz?",
+                "Hasta yatış süreçlerinin ne kadar verimli işlediğinden ne kadar memnunsunuz?",
+                "Fatura ve ödeme süreçlerinin hasta ve kurum için kolaylığından ne kadar memnunsunuz?",
+                "Tıbbi malzeme ve ilaç tedarik süreçlerinin yönetiminden ne kadar memnunsunuz?",
+                "Hastanenin genel karlılığından ne kadar memnunsunuz?",
+                "Yatırım geri dönüşlerinin (ROI) beklenen seviyede olmasından ne kadar memnunsunuz?",
+                "Finansal risklerin yönetilme şeklinden ne kadar memnunsunuz?",
+                "Hastanenin genel operasyonel verimliliğinden ne kadar memnunsunuz?",
+                // Pazarlama ve Marka Yönetimi (10 Soru)
+                "Pazarlama stratejilerinizin hastane marka bilinirliğine katkısından ne kadar memnunsunuz?",
+                "Dijital pazarlama kampanyalarının (reklamlar, sosyal medya) etkinliğinden ne kadar memnunsunuz?",
+                "Hastanenin web sitesi ve dijital varlıklarının profesyonelliğinden ne kadar memnunsunuz?",
+                "Markanızın sektördeki itibarından ve algısından ne kadar memnunsunuz?",
+                "Halkla ilişkiler faaliyetlerinin kurum imajına katkısından ne kadar memnunsunuz?",
+                "Hastanenin sunduğu hizmetlerin hedef kitleye ulaşma başarısından ne kadar memnunsunuz?",
+                "Medya ilişkilerinin yönetiminden ne kadar memnunsunuz?",
+                "Hasta referanslarının pazarlama aracı olarak kullanılmasından ne kadar memnunsunuz?",
+                "Kurumsal kimlik çalışmalarının tutarlılığından ne kadar memnunsunuz?",
+                "Pazarlama bütçesinin etkin bir şekilde kullanılmasından ne kadar memnunsunuz?",
+                // İnsan Kaynakları Yönetimi (10 Soru)
+                "Çalışan işe alım süreçlerinin etkinliğinden ne kadar memnunsunuz?",
+                "Çalışanların performans değerlendirme sisteminin adilliğinden ne kadar memnunsunuz?",
+                "Çalışan memnuniyeti ve motivasyonunun yönetilme şeklinden ne kadar memnunsunuz?",
+                "Personel sirkülasyon oranlarının yönetiminden ne kadar memnunsunuz?",
+                "Çalışanların eğitim ve gelişim planlamasının etkinliğinden ne kadar memnunsunuz?",
+                "Liderlik ve yöneticilik becerilerinin geliştirilmesine yönelik programlardan ne kadar memnunsunuz?",
+                "Çalışanlara sunulan ücret ve yan hakların sektör ortalamasına uygunluğundan ne kadar memnunsunuz?",
+                "İş yerinde sağlıklı ve güvenli bir ortamın sağlanmasından ne kadar memnunsunuz?",
+                "Çalışanların kariyer planlamasına sağlanan destekten ne kadar memnunsunuz?",
+                "İnsan kaynakları süreçlerinin genel şeffaflığından ne kadar memnunsunuz?",
+                // Hasta İlişkileri ve Kalite Kontrol (10 Soru)
+                "Hasta şikayet ve geri bildirimlerinin yönetiminden ne kadar memnunsunuz?",
+                "Hastalara sunulan hizmetlerin genel kalitesinden ne kadar memnunsunuz?",
+                "Hastaların beklentilerinin ne kadar karşılandığından ne kadar memnunsunuz?",
+                "Tedavi sonuçlarının izlenme ve değerlendirilme şeklinden ne kadar memnunsunuz?",
+                "Hasta memnuniyeti anketlerinin düzenliliğinden ve sonuçlarının analizinden ne kadar memnunsunuz?",
+                "Hastane içinde kalite kontrol standartlarının uygulanma şeklinden ne kadar memnunsunuz?",
+                "Hastaların kişisel verilerinin korunmasından ne kadar memnunsunuz?",
+                "Hasta mahremiyetine verilen önemden ne kadar memnunsunuz?",
+                "Hasta ilişkileri departmanının etkinliğinden ne kadar memnunsunuz?",
+                "Hastane içinde hasta güvenliğine verilen önemden ne kadar memnunsunuz?",
+                // Teknolojik Altyapı ve Gelecek Vizyonu (10 Soru)
+                "Hastanenin kullandığı tıbbi cihaz ve ekipmanların güncelliğinden ne kadar memnunsunuz?",
+                "Hastane yönetiminin uyguladığı bilişim ve teknoloji stratejisinden ne kadar memnunsunuz?",
+                "Yeni teknolojilere yapılan yatırımların etkinliğinden ne kadar memnunsunuz?",
+                "Hastanenin dijitalleşme sürecinden ve otomasyon seviyesinden ne kadar memnunsunuz?",
+                "E-Sağlık ve dijital hizmetlerin (uzaktan hasta takibi, online randevu vb.) geliştirilme hızından ne kadar memnunsunuz?",
+                "Hastane yönetiminin, geleceğe yönelik stratejik planlamasından ne kadar memnunsunuz?",
+                "Hastanenin bölgesel ve ulusal düzeyde rekabet gücünden ne kadar memnunsunuz?",
+                "Hastanenin kriz ve acil durum planlarının ne kadar etkin olduğundan ne kadar memnunsunuz?",
+                "Hastanenin sürdürülebilirlik ve çevresel etki hedeflerinden ne kadar memnunsunuz?",
+                "Hastanenin genel olarak geleceğe ne kadar hazır olduğundan ne kadar memnunsunuz?"
             ]
         };
 
@@ -1649,16 +1668,11 @@ function closeModal() {
                 'Genel İş Memnuniyeti'
             ],
             'Yönetim': [
-                'Finansal Performans',
-                'Operasyonel Verimlilik',
-                'Çalışan Yönetimi',
-                'Hasta İlişkileri',
-                'Pazarlama ve Marka',
-                'Teknolojik Altyapı',
-                'Acil Durum Yönetimi',
-                'Tedarik Zinciri',
-                'Personel Sağlığı ve Güvenliği',
-                'Gelecek Vizyonu'
+                'Finansal Performans ve Operasyonel Verimlilik',
+                'Pazarlama ve Marka Yönetimi',
+                'İnsan Kaynakları Yönetimi',
+                'Hasta İlişkileri ve Kalite Kontrol',
+                'Teknolojik Altyapı ve Gelecek Vizyonu'
             ]
         };
         const groups = Object.keys(groupTitles);
