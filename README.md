@@ -164,7 +164,7 @@
             <div id="companyLogin" class="max-w-md mx-auto">
                 <h2 class="text-3xl font-bold text-center mb-8">🏫 Kurum Portalı Girişi</h2>
                 <div class="space-y-6">
-                    <input type="text" id="companyLoginName" placeholder="Okul/Kurum Adı" 
+                    <input type="text" id="companyLoginName" placeholder="Kurum Adı" 
                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <input type="password" id="companyPassword" placeholder="12 Karakterlik Şifre" 
                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500" autocomplete="off">
@@ -173,7 +173,7 @@
                     </button>
                 </div>
                 <div class="mt-6 p-4 bg-blue-50 rounded-lg text-sm text-blue-700">
-                    <p><strong>Not:</strong> Okul/kurum şifrenizi yöneticinizden alabilirsiniz.</p>
+                    <p><strong>Not:</strong> Kurum şifrenizi yöneticinizden alabilirsiniz.</p>
                 </div>
             </div>
 
@@ -204,6 +204,81 @@
                 </div>
 
                 <div class="bg-white border rounded-2xl p-4 md:p-6">
+                <!-- Ek Rapor: Frekans Analizi ve Puanlama Tablosu (Sadece Dashboard) -->
+                <section class="max-w-3xl mx-auto my-8 bg-white rounded-xl shadow p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-700">Anket Cevaplarını Raporlama: Puanlama ve Frekans Analizi</h2>
+                    <p class="mb-6 text-gray-700">Her bir soru için, 5 farklı cevap seçeneğinin frekans dağılımı ve kısa analiz metni aşağıda sunulmuştur.</p>
+                    <div class="mb-8">
+                        <h3 class="font-semibold text-lg mb-2">Hasta Anketi Raporu</h3>
+                        <div class="mb-2 text-gray-600">Toplam Katılımcı Sayısı: <b>100</b></div>
+                        <div class="mb-4">
+                            <div class="font-semibold">1. Soru: Hastanenin genel hijyen ve temizlik seviyesinden ne kadar memnunsunuz?</div>
+                            <div class="mb-1 text-green-700">Sonuç: Katılımcıların %80'i hastane temizliğinden memnun veya çok memnun.</div>
+                            <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
+                                <thead><tr class="bg-gray-100">
+                                    <th class="p-2">Çok Memnunum</th><th class="p-2">Memnunum</th><th class="p-2">Kararsızım</th><th class="p-2">Memnun Değilim</th><th class="p-2">Hiç Memnun Değilim</th>
+                                </tr></thead>
+                                <tbody><tr>
+                                    <td class="border p-2">35</td><td class="border p-2">45</td><td class="border p-2">10</td><td class="border p-2">5</td><td class="border p-2">5</td>
+                                </tr></tbody>
+                            </table>
+                        </div>
+                        <div class="mb-4">
+                            <div class="font-semibold">2. Soru: Hastane personelinin genel hizmet kalitesinden ne kadar memnunsunuz?</div>
+                            <div class="mb-1 text-green-700">Sonuç: Personel hizmet kalitesi yüksek bulunmuş, ancak küçük bir grup kararsız kalmıştır.</div>
+                            <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
+                                <thead><tr class="bg-gray-100">
+                                    <th class="p-2">Çok Memnunum</th><th class="p-2">Memnunum</th><th class="p-2">Kararsızım</th><th class="p-2">Memnun Değilim</th><th class="p-2">Hiç Memnun Değilim</th>
+                                </tr></thead>
+                                <tbody><tr>
+                                    <td class="border p-2">40</td><td class="border p-2">30</td><td class="border p-2">20</td><td class="border p-2">10</td><td class="border p-2">0</td>
+                                </tr></tbody>
+                            </table>
+                        </div>
+                        <div class="mb-4">
+                            <div class="font-semibold">3. Soru: Doktorunuzun ve hemşirenizin size karşı olan davranışlarından ne kadar memnunsunuz?</div>
+                            <div class="mb-1 text-green-700">Sonuç: Doktor ve hemşire davranışları konusunda çok yüksek bir memnuniyet oranı var.</div>
+                            <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
+                                <thead><tr class="bg-gray-100">
+                                    <th class="p-2">Çok Memnunum</th><th class="p-2">Memnunum</th><th class="p-2">Kararsızım</th><th class="p-2">Memnun Değilim</th><th class="p-2">Hiç Memnun Değilim</th>
+                                </tr></thead>
+                                <tbody><tr>
+                                    <td class="border p-2">60</td><td class="border p-2">30</td><td class="border p-2">5</td><td class="border p-2">5</td><td class="border p-2">0</td>
+                                </tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <!-- Frekans Analizi Sayısal Veri Tablosu -->
+                <section class="max-w-3xl mx-auto my-4 bg-white rounded-xl shadow p-6">
+                    <h3 class="text-xl font-bold mb-4 text-blue-700">Frekans Analizi: Sayısal Veri Tablosu</h3>
+                    <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-2">Soru</th>
+                                <th class="p-2">Şık</th>
+                                <th class="p-2">Sayı</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">1. Hijyen ve Temizlik</td><td class="border p-2">Çok Memnunum</td><td class="border p-2">35</td></tr>
+                            <tr><td class="border p-2">Memnunum</td><td class="border p-2">45</td></tr>
+                            <tr><td class="border p-2">Kararsızım</td><td class="border p-2">10</td></tr>
+                            <tr><td class="border p-2">Memnun Değilim</td><td class="border p-2">5</td></tr>
+                            <tr><td class="border p-2">Hiç Memnun Değilim</td><td class="border p-2">5</td></tr>
+                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">2. Personel Hizmet Kalitesi</td><td class="border p-2">Çok Memnunum</td><td class="border p-2">40</td></tr>
+                            <tr><td class="border p-2">Memnunum</td><td class="border p-2">30</td></tr>
+                            <tr><td class="border p-2">Kararsızım</td><td class="border p-2">20</td></tr>
+                            <tr><td class="border p-2">Memnun Değilim</td><td class="border p-2">10</td></tr>
+                            <tr><td class="border p-2">Hiç Memnun Değilim</td><td class="border p-2">0</td></tr>
+                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">3. Doktor ve Hemşire Davranışı</td><td class="border p-2">Çok Memnunum</td><td class="border p-2">60</td></tr>
+                            <tr><td class="border p-2">Memnunum</td><td class="border p-2">30</td></tr>
+                            <tr><td class="border p-2">Kararsızım</td><td class="border p-2">5</td></tr>
+                            <tr><td class="border p-2">Memnun Değilim</td><td class="border p-2">5</td></tr>
+                            <tr><td class="border p-2">Hiç Memnun Değilim</td><td class="border p-2">0</td></tr>
+                        </tbody>
+                    </table>
+                </section>
                         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
                             <h3 class="text-xl font-semibold mb-2 md:mb-0">Anket Sonuçları</h3>
                             <div class="flex flex-col md:flex-row gap-2 items-center">
@@ -323,7 +398,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-blue-100 p-6 rounded-lg text-center">
-                        <h3 class="font-semibold text-blue-800 mb-2">Toplam Okul/Kurum</h3>
+                        <h3 class="font-semibold text-blue-800 mb-2">Toplam Kurum</h3>
                         <p class="text-3xl font-bold text-blue-600" id="totalCompanies">0</p>
                     </div>
                     <div class="bg-green-100 p-6 rounded-lg text-center">
@@ -341,7 +416,7 @@
                 </div>
 
                 <div class="bg-white border rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-6">Okul/Kurum Listesi ve Yönetimi</h3>
+                    <h3 class="text-xl font-semibold mb-6">Kurum Listesi ve Yönetimi</h3>
                     <div class="mb-4 flex flex-col sm:flex-row gap-2 items-center">
                         <input id="companySearchInput" type="text" placeholder="🔍 Kurum adı ile ara..." class="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" oninput="filterCompanyList()">
                     </div>
@@ -349,7 +424,7 @@
                         <table class="w-full table-auto">
                             <thead>
                                 <tr class="bg-gray-50">
-                                    <th class="px-4 py-3 text-left">Okul/Kurum Adı</th>
+                                    <th class="px-4 py-3 text-left">Kurum Adı</th>
                                     <th class="px-4 py-3 text-left">Şifre</th>
                                     <th class="px-4 py-3 text-left">Katılımcı</th>
                                     <th class="px-4 py-3 text-left">Durum</th>
@@ -1467,21 +1542,7 @@ function closeModal() {
                         ${answerLevels.map((level, i) => `<tr><td>${level}</td><td>${answerCounts[i]}</td></tr>`).join('')}
                     </table>
                 </div>
-                <div class='section'>
-                    <div class='section-title'>📊 Detaylı Kategori Analizleri</div>
-                    ${hospitalCategories.map(cat => `
-                        <div class='category-box'>
-                            <b>${cat.title}</b><br>
-                            <span style='font-size:0.95rem;'>${cat.desc}</span>
-                            <div style='margin-top:8px;background:#fee2e2;padding:8px;border-radius:6px;'><b>Puan Aralığı: Düşük (%0-50)</b> - Bu kategoride ciddi iyileştirme gereklidir.</div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class='section advice-box'>
-                    <b>💡 Öneriler ve Eylem Planı</b><br>
-                    <b>Öncelikli Aksiyonlar:</b> Acil bir eylem planı oluşturulmalı. Hastanenin fiziki koşulları, tıbbi hizmet süreçleri ve iletişim kanalları gözden geçirilmelidir.<br>
-                    <b>Takip:</b> Bu rapor sonuçlarını 3-6 ay sonra tekrar değerlendirmek için yeni anket düzenleyiniz.
-                </div>
+                <!-- Detaylı Kategori Analizleri ve Öneriler/Eylem Planı bölümü kaldırıldı -->
                 <div style='text-align:right;font-size:0.9rem;color:#888;margin-top:32px;'>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${dateStr} ${timeStr}<br>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.${dateInfo ? `<br>Filtre: ${dateInfo}` : ''}</div>
             </body></html>
             `;
