@@ -75,7 +75,7 @@
             <div class="text-center mb-6">
                 <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 mb-1 tracking-tight">Kurum Değerlendirme Anketi</h2>
                 <p class="text-gray-600 mb-2 text-base md:text-lg">Görüşleriniz bizim için değerli</p>
-                <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">v3.0.0 - JSONBin.io Entegre</span>
+                <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full">v3.0.0 - Firebase Realtime Database</span>
             </div>
 
             <!-- Sorumluluk Reddi -->
@@ -83,9 +83,9 @@
                 <div class="bg-yellow-50 border border-yellow-300 rounded p-3 mb-3">
                     <h3 class="font-semibold text-yellow-800 mb-2 text-sm">⚠️ Veri Koruma Beyanı</h3>
                     <div class="text-xs text-yellow-700 space-y-1">
-                        <p>• Verileriniz JSONBin.io güvenli sisteminde saklanır ve üçüncü taraflarla paylaşılmaz.</p>
+                        <p>• Verileriniz Google Firebase Realtime Database üzerinde güvenli şekilde saklanır ve üçüncü taraflarla paylaşılmaz.</p>
                         <p>• Anket sonuçları sadece kurum yetkilileri tarafından görüntülenebilir.</p>
-                        <p>• Sistem güvenliği JSONBin.io sorumluluğundadır.</p>
+                        <p>• Sistem güvenliği Google Firebase altyapısı tarafından sağlanır.</p>
                         <p>• Hack, veri ihlali vb. güvenlik olaylarından kaynaklanan bilgi erişimlerinin sorumluluğu Akça Pro X'e ait değildir.</p>
                     </div>
                 </div>
@@ -120,12 +120,12 @@
                         <button type="button" onclick="selectJobType('Doktor')" id="doctorBtn" 
                                 class="job-btn py-3 px-2 text-xs rounded border-2 border-green-300 hover:border-green-500 hover:bg-green-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-green-400">
                             <div class="text-lg mb-1">👨‍⚕️</div>
-                            <div>Doktor</div>
+                            <div>Doktor/Hemşire</div>
                         </button>
-                        <button type="button" onclick="selectJobType('Personel')" id="staffBtn" 
+                        <button type="button" onclick="selectJobType('Yönetim')" id="managementBtn" 
                                 class="job-btn py-3 px-2 text-xs rounded border-2 border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-purple-400">
                             <div class="text-lg mb-1">👩‍🔬</div>
-                            <div>Personel</div>
+                            <div>Yönetim</div>
                         </button>
                     </div>
                 </div>
@@ -164,7 +164,7 @@
             <div id="companyLogin" class="max-w-md mx-auto">
                 <h2 class="text-3xl font-bold text-center mb-8">🏫 Kurum Portalı Girişi</h2>
                 <div class="space-y-6">
-                    <input type="text" id="companyLoginName" placeholder="Okul/Kurum Adı" 
+                    <input type="text" id="companyLoginName" placeholder="Kurum Adı" 
                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <input type="password" id="companyPassword" placeholder="12 Karakterlik Şifre" 
                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500" autocomplete="off">
@@ -173,7 +173,7 @@
                     </button>
                 </div>
                 <div class="mt-6 p-4 bg-blue-50 rounded-lg text-sm text-blue-700">
-                    <p><strong>Not:</strong> Okul/kurum şifrenizi yöneticinizden alabilirsiniz.</p>
+                    <p><strong>Not:</strong> Kurum şifrenizi yöneticinizden alabilirsiniz.</p>
                 </div>
             </div>
 
@@ -211,8 +211,8 @@
                                 <span class="mx-1">-</span>
                                 <input type="date" id="reportEndDate" class="border rounded px-2 py-1 text-sm" />
                                 <button onclick="filterByDateRange()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Tarihe Göre Rapor</button>
-                                <button onclick="showPDFReport(true)" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">📄 PDF Göster (Filtreli)</button>
-                                <button onclick="showPDFReport(false)" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">📄 PDF Göster (Tümü)</button>
+                                <button onclick="showPDFReport(true)" style="display:none" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">📄 PDF Göster (Filtreli)</button>
+                                <button onclick="showPDFReport(false)" style="display:none" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">📄 PDF Göster (Tümü)</button>
                             </div>
                         </div>
                     <!-- Grafikler Bölümü -->
@@ -242,30 +242,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- SWOT Analizi Tablosu (Rapor Ekranı) -->
-                    <div class="bg-white border rounded-xl p-4 md:p-6 mb-6">
-                        <h4 class="font-semibold text-gray-800 mb-4 text-lg">SWOT Analizi</h4>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm text-center border border-gray-300">
-                                <thead>
-                                    <tr>
-                                        <th class="bg-green-100 border border-gray-300 p-2">Güçlü Yönler</th>
-                                        <th class="bg-red-100 border border-gray-300 p-2">Zayıf Yönler</th>
-                                        <th class="bg-blue-100 border border-gray-300 p-2">Fırsatlar</th>
-                                        <th class="bg-yellow-100 border border-gray-300 p-2">Tehditler</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="border border-gray-300 p-2 align-top">• Yüksek hasta memnuniyeti<br>• Güçlü uzman kadro<br>• Modern altyapı</td>
-                                        <td class="border border-gray-300 p-2 align-top">• Yoğunluk dönemlerinde bekleme süresi<br>• İletişim eksiklikleri<br>• Kısıtlı sosyal alanlar</td>
-                                        <td class="border border-gray-300 p-2 align-top">• Dijitalleşme yatırımları<br>• Yeni branş açılımları<br>• Kamu destekleri</td>
-                                        <td class="border border-gray-300 p-2 align-top">• Artan rekabet<br>• Ekonomik dalgalanmalar<br>• Personel sirkülasyonu</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div id="detailedFrequencyTables" class="mb-8"></div>
                     <!-- Katılımcı Detayları Bölümü -->
                     <div class="bg-white border rounded-xl p-2 md:p-4 mb-6">
                         <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
@@ -323,7 +300,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-blue-100 p-6 rounded-lg text-center">
-                        <h3 class="font-semibold text-blue-800 mb-2">Toplam Okul/Kurum</h3>
+                        <h3 class="font-semibold text-blue-800 mb-2">Toplam Kurum</h3>
                         <p class="text-3xl font-bold text-blue-600" id="totalCompanies">0</p>
                     </div>
                     <div class="bg-green-100 p-6 rounded-lg text-center">
@@ -341,7 +318,7 @@
                 </div>
 
                 <div class="bg-white border rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-6">Okul/Kurum Listesi ve Yönetimi</h3>
+                    <h3 class="text-xl font-semibold mb-6">Kurum Listesi ve Yönetimi</h3>
                     <div class="mb-4 flex flex-col sm:flex-row gap-2 items-center">
                         <input id="companySearchInput" type="text" placeholder="🔍 Kurum adı ile ara..." class="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" oninput="filterCompanyList()">
                     </div>
@@ -349,7 +326,7 @@
                         <table class="w-full table-auto">
                             <thead>
                                 <tr class="bg-gray-50">
-                                    <th class="px-4 py-3 text-left">Okul/Kurum Adı</th>
+                                    <th class="px-4 py-3 text-left">Kurum Adı</th>
                                     <th class="px-4 py-3 text-left">Şifre</th>
                                     <th class="px-4 py-3 text-left">Katılımcı</th>
                                     <th class="px-4 py-3 text-left">Durum</th>
@@ -488,15 +465,9 @@ function closeModal() {
         let isAdminLoggedIn = false;
     let filteredSurveys = null;
 
-        // JSONBin.io konfigürasyonu
-        const JSONBIN_CONFIG = {
-            apiKey: '$2a$10$Vre/Nl1Aa1vrK2xY1NHYguabG45SOU1sMt3dnh.UJYpdBoQSdnz1.',
-            accessKey: '$2a$10$SCDSdHz/rW/Z3Q6EWaB68uSJR2GAhE3pjG/i3.gJEhKsviO.yl6DC',
-            binId: '68ce8ca8ae596e708ff4f3fc',
-            baseUrl: 'https://api.jsonbin.io/v3',
-            maxRetries: 3,
-            retryDelay: 1000
-        };
+
+        // Firebase Realtime Database URL
+        const FIREBASE_DB_URL = 'https://json-19344-default-rtdb.europe-west1.firebasedatabase.app/';
 
         // Soru setleri
         const questions = {
@@ -713,10 +684,69 @@ function closeModal() {
             currentModule = module;
         }
 
+        // Firebase Realtime Database API fonksiyonları (GLOBAL SCOPE)
+        async function loadFromFirebase() {
+            try {
+                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    systemData.surveyData = data || { companies: {}, responses: [], statistics: {} };
+                    return systemData.surveyData;
+                } else {
+                    throw new Error('Firebase veri yükleme hatası');
+                }
+            } catch (error) {
+                console.error('Firebase yükleme hatası:', error);
+                const defaultData = { companies: {}, responses: [], statistics: {} };
+                systemData.surveyData = defaultData;
+                return defaultData;
+            }
+        }
+
+        async function saveToFirebase(data) {
+            try {
+                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    return { success: true };
+                } else {
+                    return { success: false, error: 'Firebase veri kaydetme hatası' };
+                }
+            } catch (error) {
+                console.error('Firebase bağlantı hatası:', error);
+                return { success: false, error: `Bağlantı Hatası: ${error.message}` };
+            }
+        }
+
+        async function createCompanyIfNotExistsFirebase(companyName) {
+            if (!systemData.surveyData) await loadFromFirebase();
+            if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
+            const normalizedName = companyName.trim().toLowerCase();
+            let companyKey = Object.keys(systemData.surveyData.companies).find(key => (systemData.surveyData.companies[key].name || '').trim().toLowerCase() === normalizedName);
+            if (!companyKey) {
+                // Yeni şifre üret
+                const password = generateCompanyPassword();
+                companyKey = Date.now().toString();
+                systemData.surveyData.companies[companyKey] = { name: companyName.trim(), password, createdAt: new Date().toISOString(), status: 'Aktif' };
+                const saveResult = await saveToFirebase(systemData.surveyData);
+                if (!saveResult.success) {
+                    return { success: false, error: saveResult.error };
+                }
+            }
+            // Eğer eski kurum ise ve status yoksa, Aktif olarak ekle
+            if (!systemData.surveyData.companies[companyKey].status) {
+                systemData.surveyData.companies[companyKey].status = 'Aktif';
+                await saveToFirebase(systemData.surveyData);
+            }
+            return { success: true, key: companyKey };
+        }
+
         function selectJobType(jobType) {
             selectedJobType = jobType;
             console.log('Seçilen rol:', jobType);
-            
             // Tüm butonları sıfırla
             const allButtons = document.querySelectorAll('.job-btn');
             allButtons.forEach(btn => {
@@ -728,69 +758,6 @@ function closeModal() {
                 btn.style.transform = '';
                 btn.style.boxShadow = '';
             });
-            
-            // Seçili butonu işaretle
-            const buttonMap = {
-                'Hasta': 'patientBtn',
-                'Doktor': 'doctorBtn', 
-                'Personel': 'staffBtn'
-            };
-            
-            const selectedButton = document.getElementById(buttonMap[jobType]);
-            if (selectedButton) {
-                selectedButton.style.border = '3px solid #3b82f6';
-                selectedButton.style.backgroundColor = '#3b82f6';
-                selectedButton.style.color = 'white';
-                selectedButton.style.fontWeight = 'bold';
-                selectedButton.style.transform = 'scale(1.05)';
-                selectedButton.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-                selectedButton.classList.add('selected-job');
-            }
-            
-            // Seçimi göster
-            const displayElement = document.getElementById('selectedJobDisplay');
-            if (displayElement) {
-                displayElement.innerHTML = `<span class="text-blue-600 font-semibold text-lg">✓ Seçilen rol: ${jobType}</span>`;
-            }
-        }
-
-        function startSurvey() {
-            // Google ile giriş zorunluluğu (isletme.html ile birebir)
-            if (!googleUser) {
-                showModal(
-                    '🔒 Giriş Gerekli',
-                    `<div class="text-2xl font-extrabold text-red-700 mb-4">Google ile Giriş Yapmalısınız</div>
-                    <div class="text-base text-gray-800 mb-2">Ankete başlamadan önce kimliğinizi doğrulamanız gerekmektedir.</div>
-                    <ul class="list-disc pl-6 text-base text-gray-700 mb-4">
-                        <li>Yukarıdaki <b>Google ile Giriş Yap</b> butonunu kullanarak hesabınızla oturum açın.</li>
-                        <li>Giriş yaptıktan sonra ad ve soyad alanlarınız otomatik doldurulacak ve düzenlenebilir olacaktır.</li>
-                        <li>Gizliliğiniz korunur, bilgileriniz üçüncü kişilerle paylaşılmaz.</li>
-                    </ul>
-                    <div class="text-sm text-gray-500">Herhangi bir sorun yaşarsanız lütfen yöneticinizle iletişime geçin.</div>`
-                );
-                return;
-            }
-            console.log('Anket başlatma fonksiyonu çalışıyor...');
-            const companyName = document.getElementById('companyName').value.trim();
-            const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            console.log('Form verileri:', { companyName, selectedJobType, disclaimerAccepted, firstName, lastName });
-
-            if (!disclaimerAccepted) {
-                showModal('⚠️ Uyarı', 'Devam etmek için veri koruma beyanını kabul etmelisiniz.');
-                return;
-            }
-
-            if (!companyName) {
-                showModal('⚠️ Eksik Bilgi', 'Lütfen kurum adını girin.');
-                return;
-            }
-
-            if (!selectedJobType) {
-                showModal('⚠️ Eksik Bilgi', 'Lütfen rolünüzü seçin (Hasta, Doktor veya Personel).');
-                return;
-            }
 
             if (!firstName || !lastName) {
                 showModal('⚠️ Eksik Bilgi', 'Lütfen adınızı ve soyadınızı girin.');
@@ -991,28 +958,8 @@ function closeModal() {
             }
         }
 
-        async function createCompanyIfNotExists(companyName) {
-            if (!systemData.surveyData) await loadFromJSONBin();
-            if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
-            const normalizedName = companyName.trim().toLowerCase();
-            let companyKey = Object.keys(systemData.surveyData.companies).find(key => (systemData.surveyData.companies[key].name || '').trim().toLowerCase() === normalizedName);
-            if (!companyKey) {
-                // Yeni şifre üret
-                const password = generateCompanyPassword();
-                companyKey = Date.now().toString();
-                systemData.surveyData.companies[companyKey] = { name: companyName.trim(), password, createdAt: new Date().toISOString(), status: 'Aktif' };
-                const saveResult = await saveToJSONBin(systemData.surveyData);
-                if (!saveResult.success) {
-                    return { success: false, error: saveResult.error };
-                }
-            }
-            // Eğer eski kurum ise ve status yoksa, Aktif olarak ekle
-            if (!systemData.surveyData.companies[companyKey].status) {
-                systemData.surveyData.companies[companyKey].status = 'Aktif';
-                await saveToJSONBin(systemData.surveyData);
-            }
-            return { success: true, key: companyKey };
-        }
+        // Eski fonksiyonun yerine Firebase fonksiyonunu kullan
+        const createCompanyIfNotExists = createCompanyIfNotExistsFirebase;
 
         function generateCompanyPassword() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -1035,13 +982,13 @@ function closeModal() {
                     throw new Error('Eksik bilgi: Kurum adı, iş türü ve anket yanıtları gerekli');
                 }
                 
-                const companyResult = await createCompanyIfNotExists(companyName);
+                const companyResult = await createCompanyIfNotExistsFirebase(companyName);
                 
                 if (!companyResult.success) {
                     throw new Error(`Kurum işlemi başarısız: ${companyResult.error}`);
                 }
                 
-                systemData.surveyData = await loadFromJSONBin();
+                systemData.surveyData = await loadFromFirebase();
                 
                 const surveyResponse = {
                     id: 'survey_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
@@ -1083,7 +1030,7 @@ function closeModal() {
                         ).length;
                 }
                 
-                const saveResult = await saveToJSONBin(systemData.surveyData);
+                const saveResult = await saveToFirebase(systemData.surveyData);
                 
                 if (saveResult.success) {
                     document.getElementById('surveySection').innerHTML = `
@@ -1139,7 +1086,7 @@ function closeModal() {
         }
 
         function loadAdminDashboard() {
-            loadFromJSONBin().then(() => {
+            loadFromFirebase().then(() => {
                 // Toplam kurum
                 const totalCompanies = systemData.surveyData.companies ? Object.keys(systemData.surveyData.companies).length : 0;
                 document.getElementById('totalCompanies').textContent = totalCompanies;
@@ -1200,7 +1147,7 @@ function closeModal() {
                 showModal('❌ Eksik Bilgi', 'Kurum adı ve şifre gereklidir.');
                 return;
             }
-            await loadFromJSONBin();
+            await loadFromFirebase();
             const companies = systemData.surveyData.companies || {};
             const normalizedName = companyName.trim().toLowerCase();
             const companyKey = Object.keys(companies).find(key => (companies[key].name || '').trim().toLowerCase() === normalizedName);
@@ -1224,11 +1171,11 @@ function closeModal() {
 
         // Admin: Kurum durumunu değiştir (Aktif/Pasif)
         async function toggleCompanyStatus(companyKey) {
-            await loadFromJSONBin();
+            await loadFromFirebase();
             const companies = systemData.surveyData.companies || {};
             if (!companies[companyKey]) return;
             companies[companyKey].status = companies[companyKey].status === 'Aktif' ? 'Pasif' : 'Aktif';
-            await saveToJSONBin(systemData.surveyData);
+            await saveToFirebase(systemData.surveyData);
             loadAdminDashboard();
         }
 
@@ -1301,6 +1248,7 @@ function closeModal() {
             document.getElementById('satisfactionRate').textContent = overallSatisfactionPercent + '%';
             generateSimpleReport(surveys);
             generateCharts(surveys);
+            renderSummaryFrequencyTable(surveys); // Özet tabloyu güncelle
         }
         // HASTANE PDF RAPORU OLUŞTURMA
         // showPDFReport(true) => filtreli, showPDFReport(false) => tümü
@@ -1437,23 +1385,6 @@ function closeModal() {
                     </table>
                 </div>
                 <div class='section'>
-                    <div class='section-title'>SWOT Analizi</div>
-                    <table class='swot-table'>
-                        <tr>
-                            <th class='swot-strength'>Güçlü Yönler</th>
-                            <th class='swot-weakness'>Zayıf Yönler</th>
-                            <th class='swot-opportunity'>Fırsatlar</th>
-                            <th class='swot-threat'>Tehditler</th>
-                        </tr>
-                        <tr>
-                            <td class='swot-strength'>• Yüksek hasta memnuniyeti<br>• Güçlü uzman kadro<br>• Modern altyapı</td>
-                            <td class='swot-weakness'>• Yoğunluk dönemlerinde bekleme süresi<br>• İletişim eksiklikleri<br>• Kısıtlı sosyal alanlar</td>
-                            <td class='swot-opportunity'>• Dijitalleşme yatırımları<br>• Yeni branş açılımları<br>• Kamu destekleri</td>
-                            <td class='swot-threat'>• Artan rekabet<br>• Ekonomik dalgalanmalar<br>• Personel sirkülasyonu</td>
-                        </tr>
-                    </table>
-                </div>
-                <div class='section'>
                     <div class='section-title'>👥 Paydaş Grupları Analizi</div>
                     <table class='table'>
                         <tr><th>Paydaş Grubu</th><th>Katılımcı</th></tr>
@@ -1483,7 +1414,8 @@ function closeModal() {
                     <b>Takip:</b> Bu rapor sonuçlarını 3-6 ay sonra tekrar değerlendirmek için yeni anket düzenleyiniz.
                 </div>
                 <div style='text-align:right;font-size:0.9rem;color:#888;margin-top:32px;'>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${dateStr} ${timeStr}<br>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.${dateInfo ? `<br>Filtre: ${dateInfo}` : ''}</div>
-            </body></html>
+            </body>
+</html>
             `;
         }
 
@@ -1612,6 +1544,182 @@ function closeModal() {
                 btn.textContent = details.classList.contains('hidden') ? '📋 Katılımcıları Görüntüle' : '📋 Katılımcıları Gizle';
             }
         }
+    // Detaylı frekans tablosu fonksiyonu (Türkçe etiketlerle)
+    function renderDetailedFrequencyTables(surveys) {
+        const container = document.getElementById('detailedFrequencyTables');
+        if (!container) return;
+        if (!surveys || surveys.length === 0) {
+            container.innerHTML = `<div class="text-gray-400 text-center py-4">Frekans verisi yok.</div>`;
+            return;
+        }
+        // Soru başlıklarını al
+        const allQuestions = [];
+        surveys.forEach(s => {
+            s.answers.forEach((a, idx) => {
+                if (!allQuestions[idx]) allQuestions[idx] = a.question;
+            });
+        });
+        // Türkçe puan etiketleri
+        const scoreLabels = {
+            5: 'Çok Memnunum',
+            4: 'Memnunuyum',
+            3: 'Kararsızım',
+            2: 'Memnun Değilim',
+            1: 'Hiç Memnun Değilim'
+        };
+        let html = '';
+        allQuestions.forEach((question, qIdx) => {
+            // Her soru için frekansları hesapla
+            const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            let total = 0;
+            surveys.forEach(s => {
+                const a = s.answers[qIdx];
+                if (a && a.score) {
+                    freq[a.score] = (freq[a.score] || 0) + 1;
+                    total++;
+                }
+            });
+            // Sonuç cümlesi
+            const memnun = freq[4] + freq[5];
+            const memnunYuzde = total > 0 ? Math.round((memnun/total)*100) : 0;
+            let resultText = '';
+            if (memnunYuzde >= 80) resultText = `Katılımcıların %${memnunYuzde}'i bu konuda memnun veya çok memnun.`;
+            else if (memnunYuzde >= 60) resultText = `Katılımcıların çoğu bu konuda memnun.`;
+            else if (memnunYuzde >= 40) resultText = `Memnuniyet oranı orta seviyede.`;
+            else resultText = `Katılımcıların çoğu bu konuda memnun değil.`;
+            html += `<div class="mb-8">
+                <div class="font-semibold text-gray-800 mb-2">${qIdx+1}. ${question}</div>
+                <div class="mb-2 text-sm text-blue-700 font-medium">Sonuç: ${resultText}</div>
+                <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-center border border-gray-300 rounded-lg">
+                    <thead>
+                        <tr>
+                            <th class="bg-gray-100 border p-2">Seçenek</th>
+                            <th class="bg-gray-100 border p-2">Frekans</th>
+                            <th class="bg-gray-100 border p-2">Yüzde</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${[5,4,3,2,1].map(score => `
+                            <tr>
+                                <td class="border p-2">${scoreLabels[score]}</td>
+                                <td class="border p-2">${freq[score]}</td>
+                                <td class="border p-2">${total > 0 ? ((freq[score]/total)*100).toFixed(1) : '0.0'}%</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+    // Excel tarzı özet frekans tablosu fonksiyonu (10 soru x 5 puan, grup başlığında yüzde ortalama)
+    function renderSummaryFrequencyTable(surveys) {
+        const container = document.getElementById('detailedFrequencyTables');
+        if (!container) return;
+        if (!surveys || surveys.length === 0) {
+            container.innerHTML = `<div class="text-gray-400 text-center py-4">Frekans verisi yok.</div>`;
+            return;
+        }
+        // Gruplar ve başlıklar
+        const groupTitles = {
+            'Hasta': [
+                'Hizmet Kalitesi',
+                'İletişim',
+                'Tedavi Süreci',
+                'Fiziksel Koşullar',
+                'Personel Davranışları',
+                'Randevu ve Kabul',
+                'Dijital Hizmetler',
+                'Bekleme Süreleri',
+                'Güven ve İtibar',
+                'Genel Memnuniyet'
+            ],
+            'Personel': [
+                'Çalışma Ortamı',
+                'Yönetim ve Liderlik',
+                'İş Yükü ve Dengesi',
+                'İç İletişim',
+                'Kariyer Gelişimi',
+                'Ücret ve Yan Haklar',
+                'Takdir ve Geri Bildirim',
+                'İş Süreçleri',
+                'Kurum Kültürü',
+                'Genel İş Memnuniyeti'
+            ],
+            'Yönetim': [
+                'Finansal Performans',
+                'Operasyonel Verimlilik',
+                'Çalışan Yönetimi',
+                'Hasta İlişkileri',
+                'Pazarlama ve Marka',
+                'Teknolojik Altyapı',
+                'Acil Durum Yönetimi',
+                'Tedarik Zinciri',
+                'Personel Sağlığı ve Güvenliği',
+                'Gelecek Vizyonu'
+            ]
+        };
+        const groups = Object.keys(groupTitles);
+        // Puan etiketleri
+        const scoreLabels = {
+            5: 'Çok Memnunum',
+            4: 'Memnun',
+            3: 'Kararsızım',
+            2: 'Memnun Değilim',
+            1: 'Hiç Memnun Değilim'
+        };
+        let html = '<div class="mb-6"><div class="font-semibold text-gray-800 mb-2">Özet Frekans Tablosu</div>';
+        html += '<div class="overflow-x-auto"><table class="min-w-full text-xs text-center border border-gray-300 rounded-lg">';
+        html += '<thead><tr><th class="bg-gray-100 border p-2">Grup / Soru</th>';
+        [5,4,3,2,1].forEach(score => {
+            html += `<th class="bg-gray-100 border p-2">${scoreLabels[score]}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+        groups.forEach(group => {
+            // Grup başlık satırı: ortalama yüzdeler
+            let groupTotal = 0;
+            const groupScoreTotals = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            let groupAnswerCount = 0;
+            // Soru bazında frekanslar
+            const questionFreqs = [];
+            for (let qIdx = 0; qIdx < 10; qIdx++) {
+                const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                let total = 0;
+                surveys.forEach(s => {
+                    if (s.jobType === group && s.answers[qIdx]) {
+                        const score = s.answers[qIdx].score;
+                        if (score) {
+                            freq[score] = (freq[score] || 0) + 1;
+                            groupScoreTotals[score]++;
+                            total++;
+                            groupTotal++;
+                            groupAnswerCount++;
+                        }
+                    }
+                });
+                questionFreqs.push(freq);
+            }
+            // Grup başlık satırı (yüzdeler)
+            html += `<tr><td class="border p-2 font-bold bg-gray-50">${group}</td>`;
+            [5,4,3,2,1].forEach(score => {
+                const percent = groupAnswerCount > 0 ? ((groupScoreTotals[score]/groupAnswerCount)*100).toFixed(1) : '0.0';
+                html += `<td class="border p-2 bg-gray-50 font-bold">${percent}%</td>`;
+            });
+            html += '</tr>';
+            // 10 soru satırı
+            groupTitles[group].forEach((title, qIdx) => {
+                html += `<tr><td class="border p-2 text-left">${qIdx+1}. ${title}</td>`;
+                [5,4,3,2,1].forEach(score => {
+                    html += `<td class="border p-2">${questionFreqs[qIdx][score] || 0}</td>`;
+                });
+                html += '</tr>';
+            });
+        });
+        html += '</tbody></table></div></div>';
+        container.innerHTML = html;
+    }
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
