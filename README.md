@@ -164,7 +164,7 @@
             <div id="companyLogin" class="max-w-md mx-auto">
                 <h2 class="text-3xl font-bold text-center mb-8">🏫 Kurum Portalı Girişi</h2>
                 <div class="space-y-6">
-                    <input type="text" id="companyLoginName" placeholder="Kurum Adı" 
+                    <input type="text" id="companyLoginName" placeholder="Okul/Kurum Adı" 
                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <input type="password" id="companyPassword" placeholder="12 Karakterlik Şifre" 
                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-4 text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500" autocomplete="off">
@@ -173,7 +173,7 @@
                     </button>
                 </div>
                 <div class="mt-6 p-4 bg-blue-50 rounded-lg text-sm text-blue-700">
-                    <p><strong>Not:</strong> Kurum şifrenizi yöneticinizden alabilirsiniz.</p>
+                    <p><strong>Not:</strong> Okul/kurum şifrenizi yöneticinizden alabilirsiniz.</p>
                 </div>
             </div>
 
@@ -203,117 +203,13 @@
                     </div>
                 </div>
 
+                <!-- Frekans Analizi Tablosu -->
+                <div class="bg-white border rounded-xl p-4 md:p-6 mb-6">
+                    <h4 class="font-semibold text-gray-800 mb-4 text-lg">Frekans Analizi</h4>
+                    <div id="detailedFrequencyTables"></div>
+                </div>
+
                 <div class="bg-white border rounded-2xl p-4 md:p-6">
-                <!-- Ek Rapor: Frekans Analizi ve Puanlama Tablosu (Sadece Dashboard) -->
-                <section class="max-w-3xl mx-auto my-8 bg-white rounded-xl shadow p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-700">Anket Cevaplarını Raporlama: Puanlama ve Frekans Analizi</h2>
-                    <p class="mb-6 text-gray-700">Her bir soru için, 5 farklı cevap seçeneğinin frekans dağılımı ve kısa analiz metni aşağıda sunulmuştur.</p>
-                    <div class="mb-8">
-                        <h3 class="font-semibold text-lg mb-2">Hasta Anketi Raporu</h3>
-                        <div class="mb-2 text-gray-600">Toplam Katılımcı Sayısı: <b>100</b></div>
-                        <div class="mb-4">
-                            <div class="font-semibold">1. Soru: Hastanenin genel hijyen ve temizlik seviyesinden ne kadar memnunsunuz?</div>
-                            <div class="mb-1 text-green-700">Sonuç: Katılımcıların %80'i hastane temizliğinden memnun veya çok memnun.</div>
-                            <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
-                                <thead><tr class="bg-gray-100">
-                                    <th class="p-2">Çok Memnunum</th><th class="p-2">Memnunum</th><th class="p-2">Kararsızım</th><th class="p-2">Memnun Değilim</th><th class="p-2">Hiç Memnun Değilim</th>
-                                </tr></thead>
-                                <tbody><tr>
-                                    <td class="border p-2">35</td><td class="border p-2">45</td><td class="border p-2">10</td><td class="border p-2">5</td><td class="border p-2">5</td>
-                                </tr></tbody>
-                            </table>
-                        </div>
-                        <div class="mb-4">
-                            <div class="font-semibold">2. Soru: Hastane personelinin genel hizmet kalitesinden ne kadar memnunsunuz?</div>
-                            <div class="mb-1 text-green-700">Sonuç: Personel hizmet kalitesi yüksek bulunmuş, ancak küçük bir grup kararsız kalmıştır.</div>
-                            <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
-                                <thead><tr class="bg-gray-100">
-                                    <th class="p-2">Çok Memnunum</th><th class="p-2">Memnunum</th><th class="p-2">Kararsızım</th><th class="p-2">Memnun Değilim</th><th class="p-2">Hiç Memnun Değilim</th>
-                                </tr></thead>
-                                <tbody><tr>
-                                    <td class="border p-2">40</td><td class="border p-2">30</td><td class="border p-2">20</td><td class="border p-2">10</td><td class="border p-2">0</td>
-                                </tr></tbody>
-                            </table>
-                        </div>
-                        <div class="mb-4">
-                            <div class="font-semibold">3. Soru: Doktorunuzun ve hemşirenizin size karşı olan davranışlarından ne kadar memnunsunuz?</div>
-                            <div class="mb-1 text-green-700">Sonuç: Doktor ve hemşire davranışları konusunda çok yüksek bir memnuniyet oranı var.</div>
-                            <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
-                                <thead><tr class="bg-gray-100">
-                                    <th class="p-2">Çok Memnunum</th><th class="p-2">Memnunum</th><th class="p-2">Kararsızım</th><th class="p-2">Memnun Değilim</th><th class="p-2">Hiç Memnun Değilim</th>
-                                </tr></thead>
-                                <tbody><tr>
-                                    <td class="border p-2">60</td><td class="border p-2">30</td><td class="border p-2">5</td><td class="border p-2">5</td><td class="border p-2">0</td>
-                                </tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-                <!-- SWOT Analizi Frekans Tablosu (Statik Örnek) -->
-                <section class="max-w-3xl mx-auto my-4 bg-white rounded-xl shadow p-6">
-                    <h3 class="text-xl font-bold mb-4 text-blue-700">SWOT Analizi: Seçim Frekansları</h3>
-                    <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="p-2">Kategori</th>
-                                <th class="p-2">Madde</th>
-                                <th class="p-2">Seçilme Sayısı</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Güçlü Yönler</td><td class="border p-2">Yüksek hasta memnuniyeti</td><td class="border p-2">23</td></tr>
-                            <tr><td class="border p-2">Güçlü uzman kadro</td><td class="border p-2">18</td></tr>
-                            <tr><td class="border p-2">Modern altyapı</td><td class="border p-2">15</td></tr>
-                            <tr><td class="border p-2">İyi iletişim</td><td class="border p-2">12</td></tr>
-                            <tr><td class="border p-2">Gelişmiş dijital sistemler</td><td class="border p-2">9</td></tr>
-                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Zayıf Yönler</td><td class="border p-2">Yoğunluk dönemlerinde bekleme süresi</td><td class="border p-2">14</td></tr>
-                            <tr><td class="border p-2">İletişim eksiklikleri</td><td class="border p-2">11</td></tr>
-                            <tr><td class="border p-2">Kısıtlı sosyal alanlar</td><td class="border p-2">8</td></tr>
-                            <tr><td class="border p-2">Yetersiz personel</td><td class="border p-2">7</td></tr>
-                            <tr><td class="border p-2">Eskiyen ekipmanlar</td><td class="border p-2">5</td></tr>
-                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Fırsatlar</td><td class="border p-2">Dijitalleşme yatırımları</td><td class="border p-2">17</td></tr>
-                            <tr><td class="border p-2">Yeni branş açılımları</td><td class="border p-2">13</td></tr>
-                            <tr><td class="border p-2">Kamu destekleri</td><td class="border p-2">10</td></tr>
-                            <tr><td class="border p-2">Eğitim fırsatları</td><td class="border p-2">8</td></tr>
-                            <tr><td class="border p-2">Uluslararası işbirlikleri</td><td class="border p-2">6</td></tr>
-                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Tehditler</td><td class="border p-2">Artan rekabet</td><td class="border p-2">19</td></tr>
-                            <tr><td class="border p-2">Ekonomik dalgalanmalar</td><td class="border p-2">15</td></tr>
-                            <tr><td class="border p-2">Personel sirkülasyonu</td><td class="border p-2">12</td></tr>
-                            <tr><td class="border p-2">Yasal değişiklikler</td><td class="border p-2">8</td></tr>
-                            <tr><td class="border p-2">Hastalık salgınları</td><td class="border p-2">4</td></tr>
-                        </tbody>
-                    </table>
-                </section>
-                <!-- Frekans Analizi Sayısal Veri Tablosu -->
-                <section class="max-w-3xl mx-auto my-4 bg-white rounded-xl shadow p-6">
-                    <h3 class="text-xl font-bold mb-4 text-blue-700">Frekans Analizi: Sayısal Veri Tablosu</h3>
-                    <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="p-2">Soru</th>
-                                <th class="p-2">Şık</th>
-                                <th class="p-2">Sayı</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">1. Hijyen ve Temizlik</td><td class="border p-2">Çok Memnunum</td><td class="border p-2">35</td></tr>
-                            <tr><td class="border p-2">Memnunum</td><td class="border p-2">45</td></tr>
-                            <tr><td class="border p-2">Kararsızım</td><td class="border p-2">10</td></tr>
-                            <tr><td class="border p-2">Memnun Değilim</td><td class="border p-2">5</td></tr>
-                            <tr><td class="border p-2">Hiç Memnun Değilim</td><td class="border p-2">5</td></tr>
-                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">2. Personel Hizmet Kalitesi</td><td class="border p-2">Çok Memnunum</td><td class="border p-2">40</td></tr>
-                            <tr><td class="border p-2">Memnunum</td><td class="border p-2">30</td></tr>
-                            <tr><td class="border p-2">Kararsızım</td><td class="border p-2">20</td></tr>
-                            <tr><td class="border p-2">Memnun Değilim</td><td class="border p-2">10</td></tr>
-                            <tr><td class="border p-2">Hiç Memnun Değilim</td><td class="border p-2">0</td></tr>
-                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">3. Doktor ve Hemşire Davranışı</td><td class="border p-2">Çok Memnunum</td><td class="border p-2">60</td></tr>
-                            <tr><td class="border p-2">Memnunum</td><td class="border p-2">30</td></tr>
-                            <tr><td class="border p-2">Kararsızım</td><td class="border p-2">5</td></tr>
-                            <tr><td class="border p-2">Memnun Değilim</td><td class="border p-2">5</td></tr>
-                            <tr><td class="border p-2">Hiç Memnun Değilim</td><td class="border p-2">0</td></tr>
-                        </tbody>
-                    </table>
-                </section>
                         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-2">
                             <h3 class="text-xl font-semibold mb-2 md:mb-0">Anket Sonuçları</h3>
                             <div class="flex flex-col md:flex-row gap-2 items-center">
@@ -321,8 +217,7 @@
                                 <span class="mx-1">-</span>
                                 <input type="date" id="reportEndDate" class="border rounded px-2 py-1 text-sm" />
                                 <button onclick="filterByDateRange()" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Tarihe Göre Rapor</button>
-                                <button onclick="showPDFReport(true)" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">📄 PDF Göster (Filtreli)</button>
-                                <button onclick="showPDFReport(false)" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">📄 PDF Göster (Tümü)</button>
+                                <!-- PDF butonları kaldırıldı -->
                             </div>
                         </div>
                     <!-- Grafikler Bölümü -->
@@ -403,6 +298,11 @@
                             </div>
                         </div>
                     </div>
+                <!-- EN ALTA EKLENEN Frekans Analizi Tablosu (test için) -->
+                <div class="bg-white border rounded-xl p-4 md:p-6 mb-6 mt-8">
+                    <h4 class="font-semibold text-gray-800 mb-4 text-lg">Frekans Analizi (En Alt Test)</h4>
+                    <div id="detailedFrequencyTablesBottom"></div>
+                </div>
                     <div id="detailedReport" class="space-y-4"></div>
                 </div>
             </div>
@@ -433,7 +333,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-blue-100 p-6 rounded-lg text-center">
-                        <h3 class="font-semibold text-blue-800 mb-2">Toplam Kurum</h3>
+                        <h3 class="font-semibold text-blue-800 mb-2">Toplam Okul/Kurum</h3>
                         <p class="text-3xl font-bold text-blue-600" id="totalCompanies">0</p>
                     </div>
                     <div class="bg-green-100 p-6 rounded-lg text-center">
@@ -451,7 +351,7 @@
                 </div>
 
                 <div class="bg-white border rounded-lg p-6">
-                    <h3 class="text-xl font-semibold mb-6">Kurum Listesi ve Yönetimi</h3>
+                    <h3 class="text-xl font-semibold mb-6">Okul/Kurum Listesi ve Yönetimi</h3>
                     <div class="mb-4 flex flex-col sm:flex-row gap-2 items-center">
                         <input id="companySearchInput" type="text" placeholder="🔍 Kurum adı ile ara..." class="border border-gray-300 rounded px-3 py-2 text-sm w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" oninput="filterCompanyList()">
                     </div>
@@ -459,7 +359,7 @@
                         <table class="w-full table-auto">
                             <thead>
                                 <tr class="bg-gray-50">
-                                    <th class="px-4 py-3 text-left">Kurum Adı</th>
+                                    <th class="px-4 py-3 text-left">Okul/Kurum Adı</th>
                                     <th class="px-4 py-3 text-left">Şifre</th>
                                     <th class="px-4 py-3 text-left">Katılımcı</th>
                                     <th class="px-4 py-3 text-left">Durum</th>
@@ -484,6 +384,92 @@
     </div>
 
         <script>
+// Frekans tablosu için şık isimleri
+const CHOICE_LABELS = [
+    'Çok Memnunum',
+    'Memnunum',
+    'Kararsızım',
+    'Memnun Değilim',
+    'Hiç Memnun Değilim'
+];
+
+// Daha görsel ve okunabilir frekans tablosu (üst ve alt için)
+function renderDetailedFrequencyTables(surveys) {
+    let questions = [];
+    if (window.systemData && systemData.surveyData && Array.isArray(systemData.surveyData.questions)) {
+        questions = systemData.surveyData.questions;
+    } else if (window.currentQuestions && Array.isArray(window.currentQuestions)) {
+        questions = window.currentQuestions;
+    } else if (surveys && surveys.length > 0 && surveys[0].answers) {
+        questions = Array(surveys[0].answers.length).fill('').map((_, i) => `Soru ${i+1}`);
+    }
+    if (!questions.length || !surveys || !surveys.length) {
+        document.getElementById('detailedFrequencyTables').innerHTML = '<div class="text-gray-500">Veri bulunamadı.</div>';
+        var bottomDiv = document.getElementById('detailedFrequencyTablesBottom');
+        if (bottomDiv) bottomDiv.innerHTML = '<div class="text-gray-500">Veri bulunamadı.</div>';
+        return;
+    }
+    let html = '';
+    for (let i = 0; i < questions.length; i++) {
+        // Her şık için sayım
+        const counts = [0, 0, 0, 0, 0];
+        surveys.forEach(resp => {
+            if (resp.answers && resp.answers[i] && typeof resp.answers[i].score === 'number') {
+                const score = resp.answers[i].score;
+                if (score >= 1 && score <= 5) counts[score - 1]++;
+            }
+        });
+        // Toplam cevap sayısı
+        const total = counts.reduce((a, b) => a + b, 0);
+        html += `<div class="mb-8">
+            <div class="font-semibold mb-2 text-base text-blue-900">${i+1}. Soru: <span class="font-normal text-gray-800">${questions[i]}</span></div>
+            <div class="overflow-x-auto">
+            <table class="min-w-full text-base text-center border border-gray-300 shadow rounded-lg bg-white">
+                <thead><tr class="bg-blue-100">`;
+        for (let label of CHOICE_LABELS) {
+            html += `<th class="p-3 font-semibold text-blue-900">${label}</th>`;
+        }
+        html += `<th class="p-3 font-semibold text-blue-900">Toplam</th>`;
+        html += `</tr></thead><tbody><tr>`;
+        for (let c of counts) {
+            html += `<td class="border p-3 text-lg font-bold text-blue-700">${c}</td>`;
+        }
+        html += `<td class="border p-3 text-lg font-bold text-gray-900">${total}</td>`;
+        html += `</tr></tbody></table></div>`;
+        // Oranlar
+        if (total > 0) {
+            html += `<div class="flex flex-wrap gap-2 mt-2">`;
+            for (let j = 0; j < CHOICE_LABELS.length; j++) {
+                const percent = ((counts[j] / total) * 100).toFixed(1);
+                html += `<span class="inline-block bg-blue-50 text-blue-800 rounded-full px-3 py-1 text-xs font-semibold">${CHOICE_LABELS[j]}: ${percent}%</span>`;
+            }
+            html += `</div>`;
+        }
+        html += `</div>`;
+    }
+    document.getElementById('detailedFrequencyTables').innerHTML = html;
+    var bottomDiv = document.getElementById('detailedFrequencyTablesBottom');
+    if (bottomDiv) bottomDiv.innerHTML = html;
+}
+
+// Tarih filtresiyle uyumlu şekilde tabloyu güncelle
+function updateFrequencyTablesWithFilter() {
+    let filtered = window.filteredSurveys;
+    if (!filtered) {
+        filtered = (window.systemData && systemData.surveyData && systemData.surveyData.responses) || [];
+    }
+    renderDetailedFrequencyTables(filtered);
+}
+
+// Sayfa yüklendiğinde ve filtre değiştiğinde tabloyu güncelle
+document.addEventListener('DOMContentLoaded', updateFrequencyTablesWithFilter);
+if (window.filterByDateRange) {
+    const _oldFilterByDateRange = window.filterByDateRange;
+    window.filterByDateRange = function() {
+        _oldFilterByDateRange();
+        setTimeout(updateFrequencyTablesWithFilter, 100);
+    }
+}
 // Modal açma ve kapama fonksiyonları (sadece eksik olanlar eklendi)
 function showModal(title, content) {
     const modal = document.getElementById('modal');
@@ -1003,7 +989,6 @@ function closeModal() {
 
         function showSubmitButton() {
             clearInterval(timerInterval);
-            // Orijinal tebrikler ekranı (SWOT olmadan)
             document.getElementById('questionContainer').innerHTML = `
                 <div class="text-center bg-green-50 p-10 rounded-lg border-2 border-green-200">
                     <div class="text-8xl mb-6">🎉</div>
@@ -1578,7 +1563,21 @@ function closeModal() {
                         ${answerLevels.map((level, i) => `<tr><td>${level}</td><td>${answerCounts[i]}</td></tr>`).join('')}
                     </table>
                 </div>
-                <!-- Detaylı Kategori Analizleri ve Öneriler/Eylem Planı bölümü kaldırıldı -->
+                <div class='section'>
+                    <div class='section-title'>📊 Detaylı Kategori Analizleri</div>
+                    ${hospitalCategories.map(cat => `
+                        <div class='category-box'>
+                            <b>${cat.title}</b><br>
+                            <span style='font-size:0.95rem;'>${cat.desc}</span>
+                            <div style='margin-top:8px;background:#fee2e2;padding:8px;border-radius:6px;'><b>Puan Aralığı: Düşük (%0-50)</b> - Bu kategoride ciddi iyileştirme gereklidir.</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class='section advice-box'>
+                    <b>💡 Öneriler ve Eylem Planı</b><br>
+                    <b>Öncelikli Aksiyonlar:</b> Acil bir eylem planı oluşturulmalı. Hastanenin fiziki koşulları, tıbbi hizmet süreçleri ve iletişim kanalları gözden geçirilmelidir.<br>
+                    <b>Takip:</b> Bu rapor sonuçlarını 3-6 ay sonra tekrar değerlendirmek için yeni anket düzenleyiniz.
+                </div>
                 <div style='text-align:right;font-size:0.9rem;color:#888;margin-top:32px;'>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${dateStr} ${timeStr}<br>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.${dateInfo ? `<br>Filtre: ${dateInfo}` : ''}</div>
             </body></html>
             `;
@@ -1709,6 +1708,55 @@ function closeModal() {
                 btn.textContent = details.classList.contains('hidden') ? '📋 Katılımcıları Görüntüle' : '📋 Katılımcıları Gizle';
             }
         }
+    // Frekans Analizi Tablosunu Oluştur
+    function renderFrequencyTable(surveys) {
+        // Soru listesi güvenli şekilde alınır
+        let questions = [];
+        if (systemData && systemData.surveyData && Array.isArray(systemData.surveyData.questions)) {
+            questions = systemData.surveyData.questions;
+        } else if (window.currentQuestions && Array.isArray(window.currentQuestions)) {
+            questions = window.currentQuestions;
+        } else if (surveys && surveys.length > 0 && surveys[0].answers) {
+            // Cevaplardan soru sayısı kadar boş başlık üret
+            questions = Array(surveys[0].answers.length).fill('').map((_, i) => `Soru ${i+1}`);
+        }
+        if (!questions.length || !surveys || !surveys.length) {
+            document.getElementById('frequencyTableBody').innerHTML = '';
+            return;
+        }
+        let freqRows = '';
+        for (let i = 0; i < questions.length; i++) {
+            const counts = [0, 0, 0, 0, 0];
+            surveys.forEach(resp => {
+                if (resp.answers && resp.answers[i] && typeof resp.answers[i].score === 'number') {
+                    const score = resp.answers[i].score;
+                    if (score >= 1 && score <= 5) counts[score - 1]++;
+                }
+            });
+            freqRows += `<tr><td class="border p-2 text-left">${questions[i]}</td>`;
+            for (let j = 0; j < 5; j++) {
+                freqRows += `<td class="border p-2">${counts[j]}</td>`;
+            }
+            freqRows += `</tr>`;
+        }
+        document.getElementById('frequencyTableBody').innerHTML = freqRows;
+    }
+
+    // Dashboard açıldığında ve filtre değiştiğinde tabloyu doldur
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('companyDashboard')) {
+            // Varsayılan olarak tüm verilerle başlat
+            const allSurveys = (systemData && systemData.surveyData && systemData.surveyData.responses) || [];
+            renderFrequencyTable(allSurveys);
+        }
+    });
+
+    // filterByDateRange ve updateDashboardData fonksiyonlarında tabloyu güncelle
+    const _oldUpdateDashboardData = updateDashboardData;
+    updateDashboardData = function(surveys) {
+        _oldUpdateDashboardData(surveys);
+        renderFrequencyTable(surveys);
+    }
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
