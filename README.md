@@ -249,6 +249,41 @@
                         </div>
                     </div>
                 </section>
+                <!-- SWOT Analizi Frekans Tablosu (Statik Örnek) -->
+                <section class="max-w-3xl mx-auto my-4 bg-white rounded-xl shadow p-6">
+                    <h3 class="text-xl font-bold mb-4 text-blue-700">SWOT Analizi: Seçim Frekansları</h3>
+                    <table class="min-w-full text-sm text-center border border-gray-300 mb-4">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-2">Kategori</th>
+                                <th class="p-2">Madde</th>
+                                <th class="p-2">Seçilme Sayısı</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Güçlü Yönler</td><td class="border p-2">Yüksek hasta memnuniyeti</td><td class="border p-2">23</td></tr>
+                            <tr><td class="border p-2">Güçlü uzman kadro</td><td class="border p-2">18</td></tr>
+                            <tr><td class="border p-2">Modern altyapı</td><td class="border p-2">15</td></tr>
+                            <tr><td class="border p-2">İyi iletişim</td><td class="border p-2">12</td></tr>
+                            <tr><td class="border p-2">Gelişmiş dijital sistemler</td><td class="border p-2">9</td></tr>
+                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Zayıf Yönler</td><td class="border p-2">Yoğunluk dönemlerinde bekleme süresi</td><td class="border p-2">14</td></tr>
+                            <tr><td class="border p-2">İletişim eksiklikleri</td><td class="border p-2">11</td></tr>
+                            <tr><td class="border p-2">Kısıtlı sosyal alanlar</td><td class="border p-2">8</td></tr>
+                            <tr><td class="border p-2">Yetersiz personel</td><td class="border p-2">7</td></tr>
+                            <tr><td class="border p-2">Eskiyen ekipmanlar</td><td class="border p-2">5</td></tr>
+                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Fırsatlar</td><td class="border p-2">Dijitalleşme yatırımları</td><td class="border p-2">17</td></tr>
+                            <tr><td class="border p-2">Yeni branş açılımları</td><td class="border p-2">13</td></tr>
+                            <tr><td class="border p-2">Kamu destekleri</td><td class="border p-2">10</td></tr>
+                            <tr><td class="border p-2">Eğitim fırsatları</td><td class="border p-2">8</td></tr>
+                            <tr><td class="border p-2">Uluslararası işbirlikleri</td><td class="border p-2">6</td></tr>
+                            <tr><td rowspan="5" class="border p-2 align-middle font-semibold">Tehditler</td><td class="border p-2">Artan rekabet</td><td class="border p-2">19</td></tr>
+                            <tr><td class="border p-2">Ekonomik dalgalanmalar</td><td class="border p-2">15</td></tr>
+                            <tr><td class="border p-2">Personel sirkülasyonu</td><td class="border p-2">12</td></tr>
+                            <tr><td class="border p-2">Yasal değişiklikler</td><td class="border p-2">8</td></tr>
+                            <tr><td class="border p-2">Hastalık salgınları</td><td class="border p-2">4</td></tr>
+                        </tbody>
+                    </table>
+                </section>
                 <!-- Frekans Analizi Sayısal Veri Tablosu -->
                 <section class="max-w-3xl mx-auto my-4 bg-white rounded-xl shadow p-6">
                     <h3 class="text-xl font-bold mb-4 text-blue-700">Frekans Analizi: Sayısal Veri Tablosu</h3>
@@ -968,18 +1003,92 @@ function closeModal() {
 
         function showSubmitButton() {
             clearInterval(timerInterval);
-            document.getElementById('questionContainer').innerHTML = `
-                <div class="text-center bg-green-50 p-10 rounded-lg border-2 border-green-200">
-                    <div class="text-8xl mb-6">🎉</div>
-                    <h3 class="text-2xl font-semibold text-green-800 mb-4">Tebrikler!</h3>
-                    <p class="text-green-700 mb-6 text-lg">Tüm soruları yanıtladınız. Anketi tamamlamak için aşağıdaki butona tıklayın.</p>
-                    <div class="text-base text-green-600">
-                        <p>Toplam süre: ${document.getElementById('timeElapsed').textContent.split(': ')[1]}</p>
-                    </div>
-                </div>
-            `;
-            document.getElementById('submitSurvey').classList.remove('hidden');
+            // SWOT maddeleri
+            const swotData = {
+                guclu: [
+                    'Yüksek hasta memnuniyeti',
+                    'Güçlü uzman kadro',
+                    'Modern altyapı',
+                    'İyi iletişim',
+                    'Gelişmiş dijital sistemler'
+                ],
+                zayif: [
+                    'Yoğunluk dönemlerinde bekleme süresi',
+                    'İletişim eksiklikleri',
+                    'Kısıtlı sosyal alanlar',
+                    'Yetersiz personel',
+                    'Eskiyen ekipmanlar'
+                ],
+                firsat: [
+                    'Dijitalleşme yatırımları',
+                    'Yeni branş açılımları',
+                    'Kamu destekleri',
+                    'Eğitim fırsatları',
+                    'Uluslararası işbirlikleri'
+                ],
+                tehdit: [
+                    'Artan rekabet',
+                    'Ekonomik dalgalanmalar',
+                    'Personel sirkülasyonu',
+                    'Yasal değişiklikler',
+                    'Hastalık salgınları'
+                ]
+            };
+            let swotHtml = `<div class="bg-blue-50 p-6 rounded-lg border-2 border-blue-200 mb-6">
+                <h3 class="text-xl font-bold text-blue-700 mb-4">SWOT Analizi: Güçlü, Zayıf Yönler, Fırsatlar ve Tehditler</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-green-700 mb-2">Güçlü Yönler</h4>`;
+            swotData.guclu.forEach((item, i) => {
+                swotHtml += `<label class='flex items-center mb-2'><input type='checkbox' class='swot-checkbox' data-swot='guclu' value='${item}'> <span class='ml-2'>${item}</span></label>`;
+            });
+            swotHtml += `</div><div><h4 class="font-semibold text-red-700 mb-2">Zayıf Yönler</h4>`;
+            swotData.zayif.forEach((item, i) => {
+                swotHtml += `<label class='flex items-center mb-2'><input type='checkbox' class='swot-checkbox' data-swot='zayif' value='${item}'> <span class='ml-2'>${item}</span></label>`;
+            });
+            swotHtml += `</div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div><h4 class="font-semibold text-blue-700 mb-2">Fırsatlar</h4>`;
+            swotData.firsat.forEach((item, i) => {
+                swotHtml += `<label class='flex items-center mb-2'><input type='checkbox' class='swot-checkbox' data-swot='firsat' value='${item}'> <span class='ml-2'>${item}</span></label>`;
+            });
+            swotHtml += `</div><div><h4 class="font-semibold text-yellow-700 mb-2">Tehditler</h4>`;
+            swotData.tehdit.forEach((item, i) => {
+                swotHtml += `<label class='flex items-center mb-2'><input type='checkbox' class='swot-checkbox' data-swot='tehdit' value='${item}'> <span class='ml-2'>${item}</span></label>`;
+            });
+            swotHtml += `</div></div></div>`;
+            swotHtml += `<button id="swotSubmitBtn" class="w-full mt-6 py-3 rounded text-white font-semibold bg-blue-600 hover:bg-blue-700 transition-opacity text-lg">SWOT Seçimini Kaydet ve Anketi Tamamla</button>`;
+            document.getElementById('questionContainer').innerHTML = swotHtml;
+            document.getElementById('submitSurvey').classList.add('hidden');
             updateProgress();
+            // SWOT submit butonuna event ekle
+            setTimeout(() => {
+                const swotBtn = document.getElementById('swotSubmitBtn');
+                if (swotBtn) {
+                    swotBtn.onclick = function() {
+                        // Seçilen SWOT maddelerini topla
+                        const swotSelections = { guclu: [], zayif: [], firsat: [], tehdit: [] };
+                        document.querySelectorAll('.swot-checkbox:checked').forEach(cb => {
+                            const type = cb.getAttribute('data-swot');
+                            swotSelections[type].push(cb.value);
+                        });
+                        // Cevaplara ekle
+                        answers.push({ question: 'SWOT', score: swotSelections, timestamp: new Date().toISOString() });
+                        // Orijinal tebrikler ekranı
+                        document.getElementById('questionContainer').innerHTML = `
+                            <div class="text-center bg-green-50 p-10 rounded-lg border-2 border-green-200">
+                                <div class="text-8xl mb-6">🎉</div>
+                                <h3 class="text-2xl font-semibold text-green-800 mb-4">Tebrikler!</h3>
+                                <p class="text-green-700 mb-6 text-lg">Tüm soruları ve SWOT analizini tamamladınız. Anketi göndermek için aşağıdaki butona tıklayın.</p>
+                                <div class="text-base text-green-600">
+                                    <p>Toplam süre: ${document.getElementById('timeElapsed').textContent.split(': ')[1]}</p>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('submitSurvey').classList.remove('hidden');
+                        updateProgress();
+                    }
+                }
+            }, 100);
         }
 
         // JSONBin.io API fonksiyonları
