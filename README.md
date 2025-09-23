@@ -866,24 +866,24 @@ function closeModal() {
                     <h3 class="text-xl font-semibold mb-6">${question}</h3>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <button onclick="selectAnswer(1)" class="answer-btn py-4 px-3 text-base rounded-lg border-2 border-red-200 hover:border-red-400 hover:bg-red-50 transition-all duration-200 text-center">
-                            <div class="text-2xl mb-2">😞</div>
-                            <div class="text-sm font-medium">Hiç Memnun Değilim</div>
+                            <div class="text-3xl font-bold mb-2 text-red-600">1</div>
+                            <div class="text-sm font-medium text-gray-700">Hiç Memnun Değilim</div>
                         </button>
                         <button onclick="selectAnswer(2)" class="answer-btn py-4 px-3 text-base rounded-lg border-2 border-orange-200 hover:border-orange-400 hover:bg-orange-50 transition-all duration-200 text-center">
-                            <div class="text-2xl mb-2">😐</div>
-                            <div class="text-sm font-medium">Memnun Değilim</div>
+                            <div class="text-3xl font-bold mb-2 text-orange-600">2</div>
+                            <div class="text-sm font-medium text-gray-700">Memnun Değilim</div>
                         </button>
                         <button onclick="selectAnswer(3)" class="answer-btn py-4 px-3 text-base rounded-lg border-2 border-yellow-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 text-center">
-                            <div class="text-2xl mb-2">😊</div>
-                            <div class="text-sm font-medium">Kararsızım</div>
+                            <div class="text-3xl font-bold mb-2 text-yellow-600">3</div>
+                            <div class="text-sm font-medium text-gray-700">Kararsızım</div>
                         </button>
                         <button onclick="selectAnswer(4)" class="answer-btn py-4 px-3 text-base rounded-lg border-2 border-green-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 text-center">
-                            <div class="text-2xl mb-2">😄</div>
-                            <div class="text-sm font-medium">Memnunum</div>
+                            <div class="text-3xl font-bold mb-2 text-green-600">4</div>
+                            <div class="text-sm font-medium text-gray-700">Memnunum</div>
                         </button>
                         <button onclick="selectAnswer(5)" class="answer-btn py-4 px-3 text-base rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 text-center">
-                            <div class="text-2xl mb-2">🤩</div>
-                            <div class="text-sm font-medium">Çok Memnunum</div>
+                            <div class="text-3xl font-bold mb-2 text-blue-600">5</div>
+                            <div class="text-sm font-medium text-gray-700">Çok Memnunum</div>
                         </button>
                     </div>
                 </div>
@@ -1608,23 +1608,23 @@ function closeModal() {
                 if (avgScore >= 4.5) {
                     evaluation = 'Çok Memnun';
                     evaluationColor = 'text-green-600';
-                    evaluationIcon = '😄';
+                    evaluationIcon = '5';
                 } else if (avgScore >= 3.5) {
                     evaluation = 'Memnun';
                     evaluationColor = 'text-green-500';
-                    evaluationIcon = '😊';
+                    evaluationIcon = '4';
                 } else if (avgScore >= 2.5) {
                     evaluation = 'Orta';
                     evaluationColor = 'text-yellow-600';
-                    evaluationIcon = '😐';
+                    evaluationIcon = '3';
                 } else if (avgScore >= 1.5) {
                     evaluation = 'Düşük';
                     evaluationColor = 'text-orange-600';
-                    evaluationIcon = '😕';
+                    evaluationIcon = '2';
                 } else {
                     evaluation = 'Çok Düşük';
                     evaluationColor = 'text-red-600';
-                    evaluationIcon = '😞';
+                    evaluationIcon = '1';
                 }
                 
                 return `
@@ -1637,7 +1637,10 @@ function closeModal() {
                         </td>
                         <td class="px-3 py-2 text-center font-semibold">${avgScore.toFixed(1)}</td>
                         <td class="px-3 py-2 text-center ${evaluationColor} font-semibold">
-                            ${evaluationIcon} ${evaluation}
+                            <span class="inline-flex items-center gap-1">
+                                <span class="inline-block w-6 h-6 rounded-full bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center">${evaluationIcon}</span>
+                                ${evaluation}
+                            </span>
                         </td>
                         <td class="px-3 py-2 text-center text-sm text-gray-600">${new Date(survey.submittedAt).toLocaleDateString('tr-TR')}</td>
                     </tr>
