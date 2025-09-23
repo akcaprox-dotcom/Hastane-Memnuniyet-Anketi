@@ -44,6 +44,44 @@
             .no-print { display: none !important; }
             body { background: white !important; }
         }
+        
+        /* Profesyonel Tablo Stilleri */
+        .survey-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .survey-table th, .survey-table td {
+            border: 1px solid #a3a3a3;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        .survey-table th {
+            background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #6c757d;
+        }
+        .main-group-row {
+            background: linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 100%);
+            font-weight: 700;
+            color: #1565c0;
+        }
+        .sub-category {
+            background: #f8f9fa;
+            text-align: left !important;
+            font-weight: 500;
+            padding-left: 20px;
+        }
+        .survey-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .survey-table tbody tr:hover {
+            background: #e3f2fd;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -1268,6 +1306,12 @@ function closeModal() {
             generateSimpleReport(surveys);
             generateCharts(surveys);
             renderSummaryFrequencyTable(surveys); // Özet tabloyu güncelle
+            
+            // Eğer katılımcı tablosu açıksa onu da güncelle
+            const participantDetails = document.getElementById('participantDetails');
+            if (participantDetails && !participantDetails.classList.contains('hidden')) {
+                loadParticipantTable(surveys);
+            }
         }
         // HASTANE PDF RAPORU OLUŞTURMA
         // showPDFReport(true) => filtreli, showPDFReport(false) => tümü
@@ -1530,26 +1574,74 @@ function closeModal() {
 
         // Katılımcı detay tablosunu dolduran fonksiyon
         function generateSimpleReport(surveys) {
+            loadParticipantTable(surveys);
+        }
+
+        function getParticipantCount(surveys) {
+            return surveys ? surveys.length : 0;
+        }
+
+        function loadParticipantTable(surveys) {
             const tbody = document.getElementById('participantTableBody');
             if (!tbody) return;
+            
             if (!surveys || surveys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-400 py-4">Kayıtlı katılımcı yok.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Henüz katılımcı bulunmuyor.</td></tr>';
                 return;
             }
-            tbody.innerHTML = surveys.map(s => {
-                const avg = parseFloat(s.averageScore).toFixed(2);
-                let evalLabel = '';
-                if (avg < 2.5) evalLabel = '<span class="text-red-600 font-semibold">Düşük</span>';
-                else if (avg < 3.5) evalLabel = '<span class="text-yellow-600 font-semibold">Orta</span>';
-                else evalLabel = '<span class="text-green-600 font-semibold">Yüksek</span>';
-                const date = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('tr-TR') : '-';
-                return `<tr>
-                    <td class="px-3 py-2">${s.firstName || ''} ${s.lastName || ''}</td>
-                    <td class="px-3 py-2">${s.jobType || '-'}</td>
-                    <td class="px-3 py-2 text-center">${avg}</td>
-                    <td class="px-3 py-2 text-center">${evalLabel}</td>
-                    <td class="px-3 py-2 text-center">${date}</td>
-                </tr>`;
+            
+            // Puana göre yüksekten düşüğe sırala
+            const sortedSurveys = [...surveys].sort((a, b) => 
+                parseFloat(b.averageScore) - parseFloat(a.averageScore)
+            );
+            
+            tbody.innerHTML = sortedSurveys.map(survey => {
+                const displayName = (survey.firstName && survey.lastName) ? 
+                    `${survey.firstName} ${survey.lastName}` : 
+                    (survey.firstName || survey.lastName || 'İsimsiz');
+                
+                const avgScore = parseFloat(survey.averageScore);
+                let evaluation = '';
+                let evaluationColor = '';
+                let evaluationIcon = '';
+                
+                if (avgScore >= 4.5) {
+                    evaluation = 'Çok Memnun';
+                    evaluationColor = 'text-green-600';
+                    evaluationIcon = '😄';
+                } else if (avgScore >= 3.5) {
+                    evaluation = 'Memnun';
+                    evaluationColor = 'text-green-500';
+                    evaluationIcon = '😊';
+                } else if (avgScore >= 2.5) {
+                    evaluation = 'Orta';
+                    evaluationColor = 'text-yellow-600';
+                    evaluationIcon = '😐';
+                } else if (avgScore >= 1.5) {
+                    evaluation = 'Düşük';
+                    evaluationColor = 'text-orange-600';
+                    evaluationIcon = '😕';
+                } else {
+                    evaluation = 'Çok Düşük';
+                    evaluationColor = 'text-red-600';
+                    evaluationIcon = '😞';
+                }
+                
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-2 font-medium">${displayName}</td>
+                        <td class="px-3 py-2">
+                            <span class="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                ${survey.jobType}
+                            </span>
+                        </td>
+                        <td class="px-3 py-2 text-center font-semibold">${avgScore.toFixed(1)}</td>
+                        <td class="px-3 py-2 text-center ${evaluationColor} font-semibold">
+                            ${evaluationIcon} ${evaluation}
+                        </td>
+                        <td class="px-3 py-2 text-center text-sm text-gray-600">${new Date(survey.submittedAt).toLocaleDateString('tr-TR')}</td>
+                    </tr>
+                `;
             }).join('');
         }
 
@@ -1557,10 +1649,25 @@ function closeModal() {
         function toggleParticipantDetails() {
             const details = document.getElementById('participantDetails');
             if (!details) return;
-            details.classList.toggle('hidden');
+            
             const btn = document.getElementById('toggleParticipantsBtn');
-            if (btn) {
-                btn.textContent = details.classList.contains('hidden') ? '📋 Katılımcıları Görüntüle' : '📋 Katılımcıları Gizle';
+            
+            if (details.classList.contains('hidden')) {
+                details.classList.remove('hidden');
+                // Mevcut verileri kullan (filtrelenmiş veya tüm veriler)
+                let surveys = (typeof filteredSurveys !== 'undefined' && filteredSurveys !== null) ? 
+                    filteredSurveys : 
+                    (systemData.surveyData ? systemData.surveyData.responses.filter(s => 
+                        s.companyName && s.companyName.toLowerCase() === loggedInCompany.name.toLowerCase()
+                    ) : []);
+                
+                loadParticipantTable(surveys);
+                // Buton metnini katılımcı sayısıyla güncelle
+                const participantCount = getParticipantCount(surveys);
+                btn.textContent = `📋 Katılımcıları Gizle (${participantCount})`;
+            } else {
+                details.classList.add('hidden');
+                btn.textContent = '📋 Katılımcıları Görüntüle';
             }
         }
     // Detaylı frekans tablosu fonksiyonu (Türkçe etiketlerle)
@@ -1685,10 +1792,10 @@ function closeModal() {
             1: 'Hiç Memnun Değilim'
         };
         let html = '<div class="mb-6"><div class="font-semibold text-gray-800 mb-2">Özet Frekans Tablosu</div>';
-        html += '<div class="overflow-x-auto"><table class="min-w-full text-xs text-center border border-gray-300 rounded-lg">';
-        html += '<thead><tr><th class="bg-gray-100 border p-2">Grup / Soru</th>';
+        html += '<div class="overflow-x-auto"><table class="survey-table">';
+        html += '<thead><tr><th style="text-align: left; width: 250px;">Grup / Kategori</th>';
         [5,4,3,2,1].forEach(score => {
-            html += `<th class="bg-gray-100 border p-2">${scoreLabels[score]}</th>`;
+            html += `<th style="width: 120px;">${scoreLabels[score]}</th>`;
         });
         html += '</tr></thead><tbody>';
         groups.forEach(group => {
@@ -1716,23 +1823,166 @@ function closeModal() {
                 questionFreqs.push(freq);
             }
             // Grup başlık satırı (yüzdeler)
-            html += `<tr><td class="border p-2 font-bold bg-gray-50">${group}</td>`;
+            html += `<tr class="main-group-row">
+                <td style="text-align: left; font-weight: 700;">${group}</td>`;
             [5,4,3,2,1].forEach(score => {
                 const percent = groupAnswerCount > 0 ? ((groupScoreTotals[score]/groupAnswerCount)*100).toFixed(1) : '0.0';
-                html += `<td class="border p-2 bg-gray-50 font-bold">${percent}%</td>`;
+                html += `<td style="font-weight: 600;">${percent}%</td>`;
             });
             html += '</tr>';
-            // 10 soru satırı
+            // Kategori satırları
             groupTitles[group].forEach((title, qIdx) => {
-                html += `<tr><td class="border p-2 text-left">${qIdx+1}. ${title}</td>`;
+                html += `<tr>
+                    <td class="sub-category">${title}</td>`;
                 [5,4,3,2,1].forEach(score => {
-                    html += `<td class="border p-2">${questionFreqs[qIdx][score] || 0}</td>`;
+                    html += `<td style="text-align: center;">${questionFreqs[qIdx][score] || 0}</td>`;
                 });
                 html += '</tr>';
             });
         });
         html += '</tbody></table></div></div>';
-        container.innerHTML = html;
+        
+        // Grafik alanı ekle
+        const totalResponses = surveys.length;
+        const chartTitle = totalResponses > 0 ? 
+            `📊 Grup Bazlı Memnuniyet Dağılımı (${totalResponses} Katılımcı)` : 
+            '📊 Grup Bazlı Memnuniyet Dağılımı (Veri Yok)';
+            
+        const chartSection = `
+            <div class="mt-8 bg-white border rounded-lg p-6" style="box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">${chartTitle}</h3>
+                <div style="width: 100%; height: 400px;">
+                    <canvas id="hospitalChart"></canvas>
+                </div>
+                ${totalResponses === 0 ? 
+                    '<p class="text-gray-500 text-center mt-4">Henüz anket verisi bulunmuyor. Grafik veriler geldiğinde otomatik olarak güncellenecektir.</p>' : 
+                    '<p class="text-gray-600 text-sm text-center mt-4">Grafik tüm gruplardan gelen cevapları birleştirerek genel memnuniyet dağılımını gösterir.</p>'
+                }
+            </div>
+        `;
+        
+        container.innerHTML = html + chartSection;
+        
+        // Grafik oluştur
+        generateHospitalChart(surveys);
+    }
+
+    let hospitalChartInstance = null;
+
+    function generateHospitalChart(surveys) {
+        try {
+            console.log('generateHospitalChart çalışıyor, survey sayısı:', surveys ? surveys.length : 0);
+            
+            // Önce survey verilerinin yapısını inceleyelim
+            if (surveys && surveys.length > 0) {
+                console.log('İlk hastane survey örneği:', surveys[0]);
+            }
+            
+            // Mevcut grafiği temizle
+            if (hospitalChartInstance) {
+                hospitalChartInstance.destroy();
+                hospitalChartInstance = null;
+            }
+
+            const canvas = document.getElementById('hospitalChart');
+            if (!canvas) {
+                console.log('hospitalChart canvas bulunamadı');
+                return;
+            }
+
+            // Memnuniyet verilerini hazırla - Basit yaklaşım
+            const satisfactionData = [0, 0, 0, 0, 0]; // [Çok Memnun, Memnun, Kararsız, Memnun Değil, Hiç Memnun Değil]
+
+            // Survey verilerinden memnuniyet hesapla
+            if (surveys && surveys.length > 0) {
+                console.log('Hastane grafiği için işlenen survey sayısı:', surveys.length);
+                
+                // Her survey için ortalama puan üzerinden memnuniyet hesapla
+                surveys.forEach((survey, surveyIndex) => {
+                    const avgScore = parseFloat(survey.averageScore) || 0;
+                    
+                    if (avgScore > 0) {
+                        // Ortalama puana göre memnuniyet seviyesi belirle
+                        let satisfactionIndex;
+                        if (avgScore >= 4.5) satisfactionIndex = 0; // Çok Memnun
+                        else if (avgScore >= 3.5) satisfactionIndex = 1; // Memnun
+                        else if (avgScore >= 2.5) satisfactionIndex = 2; // Kararsız
+                        else if (avgScore >= 1.5) satisfactionIndex = 3; // Memnun Değil
+                        else satisfactionIndex = 4; // Hiç Memnun Değil
+                        
+                        satisfactionData[satisfactionIndex]++;
+                        
+                        console.log(`Hastane Survey ${surveyIndex}: avgScore=${avgScore}, satisfactionIndex=${satisfactionIndex}`);
+                    }
+                });
+            }
+
+            console.log('Hastane memnuniyet dağılımı:', satisfactionData);
+
+            // Grafik verilerini hazırla
+            const chartData = {
+                labels: ['Çok Memnun', 'Memnun', 'Kararsız', 'Memnun Değil', 'Hiç Memnun Değil'],
+                datasets: [{
+                    label: 'Hastane Memnuniyet Dağılımı',
+                    data: satisfactionData,
+                    backgroundColor: [
+                        '#22C55E', // Çok Memnun - Yeşil
+                        '#84CC16', // Memnun - Açık Yeşil  
+                        '#EAB308', // Kararsız - Sarı
+                        '#F97316', // Memnun Değil - Turuncu
+                        '#EF4444'  // Hiç Memnun Değil - Kırmızı
+                    ],
+                    borderColor: [
+                        '#16A34A',
+                        '#65A30D', 
+                        '#CA8A04',
+                        '#EA580C',
+                        '#DC2626'
+                    ],
+                    borderWidth: 2
+                }]
+            };
+
+            // Grafik ayarları (eğitim anketindeki gibi)
+            const config = {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Katılımcı Sayısı'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = satisfactionData.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+                                    return context.dataset.label + ': ' + context.raw + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Grafiği oluştur
+            const ctx = canvas.getContext('2d');
+            hospitalChartInstance = new Chart(ctx, config);
+            
+        } catch (error) {
+            console.error('Hastane grafiği oluşturma hatası:', error);
+        }
     }
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
