@@ -507,7 +507,32 @@ function closeModal() {
                 if (e) e.preventDefault();
                 return;
             }
-            // ...devamında eski anket başlatma kontrolleriniz...
+
+            // Seçilen role göre soruları al
+            currentQuestions = questions[selectedJobType];
+            console.log('Seçilen rol:', selectedJobType);
+            console.log('Sorular:', currentQuestions);
+
+            if (!currentQuestions || currentQuestions.length === 0) {
+                showModal('❌ Hata', 'Seçilen rol için sorular bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin.');
+                if (e) e.preventDefault();
+                return;
+            }
+
+            // Değişkenleri sıfırla
+            currentQuestionIndex = 0;
+            answers = [];
+            surveyStartTime = new Date();
+
+            // Anket bölümünü göster
+            document.getElementById('disclaimerSection').classList.add('hidden');
+            document.getElementById('companyInfoSection').classList.add('hidden');
+            document.getElementById('surveySection').classList.remove('hidden');
+
+            startTimer();
+            displayCurrentQuestion();
+
+            console.log('Anket başarıyla başlatıldı!');
         }
         let currentModule = 'survey';
         let surveyStartTime = null;
@@ -802,8 +827,11 @@ function closeModal() {
         }
 
         function selectJobType(jobType) {
+            // Sadece rol seçimi yap, anket başlatma
+            window.selectedJobType = jobType;
             selectedJobType = jobType;
             console.log('Seçilen rol:', jobType);
+            
             // Tüm butonları sıfırla
             const allButtons = document.querySelectorAll('.job-btn');
             allButtons.forEach(btn => {
@@ -816,35 +844,20 @@ function closeModal() {
                 btn.style.boxShadow = '';
             });
 
-            if (!firstName || !lastName) {
-                showModal('⚠️ Eksik Bilgi', 'Lütfen adınızı ve soyadınızı girin.');
-                return;
+            // Seçili butonu vurgula
+            const selectedBtn = document.getElementById(jobType === 'Hasta' ? 'patientBtn' : 
+                                                      jobType === 'Doktor' ? 'doctorBtn' : 'managementBtn');
+            if (selectedBtn) {
+                selectedBtn.classList.add('selected-job');
+                selectedBtn.style.border = '3px solid #6366f1';
+                selectedBtn.style.backgroundColor = '#6366f1';
+                selectedBtn.style.color = 'white';
+                selectedBtn.style.fontWeight = 'bold';
+                selectedBtn.style.transform = 'scale(1.05)';
+                selectedBtn.style.boxShadow = '0 4px 8px rgba(99, 102, 241, 0.3)';
             }
 
-            // Seçilen role göre soruları al
-            currentQuestions = questions[selectedJobType];
-            console.log('Seçilen rol:', selectedJobType);
-            console.log('Sorular:', currentQuestions);
-
-            if (!currentQuestions || currentQuestions.length === 0) {
-                showModal('❌ Hata', 'Seçilen rol için sorular bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin.');
-                return;
-            }
-
-            // Değişkenleri sıfırla
-            currentQuestionIndex = 0;
-            answers = [];
-            surveyStartTime = new Date();
-
-            // Anket bölümünü göster
-            document.getElementById('disclaimerSection').classList.add('hidden');
-            document.getElementById('companyInfoSection').classList.add('hidden');
-            document.getElementById('surveySection').classList.remove('hidden');
-
-            startTimer();
-            displayCurrentQuestion();
-
-            console.log('Anket başarıyla başlatıldı!');
+            console.log('Rol seçildi:', jobType);
         }
 
         function startTimer() {
