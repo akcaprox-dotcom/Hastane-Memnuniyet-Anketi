@@ -314,6 +314,17 @@
         </div>
     </div>
 
+    <!-- AI Interpretation Modal -->
+    <div id="aiInterpretationModal" class="modal">
+      <div class="modal-content max-w-7xl bg-white shadow-2xl" style="margin: 2% auto; padding: 40px; border-radius: 20px; max-height: 90vh; overflow-y: auto; width: 95vw;">
+        <div class="modal-header flex justify-between items-center mb-6 border-b pb-4">
+          <h2 class="text-2xl font-bold text-gray-800">🏥 Sağlık Hizmetleri AI Analiz</h2>
+          <span class="close cursor-pointer text-4xl text-gray-500 hover:text-gray-700" onclick="document.getElementById('aiInterpretationModal').classList.remove('show')">&times;</span>
+        </div>
+        <div id="aiInterpretationContent" class="text-lg text-gray-800 leading-8 whitespace-pre-line"></div>
+      </div>
+    </div>
+
     <!-- Yönetici Portalı -->
     <div id="adminModule" class="max-w-5xl mx-auto p-2 md:p-4 hidden">
         <div class="bg-white shadow-xl rounded-2xl max-w-5xl mx-auto p-4 md:p-8">
@@ -1588,6 +1599,68 @@ function closeModal() {
         // Katılımcı detay tablosunu dolduran fonksiyon
         function generateSimpleReport(surveys) {
             loadParticipantTable(surveys);
+            
+            // AI butonunu detailedReport alanına ekle
+            if (surveys && surveys.length > 0) {
+                const aiButtonHTML = `
+                    <div class="mt-6 bg-white rounded-lg border p-4">
+                        <div class="text-center">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">🤖 Yapay Zeka ile Sağlık Hizmetleri Analizi</h4>
+                            <button id="aiInterpretBtn" class="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold text-sm hover:from-red-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                🏥 Hastane Değerlendirmesini AI ile Analiz Et
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('detailedReport').innerHTML = aiButtonHTML;
+                
+                // AI buton eventini ekle
+                setTimeout(() => {
+                    const btn = document.getElementById('aiInterpretBtn');
+                    if (btn) btn.onclick = async function() {
+                        const apiKey = 'AIzaSyCJXufO8b2AMWRZpw-QctHSWgWSg2j8L1Y';
+                        btn.disabled = true;
+                        btn.textContent = '🔄 AI sağlık analizi yapıyor...';
+                        try {
+                            // Hastane anket verilerini hazırla
+                            const totalParticipants = surveys.length;
+                            const avgScore = surveys.reduce((sum, s) => sum + parseFloat(s.averageScore), 0) / surveys.length;
+                            const highSatisfaction = surveys.filter(s => parseFloat(s.averageScore) >= 4).length;
+                            const lowSatisfaction = surveys.filter(s => parseFloat(s.averageScore) < 3).length;
+                            
+                            const summary = `Hastane Değerlendirme Raporu:
+                            - Toplam Katılımcı: ${totalParticipants}
+                            - Ortalama Memnuniyet Puanı: ${avgScore.toFixed(2)}/5
+                            - Yüksek Memnuniyet (4+ puan): ${highSatisfaction} kişi (${Math.round((highSatisfaction/totalParticipants)*100)}%)
+                            - Düşük Memnuniyet (3- puan): ${lowSatisfaction} kişi (${Math.round((lowSatisfaction/totalParticipants)*100)}%)`;
+                            
+                            const prompt = `Bir sağlık hizmetleri uzmanı ve hastane yöneticisi gibi aşağıdaki hastane değerlendirme anket raporunu analiz et.\n\nRapor Özeti:\n${summary}\n\nAşağıdaki başlıklarla detaylı, profesyonel ve sağlık hizmetleri odaklı bir analiz yaz:\n\n1. Mevcut Sağlık Hizmetleri Durumu\n2. Hastane Hizmet Kalitesinde Nelerin İyileştirilmesi Gerekiyor\n3. Bu Durumun Devam Etmesi Halinde Hasta Memnuniyeti ve Hastane İtibarına Etkileri\n\nHer başlık için en az 3-4 cümlelik, sağlık hizmetleri kalitesine uygun, özgün ve uygulanabilir öneriler içeren bir metin oluştur. Hasta güvenliği ve hizmet kalitesi odaklı yaklaşım benimse.\n`;
+                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'x-goog-api-key': apiKey
+                                },
+                                body: JSON.stringify({
+                                    contents: [{ parts: [{ text: prompt }] }]
+                                })
+                            });
+                            if (!response.ok) throw new Error('API Hatası: ' + response.status);
+                            const result = await response.json();
+                            let text = (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts[0].text) || 'AI yanıtı alınamadı.';
+                            document.getElementById('aiInterpretationContent').innerHTML = `<pre class="whitespace-pre-wrap bg-gray-50 p-4 rounded text-sm border">${text}</pre>`;
+                            document.getElementById('aiInterpretationModal').classList.add('show');
+                        } catch (e) {
+                            alert('AI yorumlama hatası: ' + e.message);
+                        } finally {
+                            btn.disabled = false;
+                            btn.textContent = '🏥 Hastane Değerlendirmesini AI ile Analiz Et';
+                        }
+                    }
+                }, 500);
+            } else {
+                document.getElementById('detailedReport').innerHTML = '<p class="text-gray-500 text-center py-8">Henüz değerlendirme verisi bulunmuyor.</p>';
+            }
         }
 
         function getParticipantCount(surveys) {
