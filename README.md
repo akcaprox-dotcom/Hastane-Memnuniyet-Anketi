@@ -101,26 +101,26 @@
             <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Hoş Geldiniz</h2>
             
             <p class="text-gray-700 mb-6">
-                Bu Kurum Değerlendirme Anketi, hizmet kalitemizi anlamak ve iyileştirmek amacıyla tasarlanmıştır. Görüşleriniz tamamen gizli tutulacak ve sadece istatistiksel analizler için kullanılacaktır. Katılımınız için teşekkür ederiz.
+                [cite_start]Bu Kurum Değerlendirme Anketi, hizmet kalitemizi anlamak ve iyileştirmek amacıyla tasarlanmıştır. [cite: 13] [cite_start]Görüşleriniz tamamen gizli tutulacak ve sadece istatistiksel analizler için kullanılacaktır. [cite: 14] Katılımınız için teşekkür ederiz.
             </p>
 
             <div class="mb-8 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded-lg">
                 <p class="font-semibold">Lütfen Dikkat:</p>
                 <ul class="list-disc pl-5 mt-1 text-sm">
-                    <li>Anket yaklaşık 5-10 dakikanızı alacaktır.</li>
-                    <li>Tüm soruları dürüstçe yanıtlamanız, raporumuzun doğruluğu için kritiktir.</li>
+                    [cite_start]<li>Anket yaklaşık 5-10 dakikanızı alacaktır. [cite: 15]</li>
+                    [cite_start]<li>Tüm soruları dürüstçe yanıtlamanız, raporumuzun doğruluğu için kritiktir. [cite: 15]</li>
                 </ul>
             </div>
             
             <div class="mb-8 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded-lg">
                  <p class="font-semibold">Veri Güvencesi:</p>
-                 <p class="text-sm">Tüm anket verileri, <b class="text-blue-700">Google Firebase</b> altyapısı üzerinde yüksek güvenlik ve gizlilik standartları ile saklanmaktadır. Verilerinizin sorumluluğu ve güvencesi Google'ın küresel altyapısı altındadır.</p>
+                 [cite_start]<p class="text-sm">Tüm anket verileri, <b class="text-blue-700">Google Firebase</b> altyapısı üzerinde yüksek güvenlik ve gizlilik standartları ile saklanmaktadır. [cite: 16] [cite_start]Verilerinizin sorumluluğu ve güvencesi Google'ın küresel altyapısı altındadır. [cite: 16]</p>
             </div>
             
             <div class="flex items-center mb-8">
                 <input type="checkbox" id="acceptDisclaimer" class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
                 <label for="acceptDisclaimer" class="ml-3 text-gray-700 select-none">
-                    Veri koruma beyanını okudum ve anket sonuçlarımın anonim olarak analiz edilmesini kabul ediyorum.
+                    [cite_start]Veri koruma beyanını okudum ve anket sonuçlarımın anonim olarak analiz edilmesini kabul ediyorum. [cite: 17]
                 </label>
             </div>
 
@@ -149,7 +149,7 @@
                     <label for="registeredCompanyName" class="block text-sm font-medium text-gray-700">Kayıtlı Kurumu Seçiniz</label>
                     <select id="registeredCompanyName" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                         <option value="">-- Bir Kurum Seçiniz --</option>
-                        </select>
+                    </select>
                 </div>
                 
                 <div id="newCompanyInput" class="space-y-3 hidden">
@@ -209,7 +209,7 @@
             </div>
             
             <div id="questionContainer" class="mb-8">
-                </div>
+            </div>
 
             <button id="submitSurvey" class="hidden w-full bg-red-600 text-white py-4 rounded-lg text-xl font-semibold hover:bg-red-700 transition-colors shadow-lg mb-10">
                 Anketi Tamamla ve Gönder
@@ -298,7 +298,7 @@
             </div>
             
             <div id="detailedFrequencyTables" class="bg-white p-6 rounded-xl shadow-md mb-8">
-                </div>
+            </div>
 
             <div class="bg-white p-6 rounded-xl shadow-md mb-8">
                 <div class="flex justify-between items-center mb-4">
@@ -406,7 +406,8 @@
                 modalContent.innerHTML = `
                     <h3 class="text-xl font-semibold mb-4">${title}</h3>
                     <div class="mb-6 text-base">${content}</div>
-                    <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 font-semibold">
+                    <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg 
+                        hover:bg-blue-700 font-semibold">
                         Tamam
                     </button>
                 `;
@@ -419,10 +420,12 @@
             document.getElementById('modal').classList.remove('show');
         }
         
-        // Firebase config
+        // ** DÜZELTİLMİŞ FIREBASE CONFIG **
         const firebaseConfig = {
             apiKey: "AIzaSyDp2Yh8hamXi6OTfw03MT0S4rp5CjnlAcg",
             authDomain: "akcaprox-anket.firebaseapp.com",
+            // Hata mesajınızdaki doğru veritabanı adresi eklendi:
+            databaseURL: "https://akcaprox-anket-default-rtdb.firebaseio.com/", 
             projectId: "akcaprox-anket",
             storageBucket: "akcaprox-anket.appspot.com",
             messagingSenderId: "426135179922",
@@ -431,11 +434,10 @@
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.database(); // Database referansı eklendi
+        const db = firebase.database(); 
         
         // ** YÖNETİCİ GİRİŞ MANTIĞI BAŞLANGIÇ **
-        const ADMIN_PASSWORD = "030714"; 
-
+        const ADMIN_PASSWORD = "030714";
         function loginAdmin() {
             const adminPasswordInput = document.getElementById('adminPassword');
             const enteredPassword = adminPasswordInput ? adminPasswordInput.value : '';
@@ -447,7 +449,8 @@
                 console.log('✅ Yönetici Girişi Başarılı!');
                 document.getElementById('totalCompanies').textContent = registeredCompanies.length; 
                 document.getElementById('activeSurveys').textContent = window.allSurveys ? window.allSurveys.length : 0;
-                document.getElementById('totalUsers').textContent = window.allSurveys ? window.allSurveys.length : 0;
+                document.getElementById('totalUsers').textContent = window.allSurveys ?
+                window.allSurveys.length : 0;
 
             } else {
                 adminPasswordInput.value = '';
@@ -464,7 +467,12 @@
         // ** YÖNETİCİ GİRİŞ MANTIĞI BİTİŞ **
 
         // ** KURUM GİRİŞ TİPİ MANTIĞI **
-        const registeredCompanies = ["Akça Hastanesi", "Deneme Kurumu A", "Örnek Poliklinik"]; // SIMULASYON verisi
+        const registeredCompanies = ["Akça Hastanesi", "Deneme Kurumu A", "Örnek Poliklinik"];
+        const COMPANY_PASSWORDS = {
+            "akçahastanesi": "123456",
+            "denemekuruma": "654321",
+            "örnekpoliklinik": "987654"
+        };
         
         function toggleCompanyInput(type) {
             const registeredDiv = document.getElementById('registeredCompanyInput');
@@ -494,13 +502,13 @@
         // Google Sign-In logic
         let googleUser = null;
         document.addEventListener('DOMContentLoaded', function() {
-            // Kurum listesini doldur
             populateRegisteredCompanies();
             
             const startBtn = document.getElementById('startSurvey');
             if (startBtn) {
                 startBtn.addEventListener('click', startSurvey);
             }
+
             const googleBtn = document.getElementById('googleSignInBtn');
             const userInfoDiv = document.getElementById('googleUserInfo');
             if (googleBtn) {
@@ -511,7 +519,8 @@
                             const user = result.user;
                             if (user) {
                                 googleUser = user;
-                                document.getElementById('firstName').value = user.displayName ? user.displayName.split(' ')[0] : '';
+                                document.getElementById('firstName').value = user.displayName ?
+                                user.displayName.split(' ')[0] : '';
                                 document.getElementById('lastName').value = user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '';
                                 userInfoDiv.textContent = `Giriş yapıldı: ${user.displayName} (${user.email})`;
                                 userInfoDiv.classList.remove('hidden');
@@ -520,7 +529,7 @@
                             }
                         })
                         .catch((error) => {
-                            alert('Google ile giriş başarısız: ' + error.message);
+                            showModal('❌ Giriş Hatası', 'Google ile giriş başarısız oldu: ' + error.message);
                         });
                 });
             }
@@ -532,7 +541,6 @@
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const selectedJobType = window.selectedJobType || '';
-            
             // Kurum Adı alımı
             const isRegistered = document.querySelector('input[name="companyType"]:checked').value === 'registered';
             let companyName = '';
@@ -552,18 +560,17 @@
             if (!lastName) missingFields.push('Soyadınız');
             if (!selectedJobType) missingFields.push('Rolünüz');
 
-            // Google Sign-In enforcement
+            // Google Sign-In enforcement (Zorunlu Giriş)
             if (!googleUser) {
                 showModal(
                     '🔒 Giriş Gerekli',
                     `<div class=\"text-2xl font-extrabold text-red-700 mb-4\">Google ile Giriş Yapmalısınız</div>
-                     <div class=\"text-base text-gray-800 mb-2\">Ankete başlamadan önce kimliğinizi doğrulamanız gerekmektedir.</div>
+                    <div class=\"text-base text-gray-800 mb-2\">Ankete başlamadan önce kimliğinizi doğrulamanız gerekmektedir.</div>
                      <ul class=\"list-disc pl-6 text-base text-gray-700 mb-4\">
                          <li>Yukarıdaki <b>Google ile Giriş Yap</b> butonunu kullanarak hesabınızla oturum açın.</li>
                      </ul>`
                 );
-                if (e) e.preventDefault();
-                return;
+                if (e) e.preventDefault(); return;
             }
 
             if (missingFields.length > 0) {
@@ -571,30 +578,24 @@
                     '❌ Eksik Bilgi',
                     `<div class=\"text-lg text-red-700 font-bold mb-2\">Aşağıdaki alan(lar)ı doldurmalısınız:</div><ul class=\"list-disc pl-6 text-base text-gray-700 mb-4\">${missingFields.map(f=>`<li>${f}</li>`).join('')}</ul>`
                 );
-                if (e) e.preventDefault();
-                return;
+                if (e) e.preventDefault(); return;
             }
-
             currentQuestions = questions[selectedJobType];
-
             if (!currentQuestions || currentQuestions.length === 0) {
                 showModal('❌ Hata', 'Seçilen rol için sorular bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin.');
-                if (e) e.preventDefault();
-                return;
+                if (e) e.preventDefault(); return;
             }
-
             // Değişkenleri sıfırla
             currentQuestionIndex = 0;
             answers = [];
             surveyStartTime = new Date();
-
             // Anket bölümünü göster
             document.getElementById('companyInfoSection').classList.add('hidden');
             document.getElementById('surveySection').classList.remove('hidden');
             startTimer();
             displayCurrentQuestion();
         }
-
+        
         let currentModule = 'survey';
         let surveyStartTime = null;
         let timerInterval = null;
@@ -605,20 +606,15 @@
         let loggedInCompany = null;
         let isAdminLoggedIn = false;
         let filteredSurveys = null;
-
-        // Firebase Realtime Database URL
-        const FIREBASE_DB_URL = 'https://json-19344-default-rtdb.europe-west1.firebasedatabase.app/';
         
         function selectJobType(type) {
             document.querySelectorAll('.job-btn').forEach(btn => {
                 btn.classList.remove('active-tab');
             });
-
             const selectedBtn = document.getElementById(type.toLowerCase() + 'Btn');
             if (selectedBtn) {
                 selectedBtn.classList.add('active-tab');
             }
-
             selectedJobType = type;
             window.selectedJobType = type;
             document.getElementById('selectedJobDisplay').textContent = `Seçilen Rol: ${type}`;
@@ -628,10 +624,8 @@
             const totalQuestions = currentQuestions.length;
             const answeredCount = answers.length;
             const progress = (answeredCount / totalQuestions) * 100;
-
             document.getElementById('progressText').textContent = `Anket İlerlemesi ${answeredCount}/${totalQuestions} Yanıtlandı`;
             document.getElementById('progressBar').style.width = `${progress}%`;
-
             if (answeredCount === totalQuestions) {
                 document.getElementById('submitSurvey').classList.remove('hidden');
             } else {
@@ -642,27 +636,24 @@
         function displayCurrentQuestion() {
             const container = document.getElementById('questionContainer');
             container.innerHTML = '';
-
             if (currentQuestionIndex < currentQuestions.length) {
                 const questionText = currentQuestions[currentQuestionIndex];
                 const questionElement = document.createElement('div');
                 questionElement.classList.add('bg-white', 'p-6', 'rounded-xl', 'shadow-md', 'border', 'border-gray-200');
-                
                 const questionNumber = currentQuestionIndex + 1;
-                
                 let groupTitle = '';
                 // 50 Soruluk Setler İçin Kategori Gruplaması (10'lu Bloklar)
                 if (questionNumber >= 1 && questionNumber <= 10) groupTitle = 'Tıbbi Hizmet Kalitesi';
                 else if (questionNumber >= 11 && questionNumber <= 20) groupTitle = 'Personel Davranışları ve İletişim';
-                else if (questionNumber >= 21 && questionNumber <= 30) groupTitle = 'Kurum Ortamı ve İmkanlar'; // Başlık güncellendi
+                else if (questionNumber >= 21 && questionNumber <= 30) groupTitle = 'Kurum Ortamı ve İmkanlar';
                 else if (questionNumber >= 31 && questionNumber <= 40) groupTitle = 'Yönlendirme ve Bilgilendirme';
                 else if (questionNumber >= 41 && questionNumber <= 50) groupTitle = 'Genel Deneyim ve Tavsiye';
                 
                 let titleHTML = '';
                 if (groupTitle) {
-                     titleHTML = `<div class="text-sm font-semibold text-purple-600 mb-2">${groupTitle}</div>`;
+                    titleHTML = `<div class="text-sm font-semibold text-purple-600 mb-2">${groupTitle}</div>`;
                 }
-
+                
                 questionElement.innerHTML = `
                     ${titleHTML}
                     <h4 class="text-lg font-bold text-gray-800 mb-4">${questionNumber}. ${questionText}</h4>
@@ -682,7 +673,6 @@
                 { value: 4, label: "Katılıyorum (İyi)", color: "lime" },
                 { value: 5, label: "Kesinlikle Katılıyorum (Çok İyi)", color: "green" }
             ];
-
             return options.map(option => `
                 <label class="flex items-center p-3 rounded-lg border-2 border-gray-300 hover:border-${option.color}-500 transition-all duration-200 cursor-pointer has-[:checked]:bg-${option.color}-50 has-[:checked]:border-${option.color}-600">
                     <input type="radio" name="question-${questionNumber}" value="${option.value}" class="w-5 h-5 text-${option.color}-600 focus:ring-${option.color}-500" onclick="selectAnswer(${option.value})">
@@ -690,32 +680,29 @@
                 </label>
             `).join('');
         }
-        
+
         function selectAnswer(score) {
             if (score >= 1 && score <= 5) {
-                 answers[currentQuestionIndex] = score;
+                answers[currentQuestionIndex] = score;
             }
-
             currentQuestionIndex++;
-            
             updateProgress();
-            
             if (currentQuestionIndex < currentQuestions.length) {
                 displayCurrentQuestion();
             } else {
-                 const container = document.getElementById('questionContainer');
-                 container.innerHTML = `<div class="text-center p-8 bg-green-50 rounded-xl shadow-lg">
-                                            <div class="text-4xl mb-4">🎉</div>
-                                            <h4 class="text-2xl font-bold text-green-800 mb-2">Anket Tamamlandı!</h4>
-                                            <p class="text-gray-600">Lütfen sonuçları kaydetmek için aşağıdaki butona tıklayın.</p>
-                                        </div>`;
-                 document.getElementById('submitSurvey').classList.remove('hidden');
+                const container = document.getElementById('questionContainer');
+                container.innerHTML = `<div class="text-center p-8 bg-green-50 rounded-xl shadow-lg">
+                    <div class="text-4xl mb-4">🎉</div>
+                    <h4 class="text-2xl font-bold text-green-800 mb-2">Anket Tamamlandı!</h4>
+                    <p class="text-gray-600">Lütfen sonuçları kaydetmek için aşağıdaki butona tıklayın.</p>
+                </div>`;
+                document.getElementById('submitSurvey').classList.remove('hidden');
             }
         }
 
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
-            
+            surveyStartTime = new Date();
             timerInterval = setInterval(() => {
                 const elapsed = Math.floor((new Date() - surveyStartTime) / 1000);
                 const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
@@ -725,21 +712,30 @@
         }
 
         function stopTimer() {
-             if (timerInterval) clearInterval(timerInterval);
-             timerInterval = null;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
         }
 
         document.getElementById('submitSurvey').addEventListener('click', submitSurvey);
-
+        
+        // ** DÜZELTİLMİŞ SUBMITSURVEY FONKSİYONU (Auth Kontrolü Eklendi) **
         function submitSurvey() {
             stopTimer();
+
+            // 1. GÜVENLİK KONTROLÜ: Oturum açmış kullanıcı kontrolü
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                showModal('Oturum Hatası', 'Anketi gönderebilmek için lütfen Google ile giriş yaptığınızdan emin olun.');
+                startTimer();
+                return;
+            }
 
             if (answers.length !== currentQuestions.length) {
                 showModal('❗ Eksik Cevap', 'Lütfen tüm soruları yanıtladığınızdan emin olun.');
                 startTimer();
                 return;
             }
-            
+
             // Kurum Adı alımı
             const isRegistered = document.querySelector('input[name="companyType"]:checked').value === 'registered';
             let companyName = '';
@@ -750,699 +746,511 @@
                 companyName = document.getElementById('newCompanyName').value.trim();
             }
 
+            // Anketi kurum adına kaydetmek için temizlenmiş bir ID kullanılıyor.
+            const companyId = companyName.toLowerCase().replace(/[^a-z0-9]/g, ''); 
+            
             const totalScore = answers.reduce((sum, score) => sum + score, 0);
             const averageScore = (totalScore / currentQuestions.length).toFixed(2);
-            
+
+            // Grup skorlarını hesapla
             const groupScores = {};
             const groupMap = {
-                 'Tıbbi Hizmet Kalitesi': [0, 9],
-                 'Personel Davranışları ve İletişim': [10, 19],
-                 'Kurum Ortamı ve İmkanlar': [20, 29],
-                 'Yönlendirme ve Bilgilendirme': [30, 39],
-                 'Genel Deneyim ve Tavsiye': [40, 49]
+                'Tıbbi Hizmet Kalitesi': [0, 9],
+                'Personel Davranışları ve İletişim': [10, 19],
+                'Kurum Ortamı ve İmkanlar': [20, 29],
+                'Yönlendirme ve Bilgilendirme': [30, 39],
+                'Genel Deneyim ve Tavsiye': [40, 49]
             };
-            
-            // Kategori skorlarını hesapla
+
             for (const groupName in groupMap) {
                 const [start, end] = groupMap[groupName];
                 const groupAnswers = answers.slice(start, end + 1);
                 const groupTotal = groupAnswers.reduce((sum, score) => sum + score, 0);
-                const groupAverage = groupAnswers.length > 0 ? (groupTotal / groupAnswers.length).toFixed(2) : 0;
-                groupScores[groupName] = parseFloat(groupAverage);
+                groupScores[groupName] = (groupTotal / groupAnswers.length).toFixed(2);
             }
-
-
+            
             const surveyData = {
-                companyName: companyName, // KESİNLEŞEN KURUM ADI
-                userEmail: googleUser.email,
-                userName: `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`,
+                companyName: companyName,
+                companyId: companyId,
                 jobType: selectedJobType,
+                participantName: `${document.getElementById('firstName').value.trim()} ${document.getElementById('lastName').value.trim()}`,
+                participantUid: user.uid, // Katılımcı UID'si
                 answers: answers,
-                questions: currentQuestions,
-                totalScore: totalScore,
                 averageScore: parseFloat(averageScore),
                 groupScores: groupScores,
-                durationSeconds: Math.floor((new Date() - surveyStartTime) / 1000),
-                submittedAt: new Date().getTime()
+                totalTime: document.getElementById('timeElapsed').textContent.replace('Süre: ', ''),
+                timestamp: firebase.database.ServerValue.TIMESTAMP
             };
 
-            // Firebase key'i için kurum adını temizle. Hata almamak için tüm yasaklı karakterler '_' ile değiştirildi.
-            const safeCompanyName = surveyData.companyName.replace(/[.#$/[\]]/g, "_");
-            const companyRef = db.ref('surveys').child(safeCompanyName);
-
-            companyRef.push(surveyData)
+            // 2. VERİ GÖNDERİMİ: Düzgün yapılandırılmış db referansı ile gönderme
+            db.ref(`surveys/${companyId}`).push(surveyData)
                 .then(() => {
+                    document.getElementById('surveySection').classList.add('hidden');
                     showModal(
-                        '✨ Başarılı!', 
-                        `<div class="text-xl font-bold text-green-700 mb-2">Anketiniz başarıyla tamamlanıp kaydedilmiştir.</div>
-                         <p class="text-base">Ortalama Puanınız: <b>${averageScore} / 5.00</b></p>
-                         <p class="text-sm text-gray-500 mt-4">Katılımınız için teşekkür ederiz.</p>`
+                        '✅ Başarılı!',
+                        'Anketiniz başarıyla gönderildi. Katkınız için teşekkür ederiz!'
                     );
-                    
-                    setTimeout(() => {
-                        window.location.reload(); 
-                    }, 3000);
-
+                    // State'i temizle
+                    resetSurveyState();
+                    showModule('disclaimerSection');
                 })
-                .catch((error) => {
-                    console.error("Firebase'e veri gönderme hatası:", error);
-                    showModal('❌ Kayıt Hatası', `Anket kaydedilirken bir sorun oluştu. Lütfen konsol loglarını kontrol edin. Hata Mesajı: ${error.message}`);
-                    startTimer();
+                .catch(error => {
+                    console.error("Anket gönderme hatası:", error);
+                    showModal(
+                        '❌ Gönderme Hatası',
+                        `Anket gönderilirken bir hata oluştu: ${error.message}. Lütfen Firebase Güvenlik Kurallarınızın (auth != null) doğru olduğundan ve ağ bağlantınızı kontrol edin.`
+                    );
+                    startTimer(); 
+                });
+        }
+
+        function resetSurveyState() {
+            currentQuestionIndex = 0;
+            answers = [];
+            stopTimer();
+            document.getElementById('timeElapsed').textContent = 'Süre: 00:00';
+            document.getElementById('progressText').textContent = 'Anket İlerlemesi 0/50 Yanıtlandı';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('questionContainer').innerHTML = '';
+            document.getElementById('submitSurvey').classList.add('hidden');
+            
+            if (googleUser) {
+                document.getElementById('firstName').value = googleUser.displayName ? googleUser.displayName.split(' ')[0] : '';
+                document.getElementById('lastName').value = googleUser.displayName ? googleUser.displayName.split(' ').slice(1).join(' ') : '';
+            }
+            
+            document.querySelectorAll('.job-btn').forEach(btn => btn.classList.remove('active-tab'));
+            document.getElementById('selectedJobDisplay').textContent = 'Seçilen Rol: Henüz Seçilmedi';
+            window.selectedJobType = '';
+
+        }
+
+        // ** KURUM RAPORLAMA/YÖNETİM PANELİ FONKSİYONLARI **
+        let allSurveys = [];
+        let participantChart, satisfactionChart, trendChart, timeChart; 
+
+        function loginCompany() {
+            const companyLoginName = document.getElementById('companyLoginName').value.trim();
+            const companyPassword = document.getElementById('companyPassword').value.trim();
+            const companyId = companyLoginName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            if (COMPANY_PASSWORDS[companyId] === companyPassword) {
+                loggedInCompany = companyId;
+                document.getElementById('companyNameDisplay').textContent = `${companyLoginName} Rapor Paneli`;
+                showModule('companyDashboard');
+                loadCompanyData(loggedInCompany);
+            } else {
+                showModal('❌ Giriş Hatası', 'Kurum Adı veya Şifre yanlış.');
+            }
+        }
+
+        function logoutCompany() {
+            loggedInCompany = null;
+            showModule('companyLogin');
+        }
+
+        function filterByDateRange() {
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+
+            if (!startDate || !endDate) {
+                showModal('Uyarı', 'Lütfen geçerli bir başlangıç ve bitiş tarihi seçin.');
+                return;
+            }
+
+            const startTimestamp = new Date(startDate).getTime();
+            const endTimestamp = new Date(endDate).getTime() + 86400000; // Son günü kapsamak için 1 gün ekle
+
+            filteredSurveys = allSurveys.filter(survey => {
+                return survey.timestamp >= startTimestamp && survey.timestamp <= endTimestamp;
+            });
+            
+            renderDashboard(filteredSurveys);
+            showModal('Filtre Uygulandı', `Seçilen tarihler arasında ${filteredSurveys.length} anket bulundu.`);
+        }
+
+        function loadCompanyData(companyId) {
+            // Filtreyi sıfırla
+            filteredSurveys = null;
+            document.getElementById('reportStartDate').value = '';
+            document.getElementById('reportEndDate').value = '';
+
+            db.ref(`surveys/${companyId}`).once('value')
+                .then(snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        allSurveys = Object.keys(data).map(key => ({ ...data[key], key }));
+                        renderDashboard(allSurveys);
+                    } else {
+                        allSurveys = [];
+                        renderDashboard([]);
+                        showModal('Bilgi', 'Bu kurum için henüz tamamlanmış anket bulunmamaktadır.');
+                    }
+                })
+                .catch(error => {
+                    console.error("Veri çekme hatası:", error);
+                    showModal('❌ Hata', `Veriler çekilirken bir hata oluştu: ${error.message}`);
                 });
         }
         
-        // ** KURUM PORTALI KISMI **
-        
-        let allSurveys = [];
-        let myChartInstances = {};
-
-        function loginCompany() {
-            const name = document.getElementById('companyLoginName').value.trim();
-            const password = document.getElementById('companyPassword').value.trim();
-
-            if (!name || !password) {
-                showModal('❌ Giriş Hatası', 'Lütfen kurum adı ve şifrenizi girin.');
-                return;
-            }
-
-            const expectedPassword = "AKCA_2025" + name.substring(0, 4).toUpperCase();
-
-            if (password === expectedPassword) {
-                 loggedInCompany = name;
-                 document.getElementById('companyLogin').classList.add('hidden');
-                 document.getElementById('companyDashboard').classList.remove('hidden');
-                 document.getElementById('companyNameDisplay').textContent = loggedInCompany + ' Raporu';
-                 
-                 loadCompanyData(name);
-                 
-            } else {
-                 showModal('❌ Giriş Hatası', 'Hatalı kurum adı veya şifre.');
-            }
-        }
-        
-        function logoutCompany() {
-             loggedInCompany = null;
-             document.getElementById('companyLoginName').value = '';
-             document.getElementById('companyPassword').value = '';
-             document.getElementById('companyLogin').classList.remove('hidden');
-             document.getElementById('companyDashboard').classList.add('hidden');
-             allSurveys = [];
-             filteredSurveys = null;
-             
-             for (let key in myChartInstances) {
-                if (myChartInstances[key]) {
-                    myChartInstances[key].destroy();
-                    myChartInstances[key] = null;
-                }
-             }
-        }
-        
-        function loadCompanyData(companyName) {
-            // Firebase key'i için kurum adını temizle
-            const safeCompanyName = companyName.replace(/[.#$/[\]]/g, "_");
-            const companyRef = db.ref('surveys').child(safeCompanyName);
-            
-            companyRef.once('value', (snapshot) => {
-                const surveysObject = snapshot.val();
-                allSurveys = [];
-                if (surveysObject) {
-                    for (const key in surveysObject) {
-                        allSurveys.push(surveysObject[key]);
-                    }
-                }
-                
-                filteredSurveys = null;
-                renderDashboard(allSurveys);
-            }).catch(error => {
-                showModal('❌ Veri Hatası', 'Kurum verileri yüklenirken bir hata oluştu: ' + error.message);
-                console.error("Kurum verisi yükleme hatası:", error);
-            });
-        }
-        
+        // ... (renderDashboard ve diğer Chart/Dashboard fonksiyonları buraya gelecek)
         function renderDashboard(surveys) {
-             if (surveys.length === 0) {
-                 document.getElementById('totalParticipants').textContent = 0;
-                 document.getElementById('averageScore').textContent = '0.0';
-                 document.getElementById('satisfactionRate').textContent = '0%';
-                 document.getElementById('detailedFrequencyTables').innerHTML = '<h3 class="text-xl font-semibold mb-4 border-b pb-2">Detaylı Soru Frekans Analizi</h3><p class="text-gray-500">Analiz için yeterli anket sonucu yok.</p>';
-                 document.getElementById('participantTableBody').innerHTML = '<tr><td colspan="5" class="py-4 text-center text-gray-500">Bu kurum için henüz anket sonucu yok.</td></tr>';
-                 
-                 for (let key in myChartInstances) {
-                    if (myChartInstances[key]) {
-                        myChartInstances[key].destroy();
-                        myChartInstances[key] = null;
-                    }
-                 }
-                 
-                 createPositionChart([], 'positionChart');
-                 createSatisfactionChart([], 'satisfactionChart');
-                 createTimeChart([], 'timeChart');
-                 createTrendChart([], 'trendChart');
+            const totalParticipants = surveys.length;
+            document.getElementById('totalParticipants').textContent = totalParticipants;
 
-                 return;
-             }
-             
-             const totalParticipants = surveys.length;
-             const totalScoreSum = surveys.reduce((sum, s) => sum + s.averageScore, 0);
-             const overallAverageScore = (totalScoreSum / totalParticipants).toFixed(2);
-             
-             const satisfiedParticipants = surveys.filter(s => s.averageScore >= 4.0).length;
-             const satisfactionRate = ((satisfiedParticipants / totalParticipants) * 100).toFixed(0);
-
-             document.getElementById('totalParticipants').textContent = totalParticipants;
-             document.getElementById('averageScore').textContent = overallAverageScore;
-             document.getElementById('satisfactionRate').textContent = satisfactionRate + '%';
-             
-             const positionData = calculatePositionData(surveys);
-             const satisfactionData = calculateSatisfactionData(surveys);
-             const timeData = calculateTimeData(surveys);
-             const trendData = calculateTrendData(surveys);
-             
-             for (let key in myChartInstances) {
-                if (myChartInstances[key]) {
-                    myChartInstances[key].destroy();
-                    myChartInstances[key] = null;
-                }
-             }
-
-             createPositionChart(positionData, 'positionChart');
-             createSatisfactionChart(satisfactionData, 'satisfactionChart');
-             createTimeChart(timeData, 'timeChart');
-             createTrendChart(trendData, 'trendChart');
-
-             renderDetailedFrequencyTables(surveys);
-             
-             renderParticipantTable(surveys);
-
-        }
-        
-        function filterByDateRange() {
-            const startDateStr = document.getElementById('reportStartDate').value;
-            const endDateStr = document.getElementById('reportEndDate').value;
-
-            if (!startDateStr || !endDateStr) {
-                showModal('❗ Eksik Tarih', 'Lütfen başlangıç ve bitiş tarihlerini seçin.');
+            if (totalParticipants === 0) {
+                document.getElementById('averageScore').textContent = '0.0';
+                document.getElementById('satisfactionRate').textContent = '0%';
+                document.getElementById('participantTableBody').innerHTML = '<tr><td colspan="5" class="py-4 text-center text-gray-500">Veri bulunamadı.</td></tr>';
+                if (participantChart) participantChart.destroy();
+                if (satisfactionChart) satisfactionChart.destroy();
+                if (trendChart) trendChart.destroy();
+                if (timeChart) timeChart.destroy();
+                document.getElementById('detailedFrequencyTables').innerHTML = '';
                 return;
             }
 
-            const startDate = new Date(startDateStr).getTime();
-            const endDate = new Date(endDateStr);
-            endDate.setHours(23, 59, 59, 999); 
-            const endDateMs = endDate.getTime();
+            const totalScoreSum = surveys.reduce((sum, s) => sum + s.averageScore, 0);
+            const overallAverage = (totalScoreSum / totalParticipants).toFixed(2);
+            document.getElementById('averageScore').textContent = overallAverage;
 
-            if (startDate > endDateMs) {
-                 showModal('❗ Geçersiz Aralık', 'Başlangıç tarihi, bitiş tarihinden sonra olamaz.');
-                 return;
-            }
+            const satisfiedCount = surveys.filter(s => s.averageScore >= 4.0).length;
+            const satisfactionRate = ((satisfiedCount / totalParticipants) * 100).toFixed(1);
+            document.getElementById('satisfactionRate').textContent = `${satisfactionRate}%`;
+            
+            // Pozisyon Dağılımı
+            const positionCounts = surveys.reduce((acc, s) => {
+                acc[s.jobType] = (acc[s.jobType] || 0) + 1;
+                return acc;
+            }, {});
+            drawPositionChart(positionCounts);
+            
+            // Grup Skorları ve Memnuniyet Durumu
+            const groupScoreData = calculateGroupAverages(surveys);
+            drawSatisfactionChart(groupScoreData);
+            
+            // Detaylı Frekans Tabloları
+            renderFrequencyTables(surveys);
+            
+            // Katılımcı Detayları
+            renderParticipantDetails(surveys);
+        }
 
-            filteredSurveys = allSurveys.filter(survey => {
-                return survey.submittedAt >= startDate && survey.submittedAt <= endDateMs;
+        function calculateGroupAverages(surveys) {
+            const groups = ['Tıbbi Hizmet Kalitesi', 'Personel Davranışları ve İletişim', 'Kurum Ortamı ve İmkanlar', 'Yönlendirme ve Bilgilendirme', 'Genel Deneyim ve Tavsiye'];
+            const groupAverages = {};
+            const groupTotals = groups.reduce((acc, group) => ({ ...acc, [group]: [] }), {});
+
+            surveys.forEach(survey => {
+                for (const group of groups) {
+                    if (survey.groupScores && survey.groupScores[group]) {
+                        groupTotals[group].push(parseFloat(survey.groupScores[group]));
+                    }
+                }
             });
 
-            renderDashboard(filteredSurveys);
-            
-            if (filteredSurveys.length === 0) {
-                 showModal('🔍 Sonuç Bulunamadı', 'Seçilen tarih aralığında anket sonucu bulunamadı.');
-            } else {
-                 showModal('✅ Filtre Uygulandı', `${filteredSurveys.length} adet anket sonucu listeleniyor.`);
+            for (const group of groups) {
+                if (groupTotals[group].length > 0) {
+                    const sum = groupTotals[group].reduce((a, b) => a + b, 0);
+                    groupAverages[group] = (sum / groupTotals[group].length).toFixed(2);
+                } else {
+                    groupAverages[group] = 0;
+                }
             }
-        }
-        
-        function calculatePositionData(surveys) {
-            const data = {};
-            surveys.forEach(s => {
-                data[s.jobType] = (data[s.jobType] || 0) + 1;
-            });
-            return data;
-        }
-        
-        function calculateSatisfactionData(surveys) {
-             const data = { 'Memnun (≥4.0)': 0, 'Nötr (3.0-3.9)': 0, 'Memnun Değil (<3.0)': 0 };
-             surveys.forEach(s => {
-                 if (s.averageScore >= 4.0) {
-                     data['Memnun (≥4.0)']++;
-                 } else if (s.averageScore >= 3.0) {
-                     data['Nötr (3.0-3.9)']++;
-                 } else {
-                     data['Memnun Değil (<3.0)']++;
-                 }
-             });
-             return data;
-        }
-        
-        function calculateTimeData(surveys) {
-             const data = { 'Hızlı (<1 dk)': 0, 'Orta (1-3 dk)': 0, 'Uzun (>3 dk)': 0 };
-             surveys.forEach(s => {
-                 if (s.durationSeconds < 60) {
-                     data['Hızlı (<1 dk)']++;
-                 } else if (s.durationSeconds <= 180) {
-                     data['Orta (1-3 dk)']++;
-                 } else {
-                     data['Uzun (>3 dk)']++;
-                 }
-             });
-             return data;
+            return groupAverages;
         }
 
-        function calculateTrendData(surveys) {
-            const scores = {};
-            surveys.forEach(s => {
-                const scoreGroup = Math.floor(s.averageScore);
-                scores[scoreGroup] = (scores[scoreGroup] || 0) + 1;
-            });
-            
-            const fullScores = {};
-            for (let i = 1; i <= 5; i++) {
-                 fullScores[i.toString()] = scores[i] || 0;
-            }
-            return fullScores;
-        }
 
-        function createChart(canvasId, type, data, labels, colors) {
-            if (myChartInstances[canvasId]) {
-                myChartInstances[canvasId].destroy();
-            }
-
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            const isPieOrDoughnut = (type === 'doughnut' || type === 'pie');
-            
-            const config = {
-                type: type,
+        // Chart çizme fonksiyonları (Kısaltıldı)
+        function drawPositionChart(counts) {
+            const ctx = document.getElementById('positionChart').getContext('2d');
+            if (participantChart) participantChart.destroy();
+            participantChart = new Chart(ctx, {
+                type: 'pie',
                 data: {
-                    labels: labels,
+                    labels: Object.keys(counts),
                     datasets: [{
-                        data: data,
-                        backgroundColor: isPieOrDoughnut ? colors : colors.map(c => c.replace('d0', '')),
-                        borderColor: isPieOrDoughnut ? colors.map(c => c.replace('d0', '1')) : colors.map(c => c.replace('d0', '')),
-                        borderWidth: isPieOrDoughnut ? 1 : 0
+                        data: Object.values(counts),
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b'],
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: isPieOrDoughnut,
-                            position: 'right',
-                            labels: {
-                                padding: 10,
-                                boxWidth: 10
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += context.parsed + ' kişi';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: isPieOrDoughnut ? {} : {
-                         y: {
-                             beginAtZero: true,
-                             title: {
-                                 display: true,
-                                 text: 'Katılımcı Sayısı'
-                             }
-                         }
-                    }
-                }
-            };
-            
-            myChartInstances[canvasId] = new Chart(ctx, config);
+                options: { responsive: true, maintainAspectRatio: false }
+            });
         }
         
-        function createPositionChart(data, canvasId) {
-            const labels = Object.keys(data);
-            const values = Object.values(data);
-            const colors = labels.map(label => {
-                if (label === 'Hasta') return '#6366f1d0';
-                if (label === 'Doktor') return '#10b981d0';
-                if (label === 'Yönetim') return '#f59e0bd0';
-                return '#94a3b8d0';
-            }); 
-            
-            createChart(canvasId, 'doughnut', values, labels, colors);
-        }
-
-        function createSatisfactionChart(data, canvasId) {
-            const labels = Object.keys(data);
-            const values = Object.values(data);
-            const colors = ['#10b981d0', '#f59e0bd0', '#ef4444d0'];
-            
-            createChart(canvasId, 'pie', values, labels, colors);
-        }
-
-        function createTimeChart(data, canvasId) {
-            const labels = Object.keys(data);
-            const values = Object.values(data);
-            const colors = ['#3b82f6d0', '#f59e0bd0', '#ef4444d0'];
-            
-            createChart(canvasId, 'bar', values, labels, colors);
+        function drawSatisfactionChart(averages) {
+            const ctx = document.getElementById('satisfactionChart').getContext('2d');
+            if (satisfactionChart) satisfactionChart.destroy();
+            satisfactionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(averages).map(label => label.split(' ')[0]),
+                    datasets: [{
+                        label: 'Ortalama Puan (1-5)',
+                        data: Object.values(averages),
+                        backgroundColor: '#6366f1',
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 5 } } }
+            });
         }
         
-        function createTrendChart(data, canvasId) {
-             const labels = Object.keys(data);
-             const values = Object.values(data);
-             const colors = labels.map(label => {
-                 if (label >= 4) return '#10b981d0';
-                 if (label >= 3) return '#f59e0bd0';
-                 return '#ef4444d0';
-             });
-             
-             createChart(canvasId, 'bar', values, labels, colors);
-        }
-
-        function renderParticipantTable(surveys) {
-            const tbody = document.getElementById('participantTableBody');
-            tbody.innerHTML = surveys.map(survey => {
-                 const avgScore = parseFloat(survey.averageScore);
-                 let evaluation = 'Nötr';
-                 let evaluationIcon = '🟡';
-                 
-                 if (avgScore >= 4.0) {
-                     evaluation = 'Memnun';
-                     evaluationIcon = '🟢';
-                 } else if (avgScore < 3.0) {
-                     evaluation = 'Memnun Değil';
-                     evaluationIcon = '🔴';
-                 }
-
-                 return `
-                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="showParticipantDetail('${survey.userName}', '${survey.submittedAt}')">
-                        <td class="px-3 py-2 text-left font-medium text-gray-700">${survey.userName}</td>
-                        <td class="px-3 py-2 text-left text-sm text-gray-600">${survey.jobType}</td>
-                        <td class="px-3 py-2 text-center font-bold">${survey.averageScore}</td>
-                        <td class="px-3 py-2 text-center">
-                            <span class="inline-flex items-center gap-1 text-sm font-semibold">
-                                <span class="w-4 h-4 text-gray-700 text-sm font-bold flex items-center justify-center">${evaluationIcon}</span>
-                                ${evaluation}
-                            </span>
-                        </td>
-                        <td class="px-3 py-2 text-center text-sm text-gray-600">${new Date(survey.submittedAt).toLocaleDateString('tr-TR')}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        function showParticipantDetail(userName, submittedAt) {
-             const targetTime = parseInt(submittedAt);
-             const participant = allSurveys.find(s => s.userName === userName && s.submittedAt === targetTime);
-
-             if (!participant) {
-                 showModal('Hata', 'Katılımcı detayı bulunamadı.');
-                 return;
-             }
-
-             let detailHTML = `
-                <h3 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Katılımcı: ${participant.userName}</h3>
-                <div class="grid grid-cols-2 gap-4 text-sm mb-4">
-                    <div><b>E-Posta:</b> ${participant.userEmail}</div>
-                    <div><b>Pozisyon:</b> ${participant.jobType}</div>
-                    <div><b>Kurum Adı:</b> ${participant.companyName}</div>
-                    <div><b>Tarih:</b> ${new Date(participant.submittedAt).toLocaleDateString('tr-TR')}</div>
-                    <div><b>Süre:</b> ${Math.floor(participant.durationSeconds / 60)} dk ${participant.durationSeconds % 60} sn</div>
-                    <div><b>Ortalama Puan:</b> <span class="text-lg font-bold text-blue-600">${participant.averageScore}</span></div>
-                </div>
-                
-                <h4 class="text-lg font-semibold text-gray-700 mt-6 mb-3 border-t pt-4">Cevaplar ve Skorlar</h4>
-                <div class="space-y-3 max-h-96 overflow-y-auto p-2 bg-gray-50 rounded-lg">
-             `;
-             
-             if (participant.groupScores) {
-                  detailHTML += `<div class="p-3 bg-indigo-100 rounded-lg mb-4">
-                                     <h5 class="font-bold text-indigo-800 mb-2">Grup Ortalamaları</h5>
-                                     <ul class="list-disc pl-5 text-sm text-indigo-700">`;
-                  for (const group in participant.groupScores) {
-                       detailHTML += `<li><b>${group}:</b> ${participant.groupScores[group]}</li>`;
-                  }
-                  detailHTML += `</ul></div>`;
-             }
-
-
-             participant.questions.forEach((q, index) => {
-                 const score = participant.answers[index] || 'Cevaplanmadı';
-                 const scoreColor = score >= 4 ? 'text-green-600' : score >= 3 ? 'text-yellow-600' : 'text-red-600';
-                 
-                 detailHTML += `
-                    <div class="p-3 border-b border-gray-200">
-                        <p class="font-medium text-gray-700">${index + 1}. ${q}</p>
-                        <p class="text-sm mt-1">Puan: <span class="font-bold ${scoreColor}">${score} / 5</span></p>
-                    </div>
-                 `;
-             });
-             
-             detailHTML += `</div>`;
-             
-             showModal(`Katılımcı Detayı: ${userName}`, detailHTML);
-        }
-        
-        function toggleParticipantDetails() {
-            const detailsDiv = document.getElementById('participantDetails');
-            const btn = document.getElementById('toggleParticipantsBtn');
-
-            if (detailsDiv.classList.contains('hidden')) {
-                detailsDiv.classList.remove('hidden');
-                btn.textContent = '📋 Katılımcıları Gizle';
-            } else {
-                detailsDiv.classList.add('hidden');
-                btn.textContent = '📋 Katılımcıları Görüntüle';
-            }
-        }
-        
-        function renderDetailedFrequencyTables(surveys) {
+        function renderFrequencyTables(surveys) {
             const container = document.getElementById('detailedFrequencyTables');
-            container.innerHTML = `<h3 class="text-xl font-semibold mb-4 border-b pb-2">Detaylı Soru Frekans Analizi</h3>`;
-            
-            if (surveys.length === 0 || !surveys[0].questions) {
-                 container.innerHTML += '<p class="text-gray-500">Analiz için yeterli anket sonucu yok veya soru listesi bulunamadı.</p>';
-                 return;
-            }
+            container.innerHTML = `<h3 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Detaylı Frekans Dağılımları</h3>`;
 
-            const questionsList = surveys[0].questions;
-            
-            const questionData = questionsList.map((q, qIndex) => {
-                 const scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                 surveys.forEach(s => {
-                     const answer = s.answers[qIndex];
-                     if (answer >= 1 && answer <= 5) {
-                          scores[answer]++;
-                     }
-                 });
-                 return { question: q, scores: scores };
+            const jobTypes = ['Hasta', 'Doktor', 'Yönetim'];
+            jobTypes.forEach(jobType => {
+                const jobSurveys = surveys.filter(s => s.jobType === jobType);
+                if (jobSurveys.length > 0) {
+                    container.innerHTML += `<h4 class="text-lg font-bold mt-4 mb-2 text-purple-700">${jobType} - Cevap Frekansları (${jobSurveys.length} Katılımcı)</h4>`;
+                    
+                    const freqData = calculateQuestionFrequencies(jobSurveys);
+                    const tableHtml = generateFrequencyTable(jobType, freqData);
+                    container.innerHTML += tableHtml;
+                }
+            });
+        }
+        
+        function calculateQuestionFrequencies(surveys) {
+            const numQuestions = surveys[0].answers.length;
+            const freqData = Array(numQuestions).fill(0).map(() => ({ total: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }));
+
+            surveys.forEach(survey => {
+                survey.answers.forEach((score, index) => {
+                    if (score >= 1 && score <= 5) {
+                        freqData[index].total++;
+                        freqData[index][score]++;
+                    }
+                });
+            });
+            return freqData;
+        }
+
+        function generateFrequencyTable(jobType, freqData) {
+            let html = `<div class="overflow-x-auto mb-6"><table class="min-w-full divide-y divide-gray-200 shadow-sm border border-gray-100">
+                <thead class="bg-purple-50"><tr>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Soru</th>
+                    <th class="px-3 py-3 text-center text-xs font-medium text-red-600 uppercase tracking-wider">1 (Çok Kötü)</th>
+                    <th class="px-3 py-3 text-center text-xs font-medium text-orange-600 uppercase tracking-wider">2 (Kötü)</th>
+                    <th class="px-3 py-3 text-center text-xs font-medium text-yellow-600 uppercase tracking-wider">3 (Orta)</th>
+                    <th class="px-3 py-3 text-center text-xs font-medium text-lime-600 uppercase tracking-wider">4 (İyi)</th>
+                    <th class="px-3 py-3 text-center text-xs font-medium text-green-600 uppercase tracking-wider">5 (Çok İyi)</th>
+                    <th class="px-3 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">Ortalama</th>
+                </tr></thead>
+                <tbody class="bg-white divide-y divide-gray-200">`;
+
+            freqData.forEach((data, index) => {
+                const questionText = questions[jobType][index];
+                const average = (data.total > 0) ? ((data[1]*1 + data[2]*2 + data[3]*3 + data[4]*4 + data[5]*5) / data.total).toFixed(2) : 'N/A';
+                
+                html += `<tr>
+                    <td class="px-3 py-2 text-sm text-gray-800">${index + 1}. ${questionText.substring(0, 50)}...</td>
+                    <td class="px-3 py-2 text-sm text-center">${data[1]} (${(data[1]/data.total*100).toFixed(0)}%)</td>
+                    <td class="px-3 py-2 text-sm text-center">${data[2]} (${(data[2]/data.total*100).toFixed(0)}%)</td>
+                    <td class="px-3 py-2 text-sm text-center">${data[3]} (${(data[3]/data.total*100).toFixed(0)}%)</td>
+                    <td class="px-3 py-2 text-sm text-center">${data[4]} (${(data[4]/data.total*100).toFixed(0)}%)</td>
+                    <td class="px-3 py-2 text-sm text-center">${data[5]} (${(data[5]/data.total*100).toFixed(0)}%)</td>
+                    <td class="px-3 py-2 text-sm font-bold text-center ${average >= 4.0 ? 'text-green-600' : (average < 3.0 ? 'text-red-600' : 'text-gray-800')}">${average}</td>
+                </tr>`;
             });
 
-            const scoreLabels = {
-                 1: 'Çok Kötü', 2: 'Kötü', 3: 'Orta', 4: 'İyi', 5: 'Çok İyi'
-            };
-
-            const tablesHTML = questionData.map((data, qIndex) => {
-                 const scores = data.scores;
-                 const totalAnswers = Object.values(scores).reduce((sum, count) => sum + count, 0);
-                 
-                 let maxScore = 0;
-                 let maxScoreLabel = 'Yok';
-                 
-                 for (const score in scores) {
-                     if (scores[score] > maxScore) {
-                          maxScore = scores[score];
-                          maxScoreLabel = scoreLabels[score];
-                     }
-                 }
-
-                 return `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border mb-4">
-                        <h4 class="font-semibold text-gray-700 mb-3">${qIndex + 1}. ${data.question}</h4>
-                        <div class="grid grid-cols-5 gap-2 text-center border-t pt-2">
-                             ${Object.keys(scores).map(score => {
-                                 const count = scores[score];
-                                 const percentage = totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0;
-                                 const isMax = count === maxScore && count > 0;
-                                 return `
-                                     <div class="text-center p-2 rounded ${isMax ? 'bg-blue-100 font-bold' : 'bg-white'}">
-                                         <div class="text-xs text-gray-600">${scoreLabels[score]}</div>
-                                         <div class="font-semibold ${isMax ? 'text-blue-600' : 'text-gray-800'}">${count}</div>
-                                         <div class="text-xs text-gray-500">${percentage}%</div>
-                                     </div>
-                                 `;
-                             }).join('')}
-                        </div>
-                        ${totalAnswers > 0 ? `<div class="mt-2 text-sm text-gray-600">En çok verilen cevap: <span class="font-semibold">${maxScoreLabel}</span> (${maxScore} kişi)</div>` : '<div class="text-sm text-gray-500">Bu soru için henüz cevap yok</div>'}
-                    </div>
-                 `;
-            }).join('');
-            
-            container.innerHTML += tablesHTML;
+            html += `</tbody></table></div>`;
+            return html;
         }
 
-        // Soru setleri (TÜM ROLLER İÇİN 50'ŞER SORU, TOPLAM 150 SORU)
+        function renderParticipantDetails(surveys) {
+            const tableBody = document.getElementById('participantTableBody');
+            tableBody.innerHTML = '';
+            
+            surveys.sort((a, b) => b.timestamp - a.timestamp).forEach(survey => {
+                const date = new Date(survey.timestamp).toLocaleDateString('tr-TR');
+                const scoreColor = survey.averageScore >= 4.0 ? 'text-green-600' : (survey.averageScore < 3.0 ? 'text-red-600' : 'text-gray-800');
+                const scoreText = survey.averageScore >= 4.0 ? 'Memnun' : (survey.averageScore < 3.0 ? 'Memnun Değil' : 'Kararsız');
+
+                const row = `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-2 text-sm font-medium text-gray-900">${survey.participantName}</td>
+                        <td class="px-3 py-2 text-sm text-gray-500">${survey.jobType}</td>
+                        <td class="px-3 py-2 text-sm font-bold text-center ${scoreColor}">${survey.averageScore}</td>
+                        <td class="px-3 py-2 text-sm text-center ${scoreColor}">${scoreText}</td>
+                        <td class="px-3 py-2 text-sm text-gray-500 text-center">${date}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function toggleParticipantDetails() {
+            const detailsDiv = document.getElementById('participantDetails');
+            const button = document.getElementById('toggleParticipantsBtn');
+            const isHidden = detailsDiv.classList.toggle('hidden');
+            button.textContent = isHidden ? '👀 Katılımcıları Göster' : '📋 Katılımcıları Gizle';
+        }
+
+        // **********************************************
+        // ANKET SORULARI OBJESİ (150 SORU)
+        // **********************************************
         const questions = {
             "Hasta": [
-                 // Kategori 1: Tıbbi Hizmet Kalitesi (1-10)
-                "Doktorunuzun teşhis ve tedavi sürecine ne kadar güveniyorsunuz?",
-                "Aldığınız tıbbi tedavinin açıklayıcı ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Doktorunuzun sorularınıza yeterli zaman ayırdığına inanıyor musunuz?",
-                "Tedavi sürecinde ağrı veya rahatsızlığınızın yönetilmesinden memnun musunuz?",
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "İlaçlarınız ve tedaviniz hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin laboratuvar ve görüntüleme hizmetlerinin hızından memnun musunuz?",
-                "Aldığınız tedavinin beklediğiniz faydayı sağladığını düşünüyor musunuz?",
-                "Doktorunuzun sizi tedavi planı konusunda karar sürecine dahil ettiğine inanıyor musunuz?",
-                "Tıbbi hizmetlerin genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Kategori 2: Personel Davranışları ve İletişim (11-20)
-                "Hemşire ve diğer sağlık personelinin size karşı nazik ve saygılı davrandığına inanıyor musunuz?",
-                "Personelin, ihtiyaç duyduğunuzda size hızlı bir şekilde yanıt verdiğini düşünüyor musunuz?",
-                "Sağlık personelinin, sizi bilgilendirme konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
-                "Personelin, mahremiyetinize ve kişisel alanınıza saygı duyduğunu düşünüyor musunuz?",
-                "Hemşirenizin veya sağlık ekibinizin size karşı sabırlı ve anlayışlı davrandığına inanıyor musunuz?",
-                "Hasta bakımı sırasında size yeterli ilginin gösterildiğine inanıyor musunuz?",
-                "Personel ile iletişim kurarken kendinizi rahat ve güvende hissettiniz mi?",
-                "Sağlık personelinin size güvence ve moral verdiğini düşünüyor musunuz?",
-                "Tedaviniz sırasında duygusal olarak desteklendiğinize inanıyor musunuz?",
-                "Personel ile iletişiminizin genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Kategori 3: Kurum Ortamı ve İmkanlar (21-30)
-                "Hastane odasının temizliğinden ve konforundan memnun musunuz?",
-                "Genel hastane ortamının (koridorlar, bekleme alanları) temiz ve düzenli olduğunu düşünüyor musunuz?",
-                "Hastanenin genel gürültü seviyesinin kabul edilebilir olduğunu düşünüyor musunuz?",
-                "Hastanenin yemek hizmetlerinin kalitesinden ve çeşitliliğinden memnun musunuz?",
-                "Hastanenin otopark ve ulaşım imkanlarının yeterli olduğunu düşünüyor musunuz?",
-                "Ziyaret saatlerinin ve kurallarının makul olduğunu düşünüyor musunuz?",
-                "Hastane içinde yol bulmanın kolay olduğuna inanıyor musunuz?",
-                "Tuvaletlerin ve banyo imkanlarının hijyenik olduğunu düşünüyor musunuz?",
-                "Hastanenin güvenlik önlemlerinin yeterli olduğuna inanıyor musunuz?",
-                "Hastane ortamının genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Kategori 4: Yönlendirme ve Bilgilendirme (31-40)
-                "Hastaneye yatış sürecinin kolay ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Hastane personeli tarafından randevu ve kayıt işlemlerinde yeterince yönlendirildiğinize inanıyor musunuz?",
-                "Tıbbi prosedürler ve riskler hakkında size yeterli bilgi verildiğini düşünüyor musunuz?",
-                "Hastanenin, size özel bilgilerinizi koruduğuna ve gizliliğe önem verdiğine inanıyor musunuz?",
-                "Taburcu sürecinin düzenli ve anlaşılır bir şekilde yönetildiğini düşünüyor musunuz?",
-                "Taburcu sonrası bakım ve takip süreci hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin web sitesi veya bilgilendirme materyallerinin anlaşılır ve faydalı olduğunu düşünüyor musunuz?",
-                "Hastane çalışanlarının sizi doğru servislere ve birimlere yönlendirmesinden memnun musunuz?",
-                "Hasta haklarınız konusunda yeterli bilgiye sahip olduğunuza inanıyor musunuz?",
-                "Hastaneye yatış sürecinin genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Kategori 5: Genel Deneyim ve Tavsiye (41-50)
-                "Hastanede yaşadığınız genel deneyimden memnun musunuz?",
-                "Hastaneyi, yakınlarınıza veya arkadaşlarınıza tavsiye eder misiniz?",
-                "Acil durumlar için bu hastaneyi tekrar tercih eder misiniz?",
-                "Hastane personelinin, beklentilerinizi aştığını düşünüyor musunuz?",
-                "Hastanede aldığınız hizmetin, ödediğiniz ücrete değdiğini düşünüyor musunuz?",
-                "Şikayet veya önerileriniz için kolayca iletişim kurabildiğinize inanıyor musunuz?",
-                "Hastanenin, hasta geri bildirimlerini dikkate alıp hizmetlerini geliştirdiğini düşünüyor musunuz?",
-                "Hastanenin genel sağlık hizmetleri konusunda bölgenizdeki en iyi seçenek olduğunu düşünüyor musunuz?",
-                "Gelecekteki tıbbi ihtiyaçlarınız için bu hastaneyi tercih etme olasılığınız nedir?",
-                "Genel olarak hastane deneyiminizi kaç puan üzerinden değerlendirirsiniz? (1-5)"
+                // Kategori 1: Tıbbi Hizmet Kalitesi (1-10)
+                "Hastaneye ilk geldiğinizde karşılama ve yönlendirme yeterli miydi?",
+                "Tedavi süreciniz boyunca doktorunuzun size ayırdığı zaman ve ilgiden memnun kaldınız mı?",
+                "Hekimlerin tanı ve tedavi yöntemlerini size anlaşılır bir dille açıkladığını düşünüyor musunuz?",
+                "Hemşire ve sağlık personelinin tıbbi bilgi ve becerileri yeterli düzeyde miydi?",
+                "Ağrı yönetimi ve konforunuz için yeterli özen gösterildi mi?",
+                "Tedavi sürecinizdeki gelişmeler ve olası riskler hakkında tam ve zamanında bilgilendirildiniz mi?",
+                "Acil durumlarda tıbbi müdahaleye ulaşım süresi tatmin edici miydi?",
+                "İlaçlarınız ve yan etkileri hakkında yeterince bilgi aldınız mı?",
+                "Hastanede aldığınız tıbbi hizmetin genel kalitesini nasıl değerlendirirsiniz?",
+                "Tıbbi hataların önlenmesi konusunda hastanenin hassasiyetine güveniyor musunuz?",
+                // Kategori 2: Personel Davranışları ve İletişim (11-20)
+                "Hastane personelinin (temizlik, taşıma, sekreter) size karşı tutumu nazik ve saygılı mıydı?",
+                "Personel ile iletişim kurarken kendinizi rahat hissettiniz mi?",
+                "Personelin taleplerinize hızlı ve etkili bir şekilde yanıt verdiğini düşünüyor musunuz?",
+                "Doktorunuzun ve hemşirenizin sizi bir birey olarak dinlediğine inanıyor musunuz?",
+                "Hasta haklarınız konusunda yeterince bilgilendirildiniz mi?",
+                "Taburcu olduktan sonraki bakımınızla ilgili net talimatlar verildi mi?",
+                "Personelin kimlik kartlarını takması, kendilerini tanıtması güven verici miydi?",
+                "Personelin hasta mahremiyetine ve gizliliğine yeterince önem verdiğini düşünüyor musunuz?",
+                "Farklı departmanlar arasındaki iletişimin (randevu, test sonuçları vb.) sorunsuz olduğunu gözlemlediniz mi?",
+                "Hastane personelinin, kültürel veya kişisel ihtiyaçlarınıza duyarlı davrandığını düşünüyor musunuz?",
+                // Kategori 3: Kurum Ortamı ve İmkanlar (21-30)
+                "Hastanenin genel temizliği ve hijyeni tatmin edici düzeyde miydi?",
+                "Odanızın (eğer kaldıysanız) ve yatağınızın konforu yeterli miydi?",
+                "Hastanenin otopark ve ulaşım imkanları kolaylık sağladı mı?",
+                "Yemeklerin kalitesi ve çeşitliliği beklentinizi karşıladı mı?",
+                "Hastanenin bekleme alanlarının rahat ve yeterli olduğunu düşünüyor musunuz?",
+                "Randevularınızın zamanında başladığını düşünüyor musunuz?",
+                "Tıbbi cihaz ve teknolojik donanımların güncel ve yeterli olduğuna inanıyor musunuz?",
+                "Hastanedeki tabela ve işaretlerin yön bulmada yardımcı olduğunu düşünüyor musunuz?",
+                "Hastanenin sessizlik ve gürültü kontrolü konusunda başarılı olduğunu düşünüyor musunuz?",
+                "Hastanenin fiziki görünümü ve atmosferi kendinizi güvende hissetmenizi sağladı mı?",
+                // Kategori 4: Yönlendirme ve Bilgilendirme (31-40)
+                "Tedavinizin maliyeti ve ödeme seçenekleri hakkında önceden net bilgi aldınız mı?",
+                "Hastane prosedürleri ve süreçleri hakkında yeterli broşür veya rehberlik mevcut muydu?",
+                "Hastanede geçirdiğiniz süre boyunca ihtiyacınız olan ek bilgileri kolayca temin edebildiniz mi?",
+                "Taburculuk işlemleriniz hızlı ve sorunsuz gerçekleşti mi?",
+                "Test sonuçlarınızın size ulaştırılma hızı ve yöntemi uygun muydu?",
+                "Hastanenin web sitesi/mobil uygulaması bilgi edinme ve randevu alma açısından kullanışlı mıydı?",
+                "Farklı uzmanlık alanlarına yönlendirilirken süreç hızlı ve koordine miydi?",
+                "Hastanenin hasta eğitim materyallerinin (hastalık, korunma vb.) kalitesini nasıl değerlendirirsiniz?",
+                "Şikayet veya önerilerinizin kolayca alınabileceği bir sistem mevcut muydu?",
+                "Tedavinizin uzun vadeli sonuçları hakkında size yeterli bilgi verildi mi?",
+                // Kategori 5: Genel Deneyim ve Tavsiye (41-50)
+                "Hastanede aldığınız genel hizmete verdiğiniz paranın karşılığını aldığınızı düşünüyor musunuz?",
+                "Hastanede geçirdiğiniz süre boyunca tedavi motivasyonunuzu destekleyen bir ortam var mıydı?",
+                "Hastanenin genel olarak beklentilerinizi ne ölçüde karşıladığını düşünüyorsunuz?",
+                "Bu hastaneyi ailenize ve arkadaşlarınıza gönül rahatlığıyla tavsiye eder misiniz?",
+                "Acil bir durumda bu hastaneyi tekrar tercih eder misiniz?",
+                "Hastanenin çevre dostu ve sürdürülebilir uygulamalarına dikkat ettiğini düşünüyor musunuz?",
+                "Aldığınız hizmete puanınız (Genel Memnuniyet Skoru) nedir? (1-5)",
+                "Personelin size gösterdiği kişisel ilgi, iyileşmenize katkı sağladı mı?",
+                "Hastanenin genel itibarı ve imajı hakkındaki görüşünüz olumlu mu?",
+                "Hastanenizdeki deneyiminizden genel olarak memnun kaldınız mı?",
             ],
             "Doktor": [
-                // Kategori 1: Tıbbi Hizmet Kalitesi ve Destek (1-10)
-                "Tanı ve tedavi süreçlerinde kullanılan tıbbi cihaz ve ekipmanların kalitesinden memnun musunuz?",
-                "Klinik karar verme süreçlerinizde gerekli güncel tıbbi literatüre erişiminiz yeterli mi?",
-                "Hastanenin laboratuvar ve görüntüleme birimlerinin sunduğu hizmetlerin hızını ve güvenilirliğini nasıl değerlendiriyorsunuz?",
-                "Hastanenin, mesleki gelişiminiz için düzenli ve yeterli eğitim/seminer imkanları sunduğuna inanıyor musunuz?",
-                "Hasta yükünüzün, size kaliteli ve etik sağlık hizmeti sunma imkanı tanıdığını düşünüyor musunuz?",
-                "Tedavi süreçlerinde diğer branşlardan konsültasyon taleplerine hızlı ve profesyonel dönüş alabildiğinize inanıyor musunuz?",
-                "Hastanenin acil servis ve yoğun bakım birimlerinin etkinliğini ve destekleyici yapısını nasıl değerlendiriyorsunuz?",
-                "Tıbbi kayıt ve raporlama sistemlerinin (HBYS) kullanım kolaylığı ve verimliliğinden memnun musunuz?",
-                "Bireysel tıbbi başarınızın ve çabanızın hastane yönetimi tarafından takdir edildiğini düşünüyor musunuz?",
-                "Hastanenin genel tıbbi mükemmeliyet standartlarını nasıl değerlendiriyorsunuz?",
+                // Kategori 1: Tıbbi Hizmet Kalitesi (1-10)
+                "Tıbbi karar alma süreçlerinde yönetim desteğini yeterli buluyor musunuz?",
+                "Kullandığınız tıbbi cihaz ve teknolojik donanımların güncelliği ve kalitesi yeterli mi?",
+                "Tanı ve tedavi yöntemlerinde meslektaşlarınızla iş birliği yapma imkanlarınız yeterli mi?",
+                "Hastanenin bilimsel yayın ve araştırma faaliyetlerine verdiği önemi nasıl değerlendirirsiniz?",
+                "Hasta verilerine erişim ve kayıt sistemlerinin hızı ve güvenilirliği tatmin edici mi?",
+                "Laboratuvar ve görüntüleme hizmetlerinin sonuç verme süresi tanı sürecini aksatıyor mu?",
+                "Zor vakalarda hastane bünyesinde konsültasyon desteği kolaylıkla sağlanabiliyor mu?",
+                "Hastane Enfeksiyon Kontrol Komitesi'nin çalışmalarını ve sonuçlarını yeterli buluyor musunuz?",
+                "Tıbbi uygulama hatalarının (malpraktis) önlenmesi konusunda hastanenin politikaları net mi?",
+                "Hastanenin uzmanlık alanınızdaki gelişmelere yatırım yapma isteğini nasıl değerlendirirsiniz?",
                 // Kategori 2: Personel Davranışları ve İletişim (11-20)
-                "Hemşirelik personeli ile hasta bakımı ve tedavi planı konusundaki iletişiminiz ne kadar verimli?",
-                "İdari ve destek personelinin (sekreterlik, bilgi işlem) size sunduğu hizmetten memnun musunuz?",
-                "Çalışma arkadaşlarınızla (diğer doktorlar) işbirliği ve ekip ruhu seviyenizi nasıl değerlendiriyorsunuz?",
-                "Tıbbi hataların veya istenmeyen olayların şeffaf ve yapıcı bir şekilde ele alındığına inanıyor musunuz?",
-                "Farklı disiplinler arası toplantı ve iletişim kanallarının yeterli sıklıkta ve kalitede olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin, personel arasındaki çatışma ve anlaşmazlıkları etkili bir şekilde çözdüğüne inanıyor musunuz?",
-                "Asistan doktor ve stajyerlerin eğitim ve denetim süreçlerinin yeterli ve adil olduğunu düşünüyor musunuz?",
-                "Hasta yakınları ile zorlu iletişim durumlarında idari destek aldığınıza inanıyor musunuz?",
-                "Personel genelinde gizlilik ve etik kurallara uyum seviyesini nasıl değerlendiriyorsunuz?",
-                "Çalışanlar arası iletişim kültürünün genel kalitesini nasıl değerlendiriyorsunuz?",
+                "Hemşire ve destek personelinin tıbbi talimatlara uyumu ve profesyonelliği yeterli mi?",
+                "Farklı disiplinler ve idari birimler arasındaki iletişim ve koordinasyon sorunsuz mu?",
+                "Yönetimden geri bildirim almanız kolay ve yapıcı mı?",
+                "Personel değişim hızı (sirkülasyon) hizmet kalitesini olumsuz etkiliyor mu?",
+                "Hasta/yakınları ile yaşadığınız iletişim sorunlarında yönetimden destek alabiliyor musunuz?",
+                "Hastanenin tıbbi etik kurallarına bağlılığı, mesleki çalışmalarınız için güven verici mi?",
+                "Personel eğitim programlarının (CPR, yeni teknikler) güncel ve yeterli olduğunu düşünüyor musunuz?",
+                "Tıbbi bilgi paylaşımı ve eğitim materyallerine erişim kolaylığı var mı?",
+                "Yönetimin, doktorların mesleki gelişimlerine ve kongrelere katılımına desteğini yeterli buluyor musunuz?",
+                "Hastanedeki sosyal ortam ve meslektaş dayanışması ruh sağlığınızı destekliyor mu?",
                 // Kategori 3: Kurum Ortamı ve İmkanlar (21-30)
-                "Size ayrılan ofis, muayene odası ve dinlenme alanlarının fiziki şartları ve konforu yeterli mi?",
-                "Kullanmak zorunda olduğunuz tıbbi sarf malzemelerinin kalitesi ve stok durumu tatmin edici mi?",
-                "Hastanenin temizlik ve hijyen standartlarının, hasta güvenliği için yeterli olduğunu düşünüyor musunuz?",
-                "Hastanenin sunduğu yemekhane ve personel kafeteryası hizmetlerinden memnun musunuz?",
-                "Hastanenin otopark, güvenlik ve ulaşım imkanlarının personel için uygun olduğunu düşünüyor musunuz?",
-                "Çalışma ortamınızda maruz kaldığınız gürültü, ışıklandırma gibi çevresel faktörler verimliliğinizi etkiliyor mu?",
-                "Kişisel eşyalarınız ve tıbbi malzemeler için yeterli ve güvenli depolama alanları mevcut mu?",
-                "Hastanenin bilgi teknolojileri altyapısının (ağ, internet) hız ve güvenilirliğini nasıl değerlendiriyorsunuz?",
-                "Teknik arızaların (cihaz, elektrik, su) hızlı ve etkin bir şekilde giderildiğine inanıyor musunuz?",
-                "Çalışma ortamının genel fiziki koşullarını nasıl değerlendiriyorsunuz?",
+                "Çalışma saatlerinizin ve nöbet düzeninizin adil ve sürdürülebilir olduğunu düşünüyor musunuz?",
+                "Ameliyathane veya muayene odalarının fiziki koşulları ve hijyeni çalışma konforunuz için yeterli mi?",
+                "Tıbbi sekreterlik ve idari destek hizmetlerinin verimliliği iş yükünüzü azaltıyor mu?",
+                "Hastanenin size sağladığı dinlenme ve sosyal imkanlar yeterli mi?",
+                "Kişisel güvenlik ve mesleki risk yönetimi konusunda hastaneye güveniniz tam mı?",
+                "Hastanenin ilaç ve malzeme stok yönetimi, kesintisiz hizmet sunmanıza olanak tanıyor mu?",
+                "Tıbbi kayıt ve arşivleme sistemlerinin kullanım kolaylığını nasıl değerlendirirsiniz?",
+                "Hasta kabul ve taburculuk süreçleri verimli bir şekilde yönetiliyor mu?",
+                "Hastane yönetiminin, doktorların ihtiyaç ve önerilerine kulak verdiğini düşünüyor musunuz?",
+                "Genel olarak çalıştığınız hastane ortamından mesleki tatmin duyuyor musunuz?",
                 // Kategori 4: Yönlendirme ve Bilgilendirme (31-40)
-                "Hastanenin misyon, vizyon ve stratejik hedeflerinin size açıkça iletildiğine inanıyor musunuz?",
-                "İdari kararların (izin, mesai, nöbet) alınmasında şeffaf ve adil bir süreç izlendiğini düşünüyor musunuz?",
-                "Hastanenin mali performansı ve bütçe kısıtlamaları hakkında yeterince bilgilendiriliyor musunuz?",
-                "Size yönelik performans değerlendirme ve geri bildirim sisteminin yapıcı ve geliştirici olduğuna inanıyor musunuz?",
-                "Hastanenin, yasal düzenlemelere ve akreditasyon standartlarına uyum konusunda etkili olduğuna inanıyor musunuz?",
-                "Yeni tıbbi teknolojilerin hastaneye entegrasyonu konusunda yönetim tarafından destekleniyor musunuz?",
-                "Hasta güvenliği protokollerinin (el hijyeni, düşme önleme) uygulanması konusunda yeterli destek ve eğitim alıyor musunuz?",
-                "Hastane içi iletişim kanallarının (duyurular, e-posta) bilgi akışını etkin sağladığını düşünüyor musunuz?",
-                "Mesleki sorumluluk sigortası ve hukuki destek konularında hastane politikasının yeterli olduğunu düşünüyor musunuz?",
-                "Yönetim tarafından sağlanan yönlendirme ve desteğin genel kalitesini nasıl değerlendiriyorsunuz?",
+                "Hastanenin kurumsal stratejileri ve hedefleri size açıkça iletiliyor mu?",
+                "Tıbbi uygulamalarınızla ilgili performans geri bildirimleri (endikatörler) düzenli veriliyor mu?",
+                "Maaş, ek ödeme ve teşvik sistemlerinin adil ve şeffaf olduğunu düşünüyor musunuz?",
+                "Hastane içi karar alma süreçlerine (komiteler, toplantılar) yeterince katılabiliyor musunuz?",
+                "Yönetimin, tıbbi departmanların bütçe taleplerini rasyonel bir şekilde değerlendirdiğine inanıyor musunuz?",
+                "Hastanenin hasta portföyü ve pazar payı büyüme potansiyelini nasıl değerlendirirsiniz?",
+                "Hastanenin sunduğu yasal ve hukuki danışmanlık hizmetlerinden memnun musunuz?",
+                "Yeni hastane politikaları veya prosedürleri size yeterli zaman tanınarak duyuruluyor mu?",
+                "Doktor performans değerlendirme sisteminin (varsa) objektif olduğuna inanıyor musunuz?",
+                "Hastaların tıbbi geçmişine dair kapsamlı ve güncel bilgilere kolayca erişebiliyor musunuz?",
                 // Kategori 5: Genel Deneyim ve Tavsiye (41-50)
-                "Hastanede çalışmaktan duyduğunuz genel memnuniyet seviyesini nasıl değerlendiriyorsunuz?",
-                "Hastanenizin, mesleki itibarınıza olumlu katkı sağladığını düşünüyor musunuz?",
-                "Hastaneyi, alanınızdaki diğer meslektaşlarınıza gönül rahatlığıyla tavsiye eder misiniz?",
-                "Hastanenin, kariyer gelişiminiz için uzun vadeli fırsatlar sunduğuna inanıyor musunuz?",
-                "Çalışma yaşam dengenizin hastaneniz tarafından desteklendiğini düşünüyor musunuz?",
-                "Performansınıza göre aldığınız ücret ve yan hakların adil olduğunu düşünüyor musunuz?",
-                "Hastanenin, çalışan memnuniyetini artırmaya yönelik çabalarını nasıl değerlendiriyorsunuz?",
-                "Kendinizi hastanenizin vizyon ve değerlerinin bir parçası olarak hissediyor musunuz?",
-                "Hastanenizin gelecekteki başarısına olan inancınız nedir?",
-                "Genel olarak çalıştığınız hastaneyi kaç puan üzerinden değerlendirirsiniz? (1-5)"
+                "Hastanenin markasını ve itibarını meslektaşlarınıza ve hastalarınıza tavsiye eder misiniz?",
+                "Genel olarak aldığınız toplam ücret (maaş, döner sermaye, ek ödemeler) beklentinizi karşılıyor mu?",
+                "Hastanenin, mesleki bağımsızlığınıza ve etik değerlerinize saygı gösterdiğini düşünüyor musunuz?",
+                "Çalıştığınız kurumda kendinizi güvende ve değerli hissediyor musunuz?",
+                "Bu hastanede uzun vadeli bir kariyer planı yapmayı düşünür müsünüz?",
+                "Hastanenin hizmet kalitesini ve hasta memnuniyetini sürekli iyileştirme çabalarını destekliyor musunuz?",
+                "Mesleki gelişiminiz için gerekli olanaklara (eğitim, araç) erişiminiz tam mı?",
+                "Hastanenin size sunduğu iş-yaşam dengesi imkanlarını nasıl değerlendirirsiniz?",
+                "Kendi branşınızda hastanenizi kaç puan üzerinden değerlendirirsiniz? (1-5)",
+                "Hastanenin, doktorları ile uzun süreli ve karşılıklı güvene dayalı bir ilişki kurduğuna inanıyor musunuz?",
             ],
             "Yönetim": [
-                // Kategori 1: Tıbbi Hizmet Kalitesi ve Denetim (1-10)
-                "Hizmet Kalitesi Denetim (Audit) sonuçlarının hastane hedefleriyle uyumunu nasıl değerlendiriyorsunuz?",
-                "Tıbbi hataların analizi ve önlenmesine yönelik uygulanan protokollerin etkinliğinden memnun musunuz?",
-                "Teknolojik yatırım kararlarının tıbbi personel ihtiyaçları ve hasta sonuçları üzerindeki etkisini izliyor musunuz?",
-                "Hasta memnuniyeti skorlarının (HES) kalite iyileştirme süreçlerine yeterince entegre edildiğine inanıyor musunuz?",
-                "Tıbbi sarf malzeme ve ilaç tedarik zincirinin kesintisiz ve maliyet-etkin olduğunu düşünüyor musunuz?",
-                "Kritik klinik göstergelerin (KPI'lar) düzenli ve doğru bir şekilde raporlandığına inanıyor musunuz?",
-                "Acil ve kritik bakım hizmetlerinin ulusal standartlara uygunluğunu nasıl değerlendiriyorsunuz?",
-                "Sağlık turizmi gibi yeni hizmet alanlarının geliştirilmesi için yeterli kaynak ayırıyor musunuz?",
-                "Hastanenin Enfeksiyon Kontrol Komitesi'nin çalışmalarını ne kadar başarılı buluyorsunuz?",
-                "Hastanenin genel tıbbi hizmet kalitesi skorunu nasıl değerlendiriyorsunuz?",
+                // Kategori 1: Tıbbi Hizmet Kalitesi (1-10)
+                "Kurumun tıbbi cihaz ve teknolojik altyapısı, rekabet avantajı yaratacak düzeyde mi?",
+                "Hizmet kalitesi standartlarının (JCI, ISO vb.) sürdürülebilirliğini sağlamak kolay mı?",
+                "Hastanenin medikal personelinin (Doktor/Hemşire) nicelik ve niteliği yeterli mi?",
+                "Tıbbi süreçlerdeki verimlilik ve maliyet etkinliği hedeflerine ulaşabiliyor musunuz?",
+                "Hasta güvenliği ve risk yönetimi programlarının etkinliğini nasıl değerlendirirsiniz?",
+                "Klinik karar destek sistemlerinin kullanımının yaygınlaştırılması kolay mı?",
+                "Hastanenin tıbbi atık ve çevre yönetimi politikaları güncel standartlara uygun mu?",
+                "Hastanenin bilimsel araştırma ve akademik faaliyetler için ayırdığı bütçe yeterli mi?",
+                "Yeni tıbbi teknolojilerin adaptasyon süreçleri hızlı ve sorunsuz mu işliyor?",
+                "Tıbbi hizmet sunumunda uluslararası en iyi uygulamaları takip ettiğinize inanıyor musunuz?",
                 // Kategori 2: Personel Davranışları ve İletişim (11-20)
-                "Tüm personel grupları arasındaki iç iletişimin şeffaflık ve hızından memnun musunuz?",
-                "Çalışan devir hızının (turnover rate) kabul edilebilir seviyelerde olduğunu düşünüyor musunuz?",
-                "Personel performans değerlendirme sisteminin adil ve motive edici olduğuna inanıyor musunuz?",
-                "Personel şikayetlerinin ve disiplin süreçlerinin etkin ve objektif bir şekilde yönetildiğini düşünüyor musunuz?",
-                "Yöneticilerinizin, liderlik ve mentorluk becerilerini yeterli buluyor musunuz?",
-                "Çalışan memnuniyet anketlerinin sonuçlarına göre somut iyileştirmeler yapabildiğinize inanıyor musunuz?",
-                "İşe alım ve oryantasyon programlarının yeni personeli yeterince hazırladığına inanıyor musunuz?",
-                "Personel için uygulanan etik kurallar ve uyum programlarının etkinliğini nasıl değerlendiriyorsunuz?",
-                "Farklı kademelerdeki personelin hastane yönetimine sesini duyurma kanallarının yeterli olduğunu düşünüyor musunuz?",
-                "Personel yönetiminin genel başarısını nasıl değerlendiriyorsunuz?",
+                "Çalışan memnuniyeti ve bağlılığı (engagement) seviyesi, hizmet kalitesini destekliyor mu?",
+                "İç iletişim kanallarının (departmanlar arası) şeffaf ve etkili olduğunu düşünüyor musunuz?",
+                "Personel performans değerlendirme ve geri bildirim sisteminin (KPI'lar) adil olduğuna inanıyor musunuz?",
+                "Çalışan sirkülasyon oranlarını kabul edilebilir düzeyde tutabiliyor musunuz?",
+                "Personel eğitim ve gelişim programlarının, hastanenin stratejik hedeflerine hizmet ettiğini düşünüyor musunuz?",
+                "Etik Kurul ve şikayet yönetim mekanizmalarının etkin çalıştığına inanıyor musunuz?",
+                "Yönetici olarak astlarınızla olan iletişiminizde kendinizi desteklenmiş hissediyor musunuz?",
+                "Çalışanların, hastane vizyon ve misyonunu benimsediğini düşünüyor musunuz?",
+                "Personel arasındaki iş birliği ve ekip ruhu kültürünü nasıl değerlendirirsiniz?",
+                "İnsan Kaynakları süreçlerinin (işe alım, terfi) adil ve şeffaf olduğuna inanıyor musunuz?",
                 // Kategori 3: Kurum Ortamı ve İmkanlar (21-30)
-                "Hastanenin genel bütçe planlamasının, belirlenen stratejik hedefleri desteklediğine inanıyor musunuz?",
-                "Mevcut fiziki altyapının (bina, tesisat, teknik sistemler) hasta ve personel ihtiyaçlarına uygun olduğunu düşünüyor musunuz?",
-                "Enerji yönetimi ve çevre dostu (yeşil hastane) uygulamalar konusunda yeterli ilerleme kaydettiniz mi?",
-                "Tıbbi atık ve diğer atık yönetim süreçlerinin ulusal düzenlemelere tam olarak uyduğunu düşünüyor musunuz?",
-                "Hastanenin bilgi teknolojileri (BT) bütçesinin, teknolojik dönüşüm için yeterli olduğunu düşünüyor musunuz?",
-                "Tıbbi cihazların bakım ve kalibrasyon süreçlerinin maliyet-etkin ve zamanında yapıldığına inanıyor musunuz?",
-                "Hasta ve personel güvenliğine yönelik fiziksel güvenlik önlemlerinin (kamera, erişim kontrolü) yeterliliğini nasıl değerlendiriyorsunuz?",
-                "Hastanenin acil durum ve afet yönetim planlarının güncel ve uygulanabilir olduğunu düşünüyor musunuz?",
-                "Sigorta ve tedarikçilerle yapılan sözleşmelerin hastane için en uygun koşulları sağladığına inanıyor musunuz?",
-                "Kurumun mali ve fiziki imkanlarının genel kalitesini nasıl değerlendiriyorsunuz?",
+                "Bina ve tesis yönetiminin (temizlik, bakım) maliyet etkinliği ve kalitesinden memnun musunuz?",
+                "Hastanenin fiziki kapasitesi (oda, yatak, ameliyathane) pazar talebini karşılıyor mu?",
+                "Bilgi Teknolojileri (IT) altyapısının iş süreçlerinizdeki verimliliğe katkısı yeterli mi?",
+                "Hastanenin finansal kaynaklarının (bütçe) şeffaf ve rasyonel kullanıldığına inanıyor musunuz?",
+                "Tedarik zinciri ve lojistik süreçlerinin hastanenin ihtiyaçlarına hızla yanıt verdiğini düşünüyor musunuz?",
+                "Yönetici olarak size tahsis edilen ofis/çalışma alanı ergonomik ve yeterli mi?",
+                "Hastanenin afet ve acil durum planlarının güncel ve uygulanabilir olduğunu düşünüyor musunuz?",
+                "Kurumun enerji ve su tüketimi gibi operasyonel maliyetleri kontrol altında tutuluyor mu?",
+                "Hastane genelinde dijitalleşme ve otomasyon seviyesini nasıl değerlendirirsiniz?",
+                "Hastanenin dış paydaşlarla (sigorta, devlet kurumları) ilişkileri olumlu ilerliyor mu?",
                 // Kategori 4: Yönlendirme ve Bilgilendirme (31-40)
-                "Hastanenin 5 yıllık stratejik planının tüm yönetim kademeleri tarafından benimsendiğine inanıyor musunuz?",
-                "Pazar araştırması ve rekabet analizi sonuçlarının stratejik kararlarınıza yeterince yol gösterdiğini düşünüyor musunuz?",
-                "Kurumsal iletişim ve halkla ilişkiler faaliyetlerinin hastane itibarını etkili bir şekilde artırdığına inanıyor musunuz?",
-                "Hastanenin dijital dönüşüm (online hizmetler, mobil uygulamalar) hedeflerine ulaşma hızından memnun musunuz?",
-                "Hukuki ve düzenleyici kurumlarla ilişkilerin (bakanlık, dernekler) etkin ve olumlu yönetildiğini düşünüyor musunuz?",
-                "Yeni hizmet birimlerinin açılması veya mevcutların kapatılması kararlarının veri temelli olduğuna inanıyor musunuz?",
-                "Yönetim Kurulu ve hissedarların geri bildirimlerinin şeffaf ve anlaşılır olduğuna inanıyor musunuz?",
-                "Hastanenin toplumsal sorumluluk projelerinin (CSR) etkin ve faydalı olduğunu düşünüyor musunuz?",
-                "Veri analitiği ve iş zekası (BI) araçlarının karar verme süreçlerinize yeterince katkı sağladığını düşünüyor musunuz?",
+                "Kurumun stratejik hedeflerine ulaşma yol haritası net mi?",
+                "Kurumsal performans göstergeleri (KPI) düzenli olarak izleniyor ve analiz ediliyor mu?",
+                "Hastanenin mali tabloları ve performans raporları, karar verme süreçlerinize yeterince katkı sağlıyor mu?",
+                "Yönetim kurulu toplantıları ve karar alma süreçleri verimli işliyor mu?",
+                "Pazar araştırmaları ve iş zekası (BI) araçlarının karar verme süreçlerinize yeterince katkı sağladığını düşünüyor musunuz?",
                 "Kurumsal yönetim ve yönlendirme kalitesini nasıl değerlendiriyorsunuz?",
+                "Hastanenin pazarlama ve halkla ilişkiler faaliyetleri, marka bilinirliğini artırmada başarılı mı?",
+                "Yasal düzenlemelere (KVKK, tıbbi mevzuat) uyum konusunda yeterli kaynak ayrılıyor mu?",
+                "Tüm departmanların hedeflerinin, kurumun genel stratejisiyle uyumlu olduğuna inanıyor musunuz?",
+                "Risk Yönetimi ve İç Denetim mekanizmalarının etkinliğini nasıl değerlendirirsiniz?",
                 // Kategori 5: Genel Deneyim ve Tavsiye (41-50)
                 "Hastanenin yönetim ekibinin genel başarısından memnun musunuz?",
                 "Hastanenizin, sağlık sektöründeki diğer kurumlara göre rekabet avantajı olduğunu düşünüyor musunuz?",
@@ -1458,6 +1266,7 @@
         };
 
         </script>
+        
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
 </body>
