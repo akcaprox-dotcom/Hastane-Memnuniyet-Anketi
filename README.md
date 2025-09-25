@@ -601,8 +601,12 @@ function closeModal() {
                 return;
             }
 
-            // Seçilen role göre soruları al
-            currentQuestions = Object.values(questions[selectedJobType]).flat();
+            // Seçilen role göre soruları al (hem dizi hem nesne protokolü destekler)
+            if (Array.isArray(questions[selectedJobType])) {
+                currentQuestions = questions[selectedJobType];
+            } else {
+                currentQuestions = Object.values(questions[selectedJobType]).flat();
+            }
             console.log('Seçilen rol:', selectedJobType);
             console.log('Sorular:', currentQuestions);
 
