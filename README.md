@@ -1851,7 +1851,7 @@ function closeModal() {
                 'Güven ve İtibar',
                 'Genel Memnuniyet'
             ],
-            'Personel': [
+            'Doktor': [
                 'Çalışma Ortamı',
                 'Yönetim ve Liderlik',
                 'İş Yükü ve Dengesi',
@@ -1894,21 +1894,27 @@ function closeModal() {
             let groupAnswerCount = 0;
             // Soru bazında frekanslar
             const questionFreqs = [];
-            for (let qIdx = 0; qIdx < 10; qIdx++) {
+            for (let catIdx = 0; catIdx < groupTitles[group].length; catIdx++) {
                 const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                let total = 0;
-                surveys.forEach(s => {
-                    if (s.jobType === group && s.answers[qIdx]) {
-                        const score = s.answers[qIdx].score;
-                        if (score) {
-                            freq[score] = (freq[score] || 0) + 1;
-                            groupScoreTotals[score]++;
-                            total++;
-                            groupTotal++;
-                            groupAnswerCount++;
+                
+                // Her kategori için soru aralığını hesapla
+                let questionsPerCategory = (group === 'Yönetim') ? 10 : 5;
+                let startQuestionIdx = catIdx * questionsPerCategory;
+                
+                // Bu kategoriye ait tüm soruları topla
+                for (let qIdx = startQuestionIdx; qIdx < startQuestionIdx + questionsPerCategory; qIdx++) {
+                    surveys.forEach(s => {
+                        if (s.jobType === group && s.answers[qIdx]) {
+                            const score = s.answers[qIdx].score;
+                            if (score) {
+                                freq[score] = (freq[score] || 0) + 1;
+                                groupScoreTotals[score]++;
+                                groupTotal++;
+                                groupAnswerCount++;
+                            }
                         }
-                    }
-                });
+                    });
+                }
                 questionFreqs.push(freq);
             }
             // Grup başlık satırı (yüzdeler)
@@ -1924,6 +1930,7 @@ function closeModal() {
                 html += `<tr>
                     <td class="sub-category">${title}</td>`;
                 [5,4,3,2,1].forEach(score => {
+                    // Her puan için gerçek frekansı (kaç kişi o puanı verdi) göster
                     html += `<td style="text-align: center;">${questionFreqs[qIdx][score] || 0}</td>`;
                 });
                 html += '</tr>';
