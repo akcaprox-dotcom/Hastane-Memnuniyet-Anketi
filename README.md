@@ -102,7 +102,8 @@
             </div>
             <div class="flex gap-2">
                 <button onclick="showModule('survey')" class="px-3 py-1 bg-white/20 rounded text-sm hover:bg-white/30 transition-colors">📊 Anket</button>
-                <button onclick="showModule('company')" class="px-3 py-1 bg-white/20 rounded text-sm hover:bg-white/30 transition-colors">🏢 Kurum Portalı</button>
+            <button onclick="showModule('company')" class="px-3 py-1 bg-white/20 rounded text-sm hover:bg-white/30 transition-colors">🏢 Kurum Portalı</button>
+
             </div>
         </div>
     </nav>
@@ -563,179 +564,192 @@ function closeModal() {
         // Soru setleri
         const questions = {
             "Hasta": [
-                // Tıbbi Hizmet Kalitesi (10 Soru)
-                "Doktorunuzun teşhis ve tedavi sürecine ne kadar güveniyorsunuz?",
-                "Aldığınız tıbbi tedavinin açıklayıcı ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Doktorunuzun sorularınıza yeterli zaman ayırdığına inanıyor musunuz?",
-                "Tedavi sürecinde ağrı veya rahatsızlığınızın yönetilmesinden memnun musunuz?",
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "İlaçlarınız ve tedaviniz hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin laboratuvar ve görüntüleme hizmetlerinin hızından memnun musunuz?",
-                "Aldığınız tedavinin beklediğiniz faydayı sağladığını düşünüyor musunuz?",
-                "Doktorunuzun sizi tedavi planı konusunda karar sürecine dahil ettiğine inanıyor musunuz?",
-                "Tıbbi hizmetlerin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Personel Davranışları ve İletişim (10 Soru)
-                "Hemşire ve diğer sağlık personelinin size karşı nazik ve saygılı davrandığına inanıyor musunuz?",
-                "Personelin, ihtiyaç duyduğunuzda size hızlı bir şekilde yanıt verdiğini düşünüyor musunuz?",
-                "Sağlık personelinin, sizi bilgilendirme konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
-                "Personelin, mahremiyetinize ve kişisel alanınıza saygı duyduğunu düşünüyor musunuz?",
-                "Hemşirenizin veya sağlık ekibinizin size karşı sabırlı ve anlayışlı davrandığına inanıyor musunuz?",
-                "Hasta bakımı sırasında size yeterli ilginin gösterildiğine inanıyor musunuz?",
-                "Personel ile iletişim kurarken kendinizi rahat ve güvende hissettiniz mi?",
-                "Sağlık personelinin size güvence ve moral verdiğini düşünüyor musunuz?",
-                "Tedaviniz sırasında duygusal olarak desteklendiğinize inanıyor musunuz?",
-                "Personel ile iletişiminizin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Hastane Ortamı ve İmkanlar (10 Soru)
-                "Hastane odasının temizliğinden ve konforundan memnun musunuz?",
-                "Genel hastane ortamının (koridorlar, bekleme alanları) temiz ve düzenli olduğunu düşünüyor musunuz?",
-                "Hastanenin genel gürültü seviyesinin kabul edilebilir olduğunu düşünüyor musunuz?",
-                "Hastanenin yemek hizmetlerinin kalitesinden ve çeşitliliğinden memnun musunuz?",
-                "Hastanenin otopark ve ulaşım imkanlarının yeterli olduğunu düşünüyor musunuz?",
-                "Ziyaret saatlerinin ve kurallarının makul olduğunu düşünüyor musunuz?",
-                "Hastane içinde yol bulmanın kolay olduğuna inanıyor musunuz?",
-                "Tuvaletlerin ve banyo imkanlarının hijyenik olduğunu düşünüyor musunuz?",
-                "Hastanenin güvenlik önlemlerinin yeterli olduğuna inanıyor musunuz?",
-                "Hastane ortamının genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Yönlendirme ve Bilgilendirme (10 Soru)
-                "Hastaneye yatış sürecinin kolay ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Hastane personeli tarafından randevu ve kayıt işlemlerinde yeterince yönlendirildiğinize inanıyor musunuz?",
-                "Tıbbi prosedürler ve riskler hakkında size yeterli bilgi verildiğini düşünüyor musunuz?",
-                "Hastanenin, size özel bilgilerinizi koruduğuna ve gizliliğe önem verdiğine inanıyor musunuz?",
-                "Taburcu sürecinin düzenli ve anlaşılır bir şekilde yönetildiğini düşünüyor musunuz?",
-                "Taburcu sonrası bakım ve takip süreci hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin web sitesi veya bilgilendirme materyallerinin anlaşılır ve faydalı olduğunu düşünüyor musunuz?",
-                "Hastane çalışanlarının sizi doğru servislere ve birimlere yönlendirmesinden memnun musunuz?",
-                "Hasta haklarınız konusunda yeterli bilgiye sahip olduğunuza inanıyor musunuz?",
-                "Hastaneye yatış sürecinin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Genel Deneyim ve Tavsiye (10 Soru)
-                "Hastanede yaşadığınız genel deneyimden memnun musunuz?",
-                "Hastaneyi, yakınlarınıza veya arkadaşlarınıza tavsiye eder misiniz?",
-                "Acil durumlar için bu hastaneyi tekrar tercih eder misiniz?",
-                "Hastane personelinin, beklentilerinizi aştığını düşünüyor musunuz?",
-                "Hastanede aldığınız hizmetin, ödediğiniz ücrete değdiğini düşünüyor musunuz?",
-                "Şikayet veya önerileriniz için kolayca iletişim kurabildiğinize inanıyor musunuz?",
-                "Hastanenin, hasta geri bildirimlerine önem verdiğini düşünüyor musunuz?",
-                "Hastanenin, sunduğu hizmetlerin kalitesini sürekli iyileştirdiğine inanıyor musunuz?",
-                "Hastanenin, hasta memnuniyetini önceliklendirdiğini düşünüyor musunuz?",
-                "Hastanede geçirdiğiniz süre boyunca kendinizi değerli hissettiniz mi?"
+                // 1.1 Randevu, Kabul ve Taburcu Süreçleri (5 Soru)
+                "Randevu alma sürecim (online, telefon vb.) kolay ve hızlı gerçekleşti.",
+                "Hastaneye giriş (kabul) işlemlerim ve kayıt süreçlerim hızlı ve sorunsuzdu.",
+                "Hastane personeli, randevu/kabul sırasında bana doğru ve yeterli bilgi verdi.",
+                "Tedavim bittiğinde taburcu olma (çıkış) süreçlerim karmaşık değildi ve hızlıydı.",
+                "Taburcu olurken sonraki tedavi ve ilaç kullanımı hakkında net talimatlar aldım.",
+                // 1.2 Tıbbi İletişim ve Bilgilendirme (5 Soru)
+                "Doktorum, hastalığımın teşhisini ve tedavi seçeneklerini anlaşılır bir dille açıkladı.",
+                "Tıbbi personel, yapılan işlemler ve testler hakkında beni her adımda bilgilendirdi.",
+                "Tedavi süreciyle ilgili sorularıma her zaman sabırlı ve tatmin edici cevaplar aldım.",
+                "Doktorum, tedaviye başlamadan önce riskler ve olası yan etkiler konusunda beni uyardı.",
+                "Tıbbi kararlara aktif olarak katılımım teşvik edildi ve fikrim soruldu.",
+                // 1.3 Doktor ve Hemşire Bakım Kalitesi (5 Soru)
+                "Doktorumun mesleki bilgi ve tecrübesi bana güven verdi.",
+                "Hemşireler, ihtiyaç duyduğum anda hızlı bir şekilde yanımda oldu.",
+                "Hemşireler, ağrı yönetimimi etkili bir şekilde sağladı ve düzenli kontrol etti.",
+                "Tıbbi personel, bana saygılı, nazik ve şefkatli davrandı.",
+                "Hemşirelerin yaptığı işlemlerde (iğne, pansuman vb.) kendimi güvende hissettim.",
+                // 1.4 Hastane Hijyeni ve Fiziksel Çevre (5 Soru)
+                "Kaldığım oda/servis alanı temiz ve düzenliydi.",
+                "Hastane genelindeki tuvalet, bekleme alanı gibi ortak yerler hijyenikti.",
+                "Hastanenin genel atmosferi (sessizlik, aydınlatma) iyileşme sürecime katkı sağladı.",
+                "Hastane binası içi ve dışı yönlendirme tabelaları kolay anlaşılırdı.",
+                "Kullanılan tıbbi ekipmanların temiz ve güvenli olduğuna inanıyorum.",
+                // 1.5 İlaç ve Tedavi Süreçleri (5 Soru)
+                "İlaçlarım ve tedavilerim her zaman doğru zamanda uygulandı.",
+                "İlaçların dozajı ve uygulama şekli hakkında net bilgi aldım.",
+                "Tedavi sürecimde gereksiz beklemeler ve gecikmeler yaşanmadı.",
+                "İlaçlarımın muhtemel yan etkileri hakkında bilgilendirildim ve izlendim.",
+                "Tedavi planının beklenen sonuçları konusunda gerçekçi bir bilgilendirme yapıldı.",
+                // 1.6 Yemek ve Beslenme Hizmetleri (5 Soru)
+                "Hastanede sunulan yemeklerin lezzeti ve kalitesi tatmin ediciydi.",
+                "Diyetime uygun beslenme gereksinimlerim (alerji, özel diyet) dikkate alındı.",
+                "Yemekler doğru saatte ve hijyenik bir şekilde servis edildi.",
+                "Beslenme uzmanından diyetim hakkında ek bilgi alma imkanı buldum.",
+                "Yemek servis personelinin ilgisi ve nazikliği yeterliydi.",
+                // 1.7 Hasta Hakları ve Etik (5 Soru)
+                "Hastane personelinin gizlilik ve mahremiyet kurallarına uyduğuna inanıyorum.",
+                "Hastanede inançlarıma ve kültürel değerlerime saygı gösterildi.",
+                "Hastane, şikayet ve geri bildirim mekanizmalarını bana açıkça sundu.",
+                "Tıbbi uygulamalar için benden onay alınması süreci şeffaftı.",
+                "Hastanede uygulanan fiyatlandırma ve faturalandırma süreci anlaşılırdı.",
+                // 1.8 Güvenlik ve Ağrı Yönetimi (5 Soru)
+                "Hastanede düşme, yanma gibi kazalara karşı alınan önlemler yeterliydi.",
+                "Bakımım boyunca kimlik doğrulama süreçleri (doğru hasta, doğru ilaç) titizlikle uygulandı.",
+                "Ağrı hissettiğimde, hızlı ve etkili bir şekilde müdahale edildi.",
+                "Odada/Serviste güvenlik ve çağrı zili kolay erişilebilir durumdaydı.",
+                "Hastane personelinin kişisel eşyalarıma saygılı davrandığına inanıyorum.",
+                // 1.9 Acil Servis ve Yoğun Bakım Deneyimi (5 Soru)
+                "(Acil serviste hizmet aldıysam) Bekleme sürem makuldü ve erken müdahale sağlandı.",
+                "(Acil serviste hizmet aldıysam) Acil personelinin hızı ve yetkinliği güven verdi.",
+                "(Yoğun bakımda kaldıysam) Yoğun bakım ziyaret saatleri ve iletişim süreci yeterliydi.",
+                "(Yoğun bakımda kaldıysam) Yoğun bakım personelinin hasta ve yakınlarına yaklaşımı destekleyiciydi.",
+                "Acil durumlarda hastane ekibinin koordinasyonu başarılıydı.",
+                // 1.10 Genel Memnuniyet ve Tavsiye (5 Soru)
+                "Bu hastaneyi aileme ve arkadaşlarıma tavsiye ederim.",
+                "Genel olarak, hastaneden aldığım tıbbi bakım kalitesi beklentilerimi karşıladı.",
+                "Hastanenin online iletişim ve bilgilendirme kanalları (web sitesi vb.) yeterliydi.",
+                "Hastaneden genel sağlık durumumun iyileştiği hissiyle ayrılıyorum.",
+                "Toplam deneyimim, hastane personelinin üst düzeyde özen gösterdiğini gösteriyor."
             ],
             "Doktor": [
-                // Çalışma Ortamı ve Kaynaklar (10 Soru)
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "Çalışma saatlerinizin makul ve yönetilebilir olduğunu düşünüyor musunuz?",
-                "Hastanenin fiziksel ortamının (muayene odası, ameliyathane) verimli çalışmaya uygun olduğuna inanıyor musunuz?",
-                "İdari personel ve destek birimlerinin (laboratuvar, radyoloji) iş birliğinden memnun musunuz?",
-                "Acil durumlar için gerekli kaynaklara ve protokollere kolayca erişebildiğinizi düşünüyor musunuz?",
-                "Hastanenin hasta kayıt sistemi ve dijital altyapısının işinizi kolaylaştırdığına inanıyor musunuz?",
-                "Hastanenin, mesleki güvenliğinizi ve sağlığınızı önemsediğini düşünüyor musunuz?",
-                "Tıbbi malzeme ve sarf ürünlerine kolayca erişebildiğinize inanıyor musunuz?",
-                "Hastanenin temizlik ve hijyen standartlarının yeterli olduğuna inanıyor musunuz?",
-                "Hastanedeki çalışma ortamınızdan genel olarak memnun musunuz?",
-                // Yönetim ve İletişim (10 Soru)
-                "Hastane yönetiminin aldığı kararların şeffaf ve anlaşılır olduğuna inanıyor musunuz?",
-                "Yönetimin, doktorların fikirlerine ve önerilerine değer verdiğini düşünüyor musunuz?",
-                "Yönetimle iletişim kanallarının açık ve etkili olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin, hasta memnuniyetini önceliklendirdiğine inanıyor musunuz?",
-                "Yönetimin, doktorlar arasında iş birliğini ve takım çalışmasını teşvik ettiğini düşünüyor musunuz?",
-                "Maaş ve yan haklarınızın adil ve rekabetçi olduğunu düşünüyor musunuz?",
-                "Yönetimin, akademik ve bilimsel çalışmalarınıza destek verdiğine inanıyor musunuz?",
-                "Yöneticilerinizin, hasta bakımı süreçlerinde size yeterli özerkliği tanıdığına inanıyor musunuz?",
-                "Yönetimle olan ilişkinizin genel olarak güvene dayalı olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin genel performansını nasıl değerlendiriyorsunuz?",
-                // Hasta Bakım ve İş Birliği (10 Soru)
-                "Hasta bakımının kalitesini nasıl değerlendiriyorsunuz?",
-                "Diğer birimlerdeki sağlık profesyonelleriyle (hemşireler, terapistler) iş birliğinizden memnun musunuz?",
-                "Hastane genelinde hasta güvenliğine verilen önemin yeterli olduğunu düşünüyor musunuz?",
-                "Hastalarla iletişim kurmak ve onları tedavi süreçleri hakkında bilgilendirmek için yeterli zamana sahip olduğunuza inanıyor musunuz?",
-                "Hastane personelinin, hasta beklentilerini karşılama konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
-                "Hasta ve yakınlarının geri bildirimlerinin, hizmet kalitesini artırdığını düşünüyor musunuz?",
-                "Hasta bakımı konusunda etik ve ahlaki değerlere yeterli önemin verildiğine inanıyor musunuz?",
-                "Hasta kayıt sisteminin, hasta bilgilerine hızlı ve güvenli erişim sağladığına inanıyor musunuz?",
-                "Meslektaşlarınızla olan iş birliğinizin verimli ve yapıcı olduğunu düşünüyor musunuz?",
-                "Hastaların tedavi süreçlerine katılımlarını teşvik eden bir ortam olduğuna inanıyor musunuz?",
-                // Mesleki Gelişim ve Eğitim (10 Soru)
-                "Hastanenin, mesleki gelişiminize yönelik yeterli fırsatlar sunduğunu düşünüyor musunuz?",
-                "Konferans, seminer ve eğitimlere katılma konusunda desteklendiğinize inanıyor musunuz?",
-                "Hastanenin araştırma ve bilimsel çalışmalara yeterli bütçe ayırdığını düşünüyor musunuz?",
-                "Mesleki literatürü takip etme konusunda hastanenin size destek olduğunu düşünüyor musunuz?",
-                "Hastanenin, yeni ve güncel tıbbi yöntemleri uygulamaya açık olduğuna inanıyor musunuz?",
-                "Deneyimli doktorların, genç meslektaşlarına mentorluk yaptığını düşünüyor musunuz?",
-                "Hastanenin, uzmanlık alanınıza yönelik özel eğitimler sağladığına inanıyor musunuz?",
-                "Kariyerinizde yükselme olanaklarının adil ve liyakate dayalı olduğunu düşünüyor musunuz?",
-                "Hastanenin, çalışan memnuniyetini artırmaya yönelik çabalarını yeterli buluyor musunuz?",
-                "Hastanede çalışmaktan genel olarak memnun musunuz?",
-                // Çalışan Refahı ve Sosyal Denge (10 Soru)
-                "Hastanenin, çalışanların fiziksel ve ruhsal sağlığını önemsediğine inanıyor musunuz?",
-                "Çalışanlar için sosyal ve sportif faaliyetlerin düzenlendiğini düşünüyor musunuz?",
-                "Hastanenin, iş-özel yaşam dengesini korumanıza yardımcı olduğuna inanıyor musunuz?",
-                "Çalışanlara yönelik psikolojik destek hizmetlerinin yeterli olduğuna inanıyor musunuz?",
-                "Hastanenin, çalışanlar arasında eşitlik ve adalet sağladığına inanıyor musunuz?",
-                "İşten duyduğunuz tatminin, yaptığınız işin toplumsal faydasından kaynaklandığını düşünüyor musunuz?",
-                "Hastane içinde kendinizi değerli ve takdir edilmiş hissettiğinize inanıyor musunuz?",
-                "Hastanenin, çalışanların şikayetlerine karşı duyarlı bir yaklaşım sergilediğini düşünüyor musunuz?",
-                "Hastanenin, iş güvenliği ve sağlığına yönelik önlemlerini yeterli buluyor musunuz?",
-                "Hastanedeki genel çalışan refahı seviyesini nasıl değerlendiriyorsunuz?"
-            ],
-            "Personel": [
+                // 2.1 Randevu, Kabul ve Taburcu Süreçleri (5 Soru)
+                "Hastaların kabul ve taburcu işlemleri, benim tıbbi iş yükümü artırmayacak şekilde verimli ilerlemektedir.",
+                "Hastane bilgi yönetim sistemi, hastaların geçmiş verilerine hızlı erişimimi sağlamaktadır.",
+                "Ameliyat/işlem randevu sistemleri, zaman yönetimi ve planlama açısından yeterlidir.",
+                "Sekreterya ve idari personel ile hasta kabul süreçlerinde koordinasyonumuz güçlüdür.",
+                "Hastaların taburcu sonrası evde bakım/destek hizmetleri konusunda net protokoller mevcuttur.",
+                // 2.2 Tıbbi İletişim ve Bilgilendirme (5 Soru)
+                "Hastalara teşhis ve tedavi süreçlerini açıklarken kullanacağım eğitim materyalleri (broşür, model) mevcuttur.",
+                "Hastane, meslektaşlarım ve uzmanlarla konsültasyon yapmamı desteklemektedir.",
+                "Hastalarla duygusal ve hassas konuları konuşurken yönetimden destek hissediyorum.",
+                "Hasta yakınlarına bilgi verme prosedürleri net ve tutarlıdır.",
+                "Hastane, hata bildirim sistemini kullanarak iletişimi ve şeffaflığı teşvik etmektedir.",
+                // 2.3 Doktor ve Hemşire Bakım Kalitesi (5 Soru)
+                "Çalıştığım birimde yeterli sayıda nitelikli hemşire mevcuttur.",
+                "Ekibimdeki uzmanlık seviyesi ve işbirliği, en iyi bakımı sunmamızı sağlamaktadır.",
+                "İş yükü dağılımı, hastalarla yeterli zaman geçirmeme olanak verecek şekilde dengelenmiştir.",
+                "Hastanenin sürekli mesleki gelişim (CME) programları bilgi ve becerilerimi güncel tutmaktadır.",
+                "Hastalara yüksek kalitede bakım sağlama konusunda kendimi yetkin hissediyorum.",
+                // 2.4 Hastane Hijyeni ve Fiziksel Çevre (5 Soru)
+                "Çalıştığım serviste enfeksiyon kontrol prosedürleri (el hijyeni, izolasyon) titizlikle uygulanmaktadır.",
+                "Hastane, steril ve hijyenik koşulları sağlamak için yeterli personel ve kaynak sağlamaktadır.",
+                "Tıbbi atıkların yönetimi prosedürlere uygun ve güvenli bir şekilde yapılmaktadır.",
+                "Hastanenin fiziki altyapısı ve mimarisi, iş akışımı ve hasta bakımını desteklemektedir.",
+                "Çalıştığım alanların bakım ve onarımı, taleplerime hızlı yanıt vermektedir.",
+                // 2.5 İlaç ve Tedavi Süreçleri (5 Soru)
+                "Hastanenin ilaç yönetim sistemi (dozaj, dağıtım, stok) hatasız çalışmaktadır.",
+                "Gerekli tüm tıbbi cihazlar, sarf malzemeleri ve ilaçlar her zaman stokta mevcuttur.",
+                "Tıbbi cihazların kalibrasyon ve bakımları düzenli olarak yapılmaktadır.",
+                "Yeni tedavi protokolleri ve ilaçlar konusunda zamanında ve eksiksiz eğitim alıyorum.",
+                "Hasta güvenliği protokolleri, tıbbi hataları (ilaç hatası vb.) en aza indirmektedir.",
+                // 2.6 Çalışma Koşulları ve Sosyal Haklar (5 Soru)
+                "Çalıştığım hastanenin maaş ve yan hakları sektör ortalamasına göre tatmin edicidir.",
+                "Vardiya ve nöbet planlamaları, dinlenmeme ve özel hayatıma saygı gösterecek şekilde yapılmaktadır.",
+                "Hastanenin sosyal imkanları ve dinlenme alanları yeterli ve konforludur.",
+                "Hastanede iş arkadaşlarımla ve amirlerimle güçlü ve destekleyici bir ilişkimiz var.",
+                "Hastane, tükenmişlik sendromunu (burnout) önlemeye yönelik programlar sunmaktadır.",
+                // 2.7 Hasta Hakları ve Etik (5 Soru)
+                "Hastane, etik kurulların kararlarına ve yönlendirmelerine saygı duymaktadır.",
+                "Çalışırken karşılaştığım etik ikilemleri tartışabileceğim bir mekanizma mevcuttur.",
+                "Hastaların mahremiyetini ve kişisel verilerini koruma konusunda net talimatlara sahibim.",
+                "Hastane, hasta hakları ve etik konularında düzenli eğitim vermektedir.",
+                "Hastaların dini ve kültürel ihtiyaçlarına uygun hizmet sunma konusunda destekleniyorum.",
+                // 2.8 Eğitim ve Kariyer Gelişimi (5 Soru)
+                "Hastanede yükselme ve kariyer geliştirme fırsatları konusunda şeffaflık vardır.",
+                "Yöneticilerim, akademik çalışmalarımı ve araştırmalarımı desteklemektedir.",
+                "Hastane, özel uzmanlık alanlarımda sertifika ve kurs almam için bütçe sağlamaktadır.",
+                "Koçluk ve mentorluk programları, genç meslektaşlarımın gelişimine katkı sağlamaktadır.",
+                "Hastanedeki eğitimler, sektördeki en son tıbbi gelişmeleri takip etmeme yardımcı olmaktadır.",
+                // 2.9 Acil Servis ve Yoğun Bakım İşleyişi (5 Soru)
+                "(Acil/Yoğun Bakım personeli isem) Çalıştığım birimde ekipman ve personel sayısı gelen hasta yoğunluğuna yeterlidir.",
+                "Travma ve acil müdahale odaları, uluslararası standartlara uygun donanıma sahiptir.",
+                "Yoğun bakım yatak doluluk oranları ve hasta sevk süreçleri etkin yönetilmektedir.",
+                "Acil servis ve yoğun bakımdaki izin/tatil planlaması adil yapılmaktadır.",
+                "Acil durumlarda departmanlar arası koordinasyon (ameliyathane, laboratuvar) sorunsuz ve hızlıdır.",
+                // 2.10 Kurumsal Bağlılık ve Memnuniyet (5 Soru)
+                "Hastanenin kurumsal misyonu ve değerleri, benim hizmet anlayışımla örtüşmektedir.",
+                "Yöneticilerim ve idarecilerim, mesleki çabalarımı takdir etmektedir.",
+                "Hastane yönetiminin kararları, hasta bakımının kalitesini önceliklendirmektedir.",
+                "Meslektaşlarımla birlikte çalışmaktan ve bu kurumun bir parçası olmaktan gurur duyuyorum.",
+                "Genel olarak, bu hastanede çalışmaktan memnunum ve kurumuma bağlıyım."
             ],
             "Yönetim": [
-                // Finansal Performans ve Operasyonel Verimlilik (10 Soru)
-                "Hastanenin genel finansal performansından ne kadar memnunsunuz?",
-                "Bütçe planlama ve yönetim süreçlerinin verimliliğinden ne kadar memnunsunuz?",
-                "Gelir ve gider takibinin doğruluğundan ne kadar memnunsunuz?",
-                "Hasta yatış süreçlerinin ne kadar verimli işlediğinden ne kadar memnunsunuz?",
-                "Fatura ve ödeme süreçlerinin hasta ve kurum için kolaylığından ne kadar memnunsunuz?",
-                "Tıbbi malzeme ve ilaç tedarik süreçlerinin yönetiminden ne kadar memnunsunuz?",
-                "Hastanenin genel karlılığından ne kadar memnunsunuz?",
-                "Yatırım geri dönüşlerinin (ROI) beklenen seviyede olmasından ne kadar memnunsunuz?",
-                "Finansal risklerin yönetilme şeklinden ne kadar memnunsunuz?",
-                "Hastanenin genel operasyonel verimliliğinden ne kadar memnunsunuz?",
-                // Pazarlama ve Marka Yönetimi (10 Soru)
-                "Pazarlama stratejilerinizin hastane marka bilinirliğine katkısından ne kadar memnunsunuz?",
-                "Dijital pazarlama kampanyalarının (reklamlar, sosyal medya) etkinliğinden ne kadar memnunsunuz?",
-                "Hastanenin web sitesi ve dijital varlıklarının profesyonelliğinden ne kadar memnunsunuz?",
-                "Markanızın sektördeki itibarından ve algısından ne kadar memnunsunuz?",
-                "Halkla ilişkiler faaliyetlerinin kurum imajına katkısından ne kadar memnunsunuz?",
-                "Hastanenin sunduğu hizmetlerin hedef kitleye ulaşma başarısından ne kadar memnunsunuz?",
-                "Medya ilişkilerinin yönetiminden ne kadar memnunsunuz?",
-                "Hasta referanslarının pazarlama aracı olarak kullanılmasından ne kadar memnunsunuz?",
-                "Kurumsal kimlik çalışmalarının tutarlılığından ne kadar memnunsunuz?",
-                "Pazarlama bütçesinin etkin bir şekilde kullanılmasından ne kadar memnunsunuz?",
-                // İnsan Kaynakları Yönetimi (10 Soru)
-                "Çalışan işe alım süreçlerinin etkinliğinden ne kadar memnunsunuz?",
-                "Çalışanların performans değerlendirme sisteminin adilliğinden ne kadar memnunsunuz?",
-                "Çalışan memnuniyeti ve motivasyonunun yönetilme şeklinden ne kadar memnunsunuz?",
-                "Personel sirkülasyon oranlarının yönetiminden ne kadar memnunsunuz?",
-                "Çalışanların eğitim ve gelişim planlamasının etkinliğinden ne kadar memnunsunuz?",
-                "Liderlik ve yöneticilik becerilerinin geliştirilmesine yönelik programlardan ne kadar memnunsunuz?",
-                "Çalışanlara sunulan ücret ve yan hakların sektör ortalamasına uygunluğundan ne kadar memnunsunuz?",
-                "İş yerinde sağlıklı ve güvenli bir ortamın sağlanmasından ne kadar memnunsunuz?",
-                "Çalışanların kariyer planlamasına sağlanan destekten ne kadar memnunsunuz?",
-                "İnsan kaynakları süreçlerinin genel şeffaflığından ne kadar memnunsunuz?",
-                // Hasta İlişkileri ve Kalite Kontrol (10 Soru)
-                "Hasta şikayet ve geri bildirimlerinin yönetiminden ne kadar memnunsunuz?",
-                "Hastalara sunulan hizmetlerin genel kalitesinden ne kadar memnunsunuz?",
-                "Hastaların beklentilerinin ne kadar karşılandığından ne kadar memnunsunuz?",
-                "Tedavi sonuçlarının izlenme ve değerlendirilme şeklinden ne kadar memnunsunuz?",
-                "Hasta memnuniyeti anketlerinin düzenliliğinden ve sonuçlarının analizinden ne kadar memnunsunuz?",
-                "Hastane içinde kalite kontrol standartlarının uygulanma şeklinden ne kadar memnunsunuz?",
-                "Hastaların kişisel verilerinin korunmasından ne kadar memnunsunuz?",
-                "Hasta mahremiyetine verilen önemden ne kadar memnunsunuz?",
-                "Hasta ilişkileri departmanının etkinliğinden ne kadar memnunsunuz?",
-                "Hastane içinde hasta güvenliğine verilen önemden ne kadar memnunsunuz?",
-                // Teknolojik Altyapı ve Gelecek Vizyonu (10 Soru)
-                "Hastanenin kullandığı tıbbi cihaz ve ekipmanların güncelliğinden ne kadar memnunsunuz?",
-                "Hastane yönetiminin uyguladığı bilişim ve teknoloji stratejisinden ne kadar memnunsunuz?",
-                "Yeni teknolojilere yapılan yatırımların etkinliğinden ne kadar memnunsunuz?",
-                "Hastanenin dijitalleşme sürecinden ve otomasyon seviyesinden ne kadar memnunsunuz?",
-                "E-Sağlık ve dijital hizmetlerin (uzaktan hasta takibi, online randevu vb.) geliştirilme hızından ne kadar memnunsunuz?",
-                "Hastane yönetiminin, geleceğe yönelik stratejik planlamasından ne kadar memnunsunuz?",
-                "Hastanenin bölgesel ve ulusal düzeyde rekabet gücünden ne kadar memnunsunuz?",
-                "Hastanenin kriz ve acil durum planlarının ne kadar etkin olduğundan ne kadar memnunsunuz?",
-                "Hastanenin sürdürülebilirlik ve çevresel etki hedeflerinden ne kadar memnunsunuz?",
-                "Hastanenin genel olarak geleceğe ne kadar hazır olduğundan ne kadar memnunsunuz?"
+                // 3.1 Randevu, Kabul ve Taburcu Süreçleri (5 Soru)
+                "Hastane Randevu ve Kayıt Sistemi, bekleme sürelerini minimize etme hedefine ulaşmıştır.",
+                "Hasta kabul ve taburcu personeli, süreç verimliliği ve iletişim becerileri konusunda düzenli eğitim almaktadır.",
+                "Hastanenin kapasite yönetimi (yatak doluluk, ameliyathane kullanımı) verimli bir şekilde yapılmaktadır.",
+                "Taburcu sonrası takip ve geri bildirim süreçleri sistematik olarak uygulanmaktadır.",
+                "Hastanenin online/dijital randevu kanallarının kullanımı hedeflenen orana ulaşmıştır.",
+                // 3.2 Tıbbi İletişim ve Bilgilendirme (5 Soru)
+                "Hastanemiz, Hasta Memnuniyeti Skorlarında iletişim ve bilgilendirme başlıklarında sektör ortalamasının üzerindedir.",
+                "Hata bildirimi ve kök neden analizi (RCA) sistemi, öğrenen bir kurum kültürünü desteklemektedir.",
+                "Tıbbi personelin hasta ve hasta yakınlarıyla iletişim becerileri düzenli olarak değerlendirilmektedir.",
+                "Hastaların sağlık okuryazarlığını artırmaya yönelik kurumsal programlarımız mevcuttur.",
+                "Açık Kapı Politikası ile hasta ve personel şikayetleri hızlı ve şeffaf çözülmektedir.",
+                // 3.3 Doktor ve Hemşire Bakım Kalitesi (5 Soru)
+                "Hastanenin Hemşire-Hasta Oranı, güvenli ve kaliteli bakım standartlarına uygundur.",
+                "Doktor ve hemşire personelinin maaş ve yan hakları, kurumun kalifiye personel çekme hedefine uygundur.",
+                "Tıbbi hataların bildirim oranı, risk yönetimi hedeflerimize uygundur (Gizli hataların bildirilmesi teşvik edilmektedir).",
+                "Yüksek riskli tıbbi işlemler için net ve güncel protokollerimiz mevcuttur.",
+                "Periyodik Denetimler (Tıbbi Kalite Denetimi) objektif ve etkin bir şekilde yapılmaktadır.",
+                // 3.4 Hastane Hijyeni ve Fiziksel Çevre (5 Soru)
+                "Hastanenin Enfeksiyon Kontrol Oranları (örneğin hastane kaynaklı enfeksiyonlar) kabul edilebilir limitlerin altındadır.",
+                "Temizlik ve hijyen hizmetleri için ayrılan bütçe, yüksek standartları korumaya yeterlidir.",
+                "Hastane, fiziki altyapı ve medikal ekipman yenileme konusunda uzun vadeli yatırım planına sahiptir.",
+                "Hasta odası ve ortak alan konforu, hasta memnuniyetini doğrudan etkileyecek seviyededir.",
+                "Hastane, yeşil hastane ve çevre dostu sertifikasyon hedeflerini gerçekleştirmektedir.",
+                // 3.5 İlaç ve Tedavi Süreçleri (5 Soru)
+                "Hastanenin ilaç stok yönetimi, kritik ilaçlarda eksiklik yaşanmasını önlemektedir.",
+                "Yeni medikal teknoloji ve cihaz yatırımları, kurumun stratejik büyüme hedeflerini desteklemektedir.",
+                "Ameliyathane kullanım verimliliği ve doluluk oranları optimize edilmiştir.",
+                "Tedavi gecikmeleri ve aksaklıkları için düzenli olarak kök neden analizleri yapılmaktadır.",
+                "Hastanenin satın alma süreçleri, en yüksek kalitede sarf malzemeleri ve cihazları sağlamaktadır.",
+                // 3.6 Yemek ve Beslenme Hizmetleri (5 Soru)
+                "Hastanenin yemek hizmetleri maliyetleri, bütçe hedeflerini aşmamaktadır.",
+                "Diyetisyen ve mutfak personeli, tıbbi gereksinimlere uygun menüler hazırlama konusunda koordinelidir.",
+                "Gıda güvenliği ve hijyen denetimleri (HACCP vb.) etkin bir şekilde uygulanmaktadır.",
+                "Beslenme hizmetlerinin hasta memnuniyetine etkisi düzenli ölçülmektedir.",
+                "Hastane, çalışanları ve ziyaretçileri için de sağlıklı yiyecek seçenekleri sunmaktadır.",
+                // 3.7 Hasta Hakları ve Etik (5 Soru)
+                "Hastanenin hasta hakları birimi, şikayetleri tarafsız ve hızlı bir şekilde çözmektedir.",
+                "Etik Kurul, zorlu tıbbi ve etik kararlarda etkin bir rol üstlenmektedir.",
+                "Hastane veri güvenliği ve KVKK (Kişisel Verilerin Korunması) mevzuatına tam uyum sağlamaktadır.",
+                "Hastanenin finansal şeffaflık ve faturalandırma politikaları, hasta güvenini sağlamaktadır.",
+                "İnsan Kaynakları Politikaları, personel arasında ayrımcılığı önlemektedir.",
+                // 3.8 Eğitim ve Kariyer Gelişimi (5 Soru)
+                "Tıbbi kadronun kariyer gelişim planları, kurumun uzun vadeli uzmanlık ihtiyacıyla uyumludur.",
+                "Hizmet içi eğitim bütçesi, doktor ve hemşirelerin sürekli gelişimini desteklemeye yeterlidir.",
+                "Hastane, tıbbi araştırmalar ve yayınlar için akademik teşvikler sunmaktadır.",
+                "Yeni mezun ve genç personel için etkin mentorluk ve koçluk programları mevcuttur.",
+                "Hastane, çalışan memnuniyeti ve bağlılığını artırmaya yönelik somut aksiyon planları yürütmektedir.",
+                // 3.9 Acil Servis ve Yoğun Bakım İşleyişi (5 Soru)
+                "Acil servis bekleme süreleri ve hasta akışı, kabul edilebilir limitlerin altında tutulmaktadır.",
+                "Afet ve acil durum planlarımız, olası krizlere karşı yeterli hazırlığı sağlamaktadır.",
+                "Hastanenin Yoğun Bakım Yatak Kapasitesi stratejik ihtiyaca uygun optimize edilmiştir.",
+                "Acil personel devir hızı (turnover rate), hizmet kalitesini olumsuz etkilemeyecek seviyededir.",
+                "Acil ve yoğun bakım hizmetlerinin maliyetleri, karlılık hedefleriyle uyumlu yönetilmektedir.",
+                // 3.10 Genel Başarı ve Kurumsal İtibar (5 Soru)
+                "Hastanenin kurumsal itibarı ve marka değeri, sektörde lider konumdadır.",
+                "Finansal performans ve karlılık hedefleri düzenli olarak aşılmaktadır.",
+                "Hastanenin toplumsal sağlık projeleri ve sosyal sorumluluk çalışmaları etkilidir.",
+                "Hastanemiz, ulusal ve uluslararası akreditasyonları sürdürmektedir.",
+                "Yönetim olarak, hastanenin gelecekteki büyüme ve gelişme potansiyeli hakkında iyimseriz."
             ]
-        };
+        }
 
         // Sistem verileri
         let systemData = {
@@ -768,34 +782,22 @@ function closeModal() {
 
         function showModule(module) {
             // Tüm modülleri gizle
-            document.getElementById('surveyModule').classList.add('hidden');
-            document.getElementById('companyModule').classList.add('hidden');
-            document.getElementById('adminModule').classList.add('hidden');
-            
+            // Tüm modülleri gizle
+            const modules = ['survey', 'company', 'admin'];
+            modules.forEach(m => {
+                const el = document.getElementById(m + 'Module');
+                if (el) el.classList.add('hidden');
+            });
             // Seçili modülü göster
-            document.getElementById(module + 'Module').classList.remove('hidden');
+            const showEl = document.getElementById(module + 'Module');
+            if (showEl) showEl.classList.remove('hidden');
             currentModule = module;
         }
 
         // Firebase Realtime Database API fonksiyonları (GLOBAL SCOPE)
         async function loadFromFirebase() {
-            try {
-                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    systemData.surveyData = data || { companies: {}, responses: [], statistics: {} };
-                    return systemData.surveyData;
-                } else {
-                    throw new Error('Firebase veri yükleme hatası');
-                }
-            } catch (error) {
-                console.error('Firebase yükleme hatası:', error);
-                const defaultData = { companies: {}, responses: [], statistics: {} };
-                systemData.surveyData = defaultData;
-                return defaultData;
-            }
+            // ...existing code...
         }
-
         async function saveToFirebase(data) {
             try {
                 const response = await fetch(FIREBASE_DB_URL + 'surveyData.json', {
@@ -1840,35 +1842,40 @@ function closeModal() {
         // Gruplar ve başlıklar
         const groupTitles = {
             'Hasta': [
-                'Hizmet Kalitesi',
-                'İletişim',
-                'Tedavi Süreci',
-                'Fiziksel Koşullar',
-                'Personel Davranışları',
-                'Randevu ve Kabul',
-                'Dijital Hizmetler',
-                'Bekleme Süreleri',
-                'Güven ve İtibar',
-                'Genel Memnuniyet'
+                'Randevu, Kabul ve Taburcu Süreçleri',
+                'Tıbbi İletişim ve Bilgilendirme',
+                'Doktor ve Hemşire Bakım Kalitesi',
+                'Hastane Hijyeni ve Fiziksel Çevre',
+                'İlaç ve Tedavi Süreçleri',
+                'Yemek ve Beslenme Hizmetleri',
+                'Hasta Hakları ve Etik',
+                'Güvenlik ve Ağrı Yönetimi',
+                'Acil Servis ve Yoğun Bakım Deneyimi',
+                'Genel Memnuniyet ve Tavsiye'
             ],
             'Doktor': [
-                'Çalışma Ortamı',
-                'Yönetim ve Liderlik',
-                'İş Yükü ve Dengesi',
-                'İç İletişim',
-                'Kariyer Gelişimi',
-                'Ücret ve Yan Haklar',
-                'Takdir ve Geri Bildirim',
-                'İş Süreçleri',
-                'Kurum Kültürü',
-                'Genel İş Memnuniyeti'
+                'Randevu, Kabul ve Taburcu Süreçleri',
+                'Tıbbi İletişim ve Bilgilendirme',
+                'Doktor ve Hemşire Bakım Kalitesi',
+                'Hastane Hijyeni ve Fiziksel Çevre',
+                'İlaç ve Tedavi Süreçleri',
+                'Çalışma Koşulları ve Sosyal Haklar',
+                'Hasta Hakları ve Etik',
+                'Eğitim ve Kariyer Gelişimi',
+                'Acil Servis ve Yoğun Bakım İşleyişi',
+                'Kurumsal Bağlılık ve Memnuniyet'
             ],
             'Yönetim': [
-                'Finansal Performans ve Operasyonel Verimlilik',
-                'Pazarlama ve Marka Yönetimi',
-                'İnsan Kaynakları Yönetimi',
-                'Hasta İlişkileri ve Kalite Kontrol',
-                'Teknolojik Altyapı ve Gelecek Vizyonu'
+                'Randevu, Kabul ve Taburcu Süreçleri',
+                'Tıbbi İletişim ve Bilgilendirme',
+                'Doktor ve Hemşire Bakım Kalitesi',
+                'Hastane Hijyeni ve Fiziksel Çevre',
+                'İlaç ve Tedavi Süreçleri',
+                'Yemek ve Beslenme Hizmetleri',
+                'Hasta Hakları ve Etik',
+                'Eğitim ve Kariyer Gelişimi',
+                'Acil Servis ve Yoğun Bakım İşleyişi',
+                'Genel Başarı ve Kurumsal İtibar'
             ]
         };
         const groups = Object.keys(groupTitles);
@@ -1896,11 +1903,9 @@ function closeModal() {
             const questionFreqs = [];
             for (let catIdx = 0; catIdx < groupTitles[group].length; catIdx++) {
                 const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                
                 // Her kategori için soru aralığını hesapla
                 let questionsPerCategory = (group === 'Yönetim') ? 10 : 5;
                 let startQuestionIdx = catIdx * questionsPerCategory;
-                
                 // Bu kategoriye ait tüm soruları topla
                 for (let qIdx = startQuestionIdx; qIdx < startQuestionIdx + questionsPerCategory; qIdx++) {
                     surveys.forEach(s => {
@@ -1928,7 +1933,7 @@ function closeModal() {
             // Kategori satırları
             groupTitles[group].forEach((title, qIdx) => {
                 html += `<tr>
-                    <td class="sub-category">${title}</td>`;
+                    <td class="sub-category">${title} <button onclick="showCategoryDetail('${group}', ${qIdx}, '${title.replace(/'/g, "\'")}')" class="ml-2 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">📋 Detay</button></td>`;
                 [5,4,3,2,1].forEach(score => {
                     // Her puan için gerçek frekansı (kaç kişi o puanı verdi) göster
                     html += `<td style="text-align: center;">${questionFreqs[qIdx][score] || 0}</td>`;
@@ -1936,14 +1941,99 @@ function closeModal() {
                 html += '</tr>';
             });
         });
+
+// Kategori detay gösterme fonksiyonu (işletme.html'den uyarlama)
+function showCategoryDetail(groupName, categoryIndex, categoryName) {
+    if (!systemData.surveyData) return;
+    // Hastane anketlerini al
+    const surveys = systemData.surveyData.responses.filter(s => s.jobType === groupName);
+    if (surveys.length === 0) {
+        document.getElementById('categoryDetailTitle').textContent = `📋 ${categoryName} - Veri Yok`;
+        document.getElementById('categoryDetailContent').innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <p>Bu kategori için henüz anket verisi bulunmuyor.</p>
+            </div>
+        `;
+        document.getElementById('categoryDetailModal').classList.add('show');
+        return;
+    }
+    // Kategori soruları al
+    const groupQuestions = questions[groupName];
+    if (!groupQuestions) return;
+    // Her kategori 5 soru (tüm gruplar için)
+    const startIndex = categoryIndex * 5;
+    const endIndex = startIndex + 5;
+    const categoryQuestions = groupQuestions.slice(startIndex, endIndex);
+    // Her soru için cevapları topla
+    let detailHTML = `
+        <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-blue-800">${groupName} - ${categoryName}</h3>
+            <p class="text-sm text-blue-600">Bu kategorideki soruların detaylı cevapları:</p>
+        </div>
+    `;
+    categoryQuestions.forEach((question, qIdx) => {
+        const actualQuestionIndex = startIndex + qIdx;
+        // Bu soru için tüm cevapları topla
+        const questionScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let totalAnswers = 0;
+        surveys.forEach(survey => {
+            if (survey.answers[actualQuestionIndex]) {
+                const score = survey.answers[actualQuestionIndex].score;
+                if (score >= 1 && score <= 5) {
+                    questionScores[score]++;
+                    totalAnswers++;
+                }
+            }
+        });
+        // Skor etiketleri
+        const scoreLabels = {
+            1: 'Hiç Memnun Değilim',
+            2: 'Memnun Değilim',
+            3: 'Kararsızım',
+            4: 'Memnunum',
+            5: 'Çok Memnunum'
+        };
+        // En yüksek skorlu cevabı bul
+        let maxScore = 0;
+        let maxScoreLabel = '';
+        Object.keys(questionScores).forEach(score => {
+            if (questionScores[score] > maxScore) {
+                maxScore = questionScores[score];
+                maxScoreLabel = scoreLabels[score];
+            }
+        });
+        detailHTML += `
+            <div class="mb-4 p-4 border rounded-lg ${maxScore > 0 && maxScore === questionScores[1] ? 'bg-red-50 border-red-200' : maxScore === questionScores[5] ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}">
+                <h4 class="font-medium text-gray-800 mb-2">${qIdx + 1}. ${question}</h4>
+                <div class="grid grid-cols-5 gap-2 text-sm">
+                    ${Object.keys(scoreLabels).map(score => {
+                        const count = questionScores[score];
+                        const percentage = totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0;
+                        const isMax = count === maxScore && count > 0;
+                        return `
+                            <div class="text-center p-2 rounded ${isMax ? 'bg-blue-100 font-bold' : 'bg-white'}">
+                                <div class="text-xs text-gray-600">${scoreLabels[score]}</div>
+                                <div class="font-semibold ${isMax ? 'text-blue-600' : 'text-gray-800'}">${count}</div>
+                                <div class="text-xs text-gray-500">${percentage}%</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                ${totalAnswers > 0 ? `<div class="mt-2 text-sm text-gray-600">En çok verilen cevap: <span class="font-semibold">${maxScoreLabel}</span> (${maxScore} kişi)</div>` : '<div class="text-sm text-gray-500">Bu soru için henüz cevap yok</div>'}
+            </div>
+        `;
+    });
+    // Modal'ı güncelle ve göster
+    document.getElementById('categoryDetailTitle').textContent = `📋 ${categoryName} Detayları`;
+    document.getElementById('categoryDetailContent').innerHTML = detailHTML;
+    document.getElementById('categoryDetailModal').classList.add('show');
+}
         html += '</tbody></table></div></div>';
-        
         // Grafik alanı ekle
         const totalResponses = surveys.length;
         const chartTitle = totalResponses > 0 ? 
             `📊 Grup Bazlı Memnuniyet Dağılımı (${totalResponses} Katılımcı)` : 
             '📊 Grup Bazlı Memnuniyet Dağılımı (Veri Yok)';
-            
         const chartSection = `
             <div class="mt-8 bg-white border rounded-lg p-6" style="box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800">${chartTitle}</h3>
@@ -1956,9 +2046,7 @@ function closeModal() {
                 }
             </div>
         `;
-        
         container.innerHTML = html + chartSection;
-        
         // Grafik oluştur
         generateHospitalChart(surveys);
     }
@@ -1968,35 +2056,28 @@ function closeModal() {
     function generateHospitalChart(surveys) {
         try {
             console.log('generateHospitalChart çalışıyor, survey sayısı:', surveys ? surveys.length : 0);
-            
             // Önce survey verilerinin yapısını inceleyelim
             if (surveys && surveys.length > 0) {
                 console.log('İlk hastane survey örneği:', surveys[0]);
             }
-            
             // Mevcut grafiği temizle
             if (hospitalChartInstance) {
                 hospitalChartInstance.destroy();
                 hospitalChartInstance = null;
             }
-
             const canvas = document.getElementById('hospitalChart');
             if (!canvas) {
                 console.log('hospitalChart canvas bulunamadı');
                 return;
             }
-
             // Memnuniyet verilerini hazırla - Basit yaklaşım
             const satisfactionData = [0, 0, 0, 0, 0]; // [Çok Memnun, Memnun, Kararsız, Memnun Değil, Hiç Memnun Değil]
-
             // Survey verilerinden memnuniyet hesapla
             if (surveys && surveys.length > 0) {
                 console.log('Hastane grafiği için işlenen survey sayısı:', surveys.length);
-                
                 // Her survey için ortalama puan üzerinden memnuniyet hesapla
                 surveys.forEach((survey, surveyIndex) => {
                     const avgScore = parseFloat(survey.averageScore) || 0;
-                    
                     if (avgScore > 0) {
                         // Ortalama puana göre memnuniyet seviyesi belirle
                         let satisfactionIndex;
@@ -2005,16 +2086,12 @@ function closeModal() {
                         else if (avgScore >= 2.5) satisfactionIndex = 2; // Kararsız
                         else if (avgScore >= 1.5) satisfactionIndex = 3; // Memnun Değil
                         else satisfactionIndex = 4; // Hiç Memnun Değil
-                        
                         satisfactionData[satisfactionIndex]++;
-                        
                         console.log(`Hastane Survey ${surveyIndex}: avgScore=${avgScore}, satisfactionIndex=${satisfactionIndex}`);
                     }
                 });
             }
-
             console.log('Hastane memnuniyet dağılımı:', satisfactionData);
-
             // Grafik verilerini hazırla
             const chartData = {
                 labels: ['Çok Memnun', 'Memnun', 'Kararsız', 'Memnun Değil', 'Hiç Memnun Değil'],
@@ -2038,7 +2115,6 @@ function closeModal() {
                     borderWidth: 2
                 }]
             };
-
             // Grafik ayarları (eğitim anketindeki gibi)
             const config = {
                 type: 'bar',
@@ -2071,15 +2147,12 @@ function closeModal() {
                     }
                 }
             };
-
             // Grafiği oluştur
             const ctx = canvas.getContext('2d');
             hospitalChartInstance = new Chart(ctx, config);
-            
         } catch (error) {
             console.error('Hastane grafiği oluşturma hatası:', error);
         }
     }
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</script>
 </html>
