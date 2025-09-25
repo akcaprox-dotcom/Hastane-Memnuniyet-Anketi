@@ -1,4 +1,7 @@
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akça Pro X - Kurum Değerlendirme Anketi</title>
     <script src="https://cdn.tailwindcss.com"></script>
