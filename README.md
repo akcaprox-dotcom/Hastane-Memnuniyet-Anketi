@@ -525,16 +525,16 @@ function closeModal() {
                     if (newCompanyRadio.checked) {
                         manualInput.classList.remove('hidden');
                         dropdownSelect.classList.add('hidden');
-                        document.getElementById('companyName').value = '';
                     } else {
                         manualInput.classList.add('hidden');
                         dropdownSelect.classList.remove('hidden');
                         loadExistingCompanies();
                     }
                 }
-            // --- YENİ PROTOKOL BURAYA EKLENECEK ---
                 newCompanyRadio.addEventListener('change', toggleCompanyInputType);
                 existingCompanyRadio.addEventListener('change', toggleCompanyInputType);
+                // Sayfa yüklendiğinde doğru alanı göster
+                toggleCompanyInputType();
             }
 
             // Kurum listesini yenile butonu
