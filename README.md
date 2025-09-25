@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akça Pro X - Kurum Değerlendirme Anketi</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -143,9 +140,33 @@
                     </button>
                     <div id="googleUserInfo" class="text-xs text-green-700 font-medium hidden"></div>
                 </div>
+                <!-- Kurum Seçim Tipi -->
                 <div class="mb-3">
-                    <input type="text" id="companyName" placeholder="Kurum adınızı girin (Okul, Üniversite vb.)" 
-                           class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <div class="flex gap-4 mb-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="companyType" value="new" id="newCompanyRadio" class="mr-2 text-purple-600 focus:ring-purple-500" checked>
+                            <span class="text-sm font-medium text-gray-700">🆕 Yeni Kurum</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="companyType" value="existing" id="existingCompanyRadio" class="mr-2 text-purple-600 focus:ring-purple-500">
+                            <span class="text-sm font-medium text-gray-700">📋 Kayıtlı Kurum</span>
+                        </label>
+                    </div>
+                </div>
+                <!-- Manuel Kurum Adı Girişi -->
+                <div class="mb-3" id="manualCompanyInput">
+                    <input type="text" id="companyName" placeholder="Kurum adınızı girin (Hastane, Klinik vb.)" class="w-full border-2 border-purple-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <!-- Kayıtlı Kurumlar Dropdown -->
+                <div class="mb-3 hidden" id="existingCompanySelect">
+                    <div class="flex gap-2">
+                        <select id="companyDropdown" class="flex-1 border-2 border-purple-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white">
+                            <option value="">Kurumunuzu seçin...</option>
+                        </select>
+                        <button type="button" id="refreshCompaniesBtn" class="px-3 py-2 bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 rounded text-sm font-medium text-purple-700 transition-colors" title="Kurum listesini yenile">
+                            🔄
+                        </button>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <p class="text-xs text-gray-600 mb-2">Rolünüzü seçin:</p>
@@ -169,10 +190,11 @@
                 </div>
                 <div id="selectedJobDisplay" class="text-center text-sm text-gray-600 mb-3 min-h-[20px]"></div>
                 <div class="grid grid-cols-2 gap-2 mb-4">
-                    <input type="text" id="firstName" placeholder="Adınız" 
-                        class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                    <input type="text" id="lastName" placeholder="Soyadınız" 
-                        class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <input type="text" id="firstName" placeholder="Adınız" class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50" readonly>
+                    <input type="text" id="lastName" placeholder="Soyadınız" class="border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50" readonly>
+                </div>
+                <div class="text-xs text-gray-500 mb-4" id="nameFieldsInfo">
+                    ℹ️ Ad ve soyad alanları Google ile giriş yaptıktan sonra düzenlenebilir olacak
                 </div>
                 <button id="startSurvey" class="w-full py-3 rounded text-white font-semibold gradient-bg hover:opacity-90 transition-opacity text-sm">
                     📊 Anketi Başlat
@@ -399,7 +421,24 @@
         </div>
     </div>
 
+    <!-- Category Detail Modal -->
+    <div id="categoryDetailModal" class="modal">
+      <div class="modal-content max-w-4xl bg-white shadow-2xl" style="margin: 5% auto; padding: 30px; border-radius: 20px; max-height: 80vh; overflow-y: auto; width: 90vw;">
+        <div class="modal-header flex justify-between items-center mb-6 border-b pb-4">
+          <h2 class="text-2xl font-bold text-gray-800" id="categoryDetailTitle">📋 Kategori Detayları</h2>
+          <span class="close cursor-pointer text-3xl text-gray-500 hover:text-gray-700" onclick="document.getElementById('categoryDetailModal').classList.remove('show')">&times;</span>
+        </div>
+        <div id="categoryDetailContent"></div>
+      </div>
+    </div>
+
         <script>
+// systemData global tanımı (en başa eklenmeli)
+let systemData = {
+    adminPassword: '030714',
+    surveyData: null
+};
+
 // Modal açma ve kapama fonksiyonları (sadece eksik olanlar eklendi)
 function showModal(title, content) {
     const modal = document.getElementById('modal');
@@ -452,14 +491,54 @@ function closeModal() {
                                 document.getElementById('lastName').value = user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '';
                                 userInfoDiv.textContent = `Giriş yapıldı: ${user.displayName} (${user.email})`;
                                 userInfoDiv.classList.remove('hidden');
-                                // Make name fields editable after login
-                                document.getElementById('firstName').readOnly = false;
-                                document.getElementById('lastName').readOnly = false;
+                                // Ad/soyad alanlarını düzenlenebilir yap
+                                const firstNameField = document.getElementById('firstName');
+                                const lastNameField = document.getElementById('lastName');
+                                const nameFieldsInfo = document.getElementById('nameFieldsInfo');
+                                firstNameField.readOnly = false;
+                                lastNameField.readOnly = false;
+                                firstNameField.classList.remove('bg-gray-50');
+                                lastNameField.classList.remove('bg-gray-50');
+                                firstNameField.classList.add('bg-white');
+                                lastNameField.classList.add('bg-white');
+                                nameFieldsInfo.innerHTML = '✅ Ad ve soyad alanları artık düzenlenebilir - Lütfen doğru bilgilerinizi girin';
+                                nameFieldsInfo.classList.remove('text-gray-500');
+                                nameFieldsInfo.classList.add('text-green-600', 'font-medium');
                             }
                         })
                         .catch((error) => {
                             alert('Google ile giriş başarısız: ' + error.message);
                         });
+                });
+            }
+
+            // Kurum türü seçimi (yeni/kayıtlı) arayüzünü yönet
+            const newCompanyRadio = document.getElementById('newCompanyRadio');
+            const existingCompanyRadio = document.getElementById('existingCompanyRadio');
+            const manualInput = document.getElementById('manualCompanyInput');
+            const dropdownSelect = document.getElementById('existingCompanySelect');
+            if (newCompanyRadio && existingCompanyRadio && manualInput && dropdownSelect) {
+                function toggleCompanyInputType() {
+                    if (newCompanyRadio.checked) {
+                        manualInput.classList.remove('hidden');
+                        dropdownSelect.classList.add('hidden');
+                        document.getElementById('companyName').value = '';
+                    } else {
+                        manualInput.classList.add('hidden');
+                        dropdownSelect.classList.remove('hidden');
+                        loadExistingCompanies();
+                    }
+                }
+            // --- YENİ PROTOKOL BURAYA EKLENECEK ---
+                newCompanyRadio.addEventListener('change', toggleCompanyInputType);
+                existingCompanyRadio.addEventListener('change', toggleCompanyInputType);
+            }
+
+            // Kurum listesini yenile butonu
+            const refreshBtn = document.getElementById('refreshCompaniesBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    loadExistingCompanies();
                 });
             }
         });
@@ -545,6 +624,7 @@ function closeModal() {
 
             console.log('Anket başarıyla başlatıldı!');
         }
+
         let currentModule = 'survey';
         let surveyStartTime = null;
         let timerInterval = null;
@@ -554,322 +634,266 @@ function closeModal() {
         let selectedJobType = '';
         let loggedInCompany = null;
         let isAdminLoggedIn = false;
-    let filteredSurveys = null;
+        let filteredSurveys = null;
+
+        // Yönetici şifresi tanımı
+
 
 
         // Firebase Realtime Database URL
         const FIREBASE_DB_URL = 'https://json-19344-default-rtdb.europe-west1.firebasedatabase.app/';
 
-        // Soru setleri
-        const questions = {
-            "Hasta": [
-                // Tıbbi Hizmet Kalitesi (10 Soru)
-                "Doktorunuzun teşhis ve tedavi sürecine ne kadar güveniyorsunuz?",
-                "Aldığınız tıbbi tedavinin açıklayıcı ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Doktorunuzun sorularınıza yeterli zaman ayırdığına inanıyor musunuz?",
-                "Tedavi sürecinde ağrı veya rahatsızlığınızın yönetilmesinden memnun musunuz?",
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "İlaçlarınız ve tedaviniz hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin laboratuvar ve görüntüleme hizmetlerinin hızından memnun musunuz?",
-                "Aldığınız tedavinin beklediğiniz faydayı sağladığını düşünüyor musunuz?",
-                "Doktorunuzun sizi tedavi planı konusunda karar sürecine dahil ettiğine inanıyor musunuz?",
-                "Tıbbi hizmetlerin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Personel Davranışları ve İletişim (10 Soru)
-                "Hemşire ve diğer sağlık personelinin size karşı nazik ve saygılı davrandığına inanıyor musunuz?",
-                "Personelin, ihtiyaç duyduğunuzda size hızlı bir şekilde yanıt verdiğini düşünüyor musunuz?",
-                "Sağlık personelinin, sizi bilgilendirme konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
-                "Personelin, mahremiyetinize ve kişisel alanınıza saygı duyduğunu düşünüyor musunuz?",
-                "Hemşirenizin veya sağlık ekibinizin size karşı sabırlı ve anlayışlı davrandığına inanıyor musunuz?",
-                "Hasta bakımı sırasında size yeterli ilginin gösterildiğine inanıyor musunuz?",
-                "Personel ile iletişim kurarken kendinizi rahat ve güvende hissettiniz mi?",
-                "Sağlık personelinin size güvence ve moral verdiğini düşünüyor musunuz?",
-                "Tedaviniz sırasında duygusal olarak desteklendiğinize inanıyor musunuz?",
-                "Personel ile iletişiminizin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Hastane Ortamı ve İmkanlar (10 Soru)
-                "Hastane odasının temizliğinden ve konforundan memnun musunuz?",
-                "Genel hastane ortamının (koridorlar, bekleme alanları) temiz ve düzenli olduğunu düşünüyor musunuz?",
-                "Hastanenin genel gürültü seviyesinin kabul edilebilir olduğunu düşünüyor musunuz?",
-                "Hastanenin yemek hizmetlerinin kalitesinden ve çeşitliliğinden memnun musunuz?",
-                "Hastanenin otopark ve ulaşım imkanlarının yeterli olduğunu düşünüyor musunuz?",
-                "Ziyaret saatlerinin ve kurallarının makul olduğunu düşünüyor musunuz?",
-                "Hastane içinde yol bulmanın kolay olduğuna inanıyor musunuz?",
-                "Tuvaletlerin ve banyo imkanlarının hijyenik olduğunu düşünüyor musunuz?",
-                "Hastanenin güvenlik önlemlerinin yeterli olduğuna inanıyor musunuz?",
-                "Hastane ortamının genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Yönlendirme ve Bilgilendirme (10 Soru)
-                "Hastaneye yatış sürecinin kolay ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Hastane personeli tarafından randevu ve kayıt işlemlerinde yeterince yönlendirildiğinize inanıyor musunuz?",
-                "Tıbbi prosedürler ve riskler hakkında size yeterli bilgi verildiğini düşünüyor musunuz?",
-                "Hastanenin, size özel bilgilerinizi koruduğuna ve gizliliğe önem verdiğine inanıyor musunuz?",
-                "Taburcu sürecinin düzenli ve anlaşılır bir şekilde yönetildiğini düşünüyor musunuz?",
-                "Taburcu sonrası bakım ve takip süreci hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin web sitesi veya bilgilendirme materyallerinin anlaşılır ve faydalı olduğunu düşünüyor musunuz?",
-                "Hastane çalışanlarının sizi doğru servislere ve birimlere yönlendirmesinden memnun musunuz?",
-                "Hasta haklarınız konusunda yeterli bilgiye sahip olduğunuza inanıyor musunuz?",
-                "Hastaneye yatış sürecinin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Genel Deneyim ve Tavsiye (10 Soru)
-                "Hastanede yaşadığınız genel deneyimden memnun musunuz?",
-                "Hastaneyi, yakınlarınıza veya arkadaşlarınıza tavsiye eder misiniz?",
-                "Acil durumlar için bu hastaneyi tekrar tercih eder misiniz?",
-                "Hastane personelinin, beklentilerinizi aştığını düşünüyor musunuz?",
-                "Hastanede aldığınız hizmetin, ödediğiniz ücrete değdiğini düşünüyor musunuz?",
-                "Şikayet veya önerileriniz için kolayca iletişim kurabildiğinize inanıyor musunuz?",
-                "Hastanenin, hasta geri bildirimlerine önem verdiğini düşünüyor musunuz?",
-                "Hastanenin, sunduğu hizmetlerin kalitesini sürekli iyileştirdiğine inanıyor musunuz?",
-                "Hastanenin, hasta memnuniyetini önceliklendirdiğini düşünüyor musunuz?",
-                "Hastanede geçirdiğiniz süre boyunca kendinizi değerli hissettiniz mi?"
-            ],
-            "Doktor": [
-                // Çalışma Ortamı ve Kaynaklar (10 Soru)
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "Çalışma saatlerinizin makul ve yönetilebilir olduğunu düşünüyor musunuz?",
-                "Hastanenin fiziksel ortamının (muayene odası, ameliyathane) verimli çalışmaya uygun olduğuna inanıyor musunuz?",
-                "İdari personel ve destek birimlerinin (laboratuvar, radyoloji) iş birliğinden memnun musunuz?",
-                "Acil durumlar için gerekli kaynaklara ve protokollere kolayca erişebildiğinizi düşünüyor musunuz?",
-                "Hastanenin hasta kayıt sistemi ve dijital altyapısının işinizi kolaylaştırdığına inanıyor musunuz?",
-                "Hastanenin, mesleki güvenliğinizi ve sağlığınızı önemsediğini düşünüyor musunuz?",
-                "Tıbbi malzeme ve sarf ürünlerine kolayca erişebildiğinize inanıyor musunuz?",
-                "Hastanenin temizlik ve hijyen standartlarının yeterli olduğuna inanıyor musunuz?",
-                "Hastanedeki çalışma ortamınızdan genel olarak memnun musunuz?",
-                // Yönetim ve İletişim (10 Soru)
-                "Hastane yönetiminin aldığı kararların şeffaf ve anlaşılır olduğuna inanıyor musunuz?",
-                "Yönetimin, doktorların fikirlerine ve önerilerine değer verdiğini düşünüyor musunuz?",
-                "Yönetimle iletişim kanallarının açık ve etkili olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin, hasta memnuniyetini önceliklendirdiğine inanıyor musunuz?",
-                "Yönetimin, doktorlar arasında iş birliğini ve takım çalışmasını teşvik ettiğini düşünüyor musunuz?",
-                "Maaş ve yan haklarınızın adil ve rekabetçi olduğunu düşünüyor musunuz?",
-                "Yönetimin, akademik ve bilimsel çalışmalarınıza destek verdiğine inanıyor musunuz?",
-                "Yöneticilerinizin, hasta bakımı süreçlerinde size yeterli özerkliği tanıdığına inanıyor musunuz?",
-                "Yönetimle olan ilişkinizin genel olarak güvene dayalı olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin genel performansını nasıl değerlendiriyorsunuz?",
-                // Hasta Bakım ve İş Birliği (10 Soru)
-                "Hasta bakımının kalitesini nasıl değerlendiriyorsunuz?",
-                "Diğer birimlerdeki sağlık profesyonelleriyle (hemşireler, terapistler) iş birliğinizden memnun musunuz?",
-                "Hastane genelinde hasta güvenliğine verilen önemin yeterli olduğunu düşünüyor musunuz?",
-                "Hastalarla iletişim kurmak ve onları tedavi süreçleri hakkında bilgilendirmek için yeterli zamana sahip olduğunuza inanıyor musunuz?",
-                "Hastane personelinin, hasta beklentilerini karşılama konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
-                "Hasta ve yakınlarının geri bildirimlerinin, hizmet kalitesini artırdığını düşünüyor musunuz?",
-                "Hasta bakımı konusunda etik ve ahlaki değerlere yeterli önemin verildiğine inanıyor musunuz?",
-                "Hasta kayıt sisteminin, hasta bilgilerine hızlı ve güvenli erişim sağladığına inanıyor musunuz?",
-                "Meslektaşlarınızla olan iş birliğinizin verimli ve yapıcı olduğunu düşünüyor musunuz?",
-                "Hastaların tedavi süreçlerine katılımlarını teşvik eden bir ortam olduğuna inanıyor musunuz?",
-                // Mesleki Gelişim ve Eğitim (10 Soru)
-                "Hastanenin, mesleki gelişiminize yönelik yeterli fırsatlar sunduğunu düşünüyor musunuz?",
-                "Konferans, seminer ve eğitimlere katılma konusunda desteklendiğinize inanıyor musunuz?",
-                "Hastanenin araştırma ve bilimsel çalışmalara yeterli bütçe ayırdığını düşünüyor musunuz?",
-                "Mesleki literatürü takip etme konusunda hastanenin size destek olduğunu düşünüyor musunuz?",
-                "Hastanenin, yeni ve güncel tıbbi yöntemleri uygulamaya açık olduğuna inanıyor musunuz?",
-                "Deneyimli doktorların, genç meslektaşlarına mentorluk yaptığını düşünüyor musunuz?",
-                "Hastanenin, uzmanlık alanınıza yönelik özel eğitimler sağladığına inanıyor musunuz?",
-                "Kariyerinizde yükselme olanaklarının adil ve liyakate dayalı olduğunu düşünüyor musunuz?",
-                "Hastanenin, çalışan memnuniyetini artırmaya yönelik çabalarını yeterli buluyor musunuz?",
-                "Hastanede çalışmaktan genel olarak memnun musunuz?",
-                // Çalışan Refahı ve Sosyal Denge (10 Soru)
-                "Hastanenin, çalışanların fiziksel ve ruhsal sağlığını önemsediğine inanıyor musunuz?",
-                "Çalışanlar için sosyal ve sportif faaliyetlerin düzenlendiğini düşünüyor musunuz?",
-                "Hastanenin, iş-özel yaşam dengesini korumanıza yardımcı olduğuna inanıyor musunuz?",
-                "Çalışanlara yönelik psikolojik destek hizmetlerinin yeterli olduğuna inanıyor musunuz?",
-                "Hastanenin, çalışanlar arasında eşitlik ve adalet sağladığına inanıyor musunuz?",
-                "İşten duyduğunuz tatminin, yaptığınız işin toplumsal faydasından kaynaklandığını düşünüyor musunuz?",
-                "Hastane içinde kendinizi değerli ve takdir edilmiş hissettiğinize inanıyor musunuz?",
-                "Hastanenin, çalışanların şikayetlerine karşı duyarlı bir yaklaşım sergilediğini düşünüyor musunuz?",
-                "Hastanenin, iş güvenliği ve sağlığına yönelik önlemlerini yeterli buluyor musunuz?",
-                "Hastanedeki genel çalışan refahı seviyesini nasıl değerlendiriyorsunuz?"
-            ],
-            "Personel": [
-            ],
-            "Yönetim": [
-                // Finansal Performans ve Operasyonel Verimlilik (10 Soru)
-                "Hastanenin genel finansal performansından ne kadar memnunsunuz?",
-                "Bütçe planlama ve yönetim süreçlerinin verimliliğinden ne kadar memnunsunuz?",
-                "Gelir ve gider takibinin doğruluğundan ne kadar memnunsunuz?",
-                "Hasta yatış süreçlerinin ne kadar verimli işlediğinden ne kadar memnunsunuz?",
-                "Fatura ve ödeme süreçlerinin hasta ve kurum için kolaylığından ne kadar memnunsunuz?",
-                "Tıbbi malzeme ve ilaç tedarik süreçlerinin yönetiminden ne kadar memnunsunuz?",
-                "Hastanenin genel karlılığından ne kadar memnunsunuz?",
-                "Yatırım geri dönüşlerinin (ROI) beklenen seviyede olmasından ne kadar memnunsunuz?",
-                "Finansal risklerin yönetilme şeklinden ne kadar memnunsunuz?",
-                "Hastanenin genel operasyonel verimliliğinden ne kadar memnunsunuz?",
-                // Pazarlama ve Marka Yönetimi (10 Soru)
-                "Pazarlama stratejilerinizin hastane marka bilinirliğine katkısından ne kadar memnunsunuz?",
-                "Dijital pazarlama kampanyalarının (reklamlar, sosyal medya) etkinliğinden ne kadar memnunsunuz?",
-                "Hastanenin web sitesi ve dijital varlıklarının profesyonelliğinden ne kadar memnunsunuz?",
-                "Markanızın sektördeki itibarından ve algısından ne kadar memnunsunuz?",
-                "Halkla ilişkiler faaliyetlerinin kurum imajına katkısından ne kadar memnunsunuz?",
-                "Hastanenin sunduğu hizmetlerin hedef kitleye ulaşma başarısından ne kadar memnunsunuz?",
-                "Medya ilişkilerinin yönetiminden ne kadar memnunsunuz?",
-                "Hasta referanslarının pazarlama aracı olarak kullanılmasından ne kadar memnunsunuz?",
-                "Kurumsal kimlik çalışmalarının tutarlılığından ne kadar memnunsunuz?",
-                "Pazarlama bütçesinin etkin bir şekilde kullanılmasından ne kadar memnunsunuz?",
-                // İnsan Kaynakları Yönetimi (10 Soru)
-                "Çalışan işe alım süreçlerinin etkinliğinden ne kadar memnunsunuz?",
-                "Çalışanların performans değerlendirme sisteminin adilliğinden ne kadar memnunsunuz?",
-                "Çalışan memnuniyeti ve motivasyonunun yönetilme şeklinden ne kadar memnunsunuz?",
-                "Personel sirkülasyon oranlarının yönetiminden ne kadar memnunsunuz?",
-                "Çalışanların eğitim ve gelişim planlamasının etkinliğinden ne kadar memnunsunuz?",
-                "Liderlik ve yöneticilik becerilerinin geliştirilmesine yönelik programlardan ne kadar memnunsunuz?",
-                "Çalışanlara sunulan ücret ve yan hakların sektör ortalamasına uygunluğundan ne kadar memnunsunuz?",
-                "İş yerinde sağlıklı ve güvenli bir ortamın sağlanmasından ne kadar memnunsunuz?",
-                "Çalışanların kariyer planlamasına sağlanan destekten ne kadar memnunsunuz?",
-                "İnsan kaynakları süreçlerinin genel şeffaflığından ne kadar memnunsunuz?",
-                // Hasta İlişkileri ve Kalite Kontrol (10 Soru)
-                "Hasta şikayet ve geri bildirimlerinin yönetiminden ne kadar memnunsunuz?",
-                "Hastalara sunulan hizmetlerin genel kalitesinden ne kadar memnunsunuz?",
-                "Hastaların beklentilerinin ne kadar karşılandığından ne kadar memnunsunuz?",
-                "Tedavi sonuçlarının izlenme ve değerlendirilme şeklinden ne kadar memnunsunuz?",
-                "Hasta memnuniyeti anketlerinin düzenliliğinden ve sonuçlarının analizinden ne kadar memnunsunuz?",
-                "Hastane içinde kalite kontrol standartlarının uygulanma şeklinden ne kadar memnunsunuz?",
-                "Hastaların kişisel verilerinin korunmasından ne kadar memnunsunuz?",
-                "Hasta mahremiyetine verilen önemden ne kadar memnunsunuz?",
-                "Hasta ilişkileri departmanının etkinliğinden ne kadar memnunsunuz?",
-                "Hastane içinde hasta güvenliğine verilen önemden ne kadar memnunsunuz?",
-                // Teknolojik Altyapı ve Gelecek Vizyonu (10 Soru)
-                "Hastanenin kullandığı tıbbi cihaz ve ekipmanların güncelliğinden ne kadar memnunsunuz?",
-                "Hastane yönetiminin uyguladığı bilişim ve teknoloji stratejisinden ne kadar memnunsunuz?",
-                "Yeni teknolojilere yapılan yatırımların etkinliğinden ne kadar memnunsunuz?",
-                "Hastanenin dijitalleşme sürecinden ve otomasyon seviyesinden ne kadar memnunsunuz?",
-                "E-Sağlık ve dijital hizmetlerin (uzaktan hasta takibi, online randevu vb.) geliştirilme hızından ne kadar memnunsunuz?",
-                "Hastane yönetiminin, geleceğe yönelik stratejik planlamasından ne kadar memnunsunuz?",
-                "Hastanenin bölgesel ve ulusal düzeyde rekabet gücünden ne kadar memnunsunuz?",
-                "Hastanenin kriz ve acil durum planlarının ne kadar etkin olduğundan ne kadar memnunsunuz?",
-                "Hastanenin sürdürülebilirlik ve çevresel etki hedeflerinden ne kadar memnunsunuz?",
-                "Hastanenin genel olarak geleceğe ne kadar hazır olduğundan ne kadar memnunsunuz?"
-            ]
-        };
-
-        // Sistem verileri
-        let systemData = {
-            adminPassword: '030714',
-            surveyData: null
-        };
-
-        // Sayfa yüklendiğinde
-        document.addEventListener('DOMContentLoaded', function() {
-            setupEventListeners();
-            showModule('survey');
-        });
-
-        function setupEventListeners() {
-            // Anket başlatma
-            document.getElementById('startSurvey').addEventListener('click', startSurvey);
-            
-            // Anket tamamlama
-            document.getElementById('submitSurvey').addEventListener('click', submitSurvey);
-
-            // Enter tuşu ile giriş
-            document.getElementById('companyPassword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') loginCompany();
-            });
-            
-            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') loginAdmin();
-            });
-        }
-
-        function showModule(module) {
-            // Tüm modülleri gizle
-            document.getElementById('surveyModule').classList.add('hidden');
-            document.getElementById('companyModule').classList.add('hidden');
-            document.getElementById('adminModule').classList.add('hidden');
-            
-            // Seçili modülü göster
-            document.getElementById(module + 'Module').classList.remove('hidden');
-            currentModule = module;
-        }
-
-        // Firebase Realtime Database API fonksiyonları (GLOBAL SCOPE)
-        async function loadFromFirebase() {
+        // Kayıtlı kurumları dropdown'a yükle (işlet.html mantığı)
+        async function loadExistingCompanies() {
             try {
-                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    systemData.surveyData = data || { companies: {}, responses: [], statistics: {} };
-                    return systemData.surveyData;
-                } else {
-                    throw new Error('Firebase veri yükleme hatası');
+                await loadFromFirebase();
+                const dropdown = document.getElementById('companyDropdown');
+                dropdown.innerHTML = '<option value="">Kurumunuzu seçin...</option>';
+                if (systemData.surveyData && systemData.surveyData.companies) {
+                    const companies = Object.values(systemData.surveyData.companies)
+                        .sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+                    companies.forEach(company => {
+                        const option = document.createElement('option');
+                        option.value = company.name;
+                        option.textContent = company.name;
+                        dropdown.appendChild(option);
+                    });
                 }
-            } catch (error) {
-                console.error('Firebase yükleme hatası:', error);
-                const defaultData = { companies: {}, responses: [], statistics: {} };
-                systemData.surveyData = defaultData;
-                return defaultData;
-            }
-        }
-
-        async function saveToFirebase(data) {
-            try {
-                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                dropdown.addEventListener('change', function() {
+                    if (this.value) {
+                        document.getElementById('companyName').value = this.value;
+                    } else {
+                        document.getElementById('companyName').value = '';
+                    }
                 });
-                if (response.ok) {
-                    return { success: true };
-                } else {
-                    return { success: false, error: 'Firebase veri kaydetme hatası' };
-                }
             } catch (error) {
-                console.error('Firebase bağlantı hatası:', error);
-                return { success: false, error: `Bağlantı Hatası: ${error.message}` };
+                showModal('⚠️ Hata', 'Kurum listesi yüklenirken bir hata oluştu. Lütfen manuel giriş yapın.');
+                document.getElementById('newCompanyRadio').checked = true;
+                manualInput.classList.remove('hidden');
+                dropdownSelect.classList.add('hidden');
             }
         }
 
-        async function createCompanyIfNotExistsFirebase(companyName) {
-            if (!systemData.surveyData) await loadFromFirebase();
-            if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
-            const normalizedName = companyName.trim().toLowerCase();
-            let companyKey = Object.keys(systemData.surveyData.companies).find(key => (systemData.surveyData.companies[key].name || '').trim().toLowerCase() === normalizedName);
-            if (!companyKey) {
-                // Yeni şifre üret
-                const password = generateCompanyPassword();
-                companyKey = Date.now().toString();
-                systemData.surveyData.companies[companyKey] = { name: companyName.trim(), password, createdAt: new Date().toISOString(), status: 'Aktif' };
-                const saveResult = await saveToFirebase(systemData.surveyData);
-                if (!saveResult.success) {
-                    return { success: false, error: saveResult.error };
-                }
+        // Soru setleri
+        // 3 ANA BAŞLIK x 10 ALT GRUP x 5 SORU (TOPLAM 150 SORU) YENİ PROTOKOL
+        const questions = {
+            "Hasta": {
+                "Randevu, Kabul ve Taburcu Süreçleri": [
+                    "Randevu alma sürecim (online, telefon vb.) kolay ve hızlı gerçekleşti.",
+                    "Hastaneye giriş (kabul) işlemlerim ve kayıt süreçlerim hızlı ve sorunsuzdu.",
+                    "Hastane personeli, randevu/kabul sırasında bana doğru ve yeterli bilgi verdi.",
+                    "Tedavim bittiğinde taburcu olma (çıkış) süreçlerim karmaşık değildi ve hızlıydı.",
+                    "Taburcu olurken sonraki tedavi ve ilaç kullanımı hakkında net talimatlar aldım."
+                ],
+                "Tıbbi İletişim ve Bilgilendirme": [
+                    "Doktorum, hastalığımın teşhisini ve tedavi seçeneklerini anlaşılır bir dille açıkladı.",
+                    "Tıbbi personel, yapılan işlemler ve testler hakkında beni her adımda bilgilendirdi.",
+                    "Tedavi süreciyle ilgili sorularıma her zaman sabırlı ve tatmin edici cevaplar aldım.",
+                    "Doktorum, tedaviye başlamadan önce riskler ve olası yan etkiler konusunda beni uyardı.",
+                    "Tıbbi kararlara aktif olarak katılımım teşvik edildi ve fikrim soruldu."
+                ],
+                "Doktor ve Hemşire Bakım Kalitesi": [
+                    "Doktorumun mesleki bilgi ve tecrübesi bana güven verdi.",
+                    "Hemşireler, ihtiyaç duyduğum anda hızlı bir şekilde yanımda oldu.",
+                    "Hemşireler, ağrı yönetimimi etkili bir şekilde sağladı ve düzenli kontrol etti.",
+                    "Tıbbi personel, bana saygılı, nazik ve şefkatli davrandı.",
+                    "Hemşirelerin yaptığı işlemlerde (iğne, pansuman vb.) kendimi güvende hissettim."
+                ],
+                "Hastane Hijyeni ve Fiziksel Çevre": [
+                    "Kaldığım oda/servis alanı temiz ve düzenliydi.",
+                    "Hastane genelindeki tuvalet, bekleme alanı gibi ortak yerler hijyenikti.",
+                    "Hastanenin genel atmosferi (sessizlik, aydınlatma) iyileşme sürecime katkı sağladı.",
+                    "Hastane binası içi ve dışı yönlendirme tabelaları kolay anlaşılırdı.",
+                    "Kullanılan tıbbi ekipmanların temiz ve güvenli olduğuna inanıyorum."
+                ],
+                "İlaç ve Tedavi Süreçleri": [
+                    "İlaçlarım ve tedavilerim her zaman doğru zamanda uygulandı.",
+                    "İlaçların dozajı ve uygulama şekli hakkında net bilgi aldım.",
+                    "Tedavi sürecimde gereksiz beklemeler ve gecikmeler yaşanmadı.",
+                    "İlaçlarımın muhtemel yan etkileri hakkında bilgilendirildim ve izlendim.",
+                    "Tedavi planının beklenen sonuçları konusunda gerçekçi bir bilgilendirme yapıldı."
+                ],
+                "Yemek ve Beslenme Hizmetleri": [
+                    "Hastanede sunulan yemeklerin lezzeti ve kalitesi tatmin ediciydi.",
+                    "Diyetime uygun beslenme gereksinimlerim (alerji, özel diyet) dikkate alındı.",
+                    "Yemekler doğru saatte ve hijyenik bir şekilde servis edildi.",
+                    "Beslenme uzmanından diyetim hakkında ek bilgi alma imkanı buldum.",
+                    "Yemek servis personelinin ilgisi ve nazikliği yeterliydi."
+                ],
+                "Hasta Hakları ve Etik": [
+                    "Hastane personelinin gizlilik ve mahremiyet kurallarına uyduğuna inanıyorum.",
+                    "Hastanede inançlarıma ve kültürel değerlerime saygı gösterildi.",
+                    "Hastane, şikayet ve geri bildirim mekanizmalarını bana açıkça sundu.",
+                    "Tıbbi uygulamalar için benden onay alınması süreci şeffaftı.",
+                    "Hastanede uygulanan fiyatlandırma ve faturalandırma süreci anlaşılırdı."
+                ],
+                "Güvenlik ve Ağrı Yönetimi": [
+                    "Hastanede düşme, yanma gibi kazalara karşı alınan önlemler yeterliydi.",
+                    "Bakımım boyunca kimlik doğrulama süreçleri (doğru hasta, doğru ilaç) titizlikle uygulandı.",
+                    "Ağrı hissettiğimde, hızlı ve etkili bir şekilde müdahale edildi.",
+                    "Odada/Serviste güvenlik ve çağrı zili kolay erişilebilir durumdaydı.",
+                    "Hastane personelinin kişisel eşyalarıma saygılı davrandığına inanıyorum."
+                ],
+                "Acil Servis ve Yoğun Bakım Deneyimi": [
+                    "(Acil serviste hizmet aldıysam) Bekleme sürem makuldü ve erken müdahale sağlandı.",
+                    "(Acil serviste hizmet aldıysam) Acil personelinin hızı ve yetkinliği güven verdi.",
+                    "(Yoğun bakımda kaldıysam) Yoğun bakım ziyaret saatleri ve iletişim süreci yeterliydi.",
+                    "(Yoğun bakımda kaldıysam) Yoğun bakım personelinin hasta ve yakınlarına yaklaşımı destekleyiciydi.",
+                    "Acil durumlarda hastane ekibinin koordinasyonu başarılıydı."
+                ],
+                "Genel Memnuniyet ve Tavsiye": [
+                    "Bu hastaneyi aileme ve arkadaşlarıma tavsiye ederim.",
+                    "Genel olarak, hastaneden aldığım tıbbi bakım kalitesi beklentilerimi karşıladı.",
+                    "Hastanenin online iletişim ve bilgilendirme kanalları (web sitesi vb.) yeterliydi.",
+                    "Hastaneden genel sağlık durumumun iyileştiği hissiyle ayrılıyorum.",
+                    "Toplam deneyimim, hastane personelinin üst düzeyde özen gösterdiğini gösteriyor."
+                ]
+            },
+            "Doktor": {
+                "Randevu, Kabul ve Taburcu Süreçleri": [
+                    "Hastaların kabul ve taburcu işlemleri, benim tıbbi iş yükümü artırmayacak şekilde verimli ilerlemektedir.",
+                    "Hastane bilgi yönetim sistemi, hastaların geçmiş verilerine hızlı erişimimi sağlamaktadır.",
+                    "Ameliyat/işlem randevu sistemleri, zaman yönetimi ve planlama açısından yeterlidir.",
+                    "Sekreterya ve idari personel ile hasta kabul süreçlerinde koordinasyonumuz güçlüdür.",
+                    "Hastaların taburcu sonrası evde bakım/destek hizmetleri konusunda net protokoller mevcuttur."
+                ],
+                "Tıbbi İletişim ve Bilgilendirme": [
+                    "Hastalara teşhis ve tedavi süreçlerini açıklarken kullanacağım eğitim materyalleri (broşür, model) mevcuttur.",
+                    "Hastane, meslektaşlarım ve uzmanlarla konsültasyon yapmamı desteklemektedir.",
+                    "Hastalarla duygusal ve hassas konuları konuşurken yönetimden destek hissediyorum.",
+                    "Hasta yakınlarına bilgi verme prosedürleri net ve tutarlıdır.",
+                    "Hastane, hata bildirim sistemini kullanarak iletişimi ve şeffaflığı teşvik etmektedir."
+                ],
+                "Doktor ve Hemşire Bakım Kalitesi": [
+                    "Çalıştığım birimde yeterli sayıda nitelikli hemşire mevcuttur.",
+                    "Ekibimdeki uzmanlık seviyesi ve işbirliği, en iyi bakımı sunmamızı sağlamaktadır.",
+                    "İş yükü dağılımı, hastalarla yeterli zaman geçirmeme olanak verecek şekilde dengelenmiştir.",
+                    "Hastanenin sürekli mesleki gelişim (CME) programları bilgi ve becerilerimi güncel tutmaktadır.",
+                    "Hastalara yüksek kalitede bakım sağlama konusunda kendimi yetkin hissediyorum."
+                ],
+                "Hastane Hijyeni ve Fiziksel Çevre": [
+                    "Çalıştığım serviste enfeksiyon kontrol prosedürleri (el hijyeni, izolasyon) titizlikle uygulanmaktadır.",
+                    "Hastane, steril ve hijyenik koşulları sağlamak için yeterli personel ve kaynak sağlamaktadır.",
+                    "Tıbbi atıkların yönetimi prosedürlere uygun ve güvenli bir şekilde yapılmaktadır.",
+                    "Hastanenin fiziki altyapısı ve mimarisi, iş akışımı ve hasta bakımını desteklemektedir.",
+                    "Çalıştığım alanların bakım ve onarımı, taleplerime hızlı yanıt vermektedir."
+                ],
+                "İlaç ve Tedavi Süreçleri": [
+                    "Hastanenin ilaç yönetim sistemi (dozaj, dağıtım, stok) hatasız çalışmaktadır.",
+                    "Gerekli tüm tıbbi cihazlar, sarf malzemeleri ve ilaçlar her zaman stokta mevcuttur.",
+                    "Tıbbi cihazların kalibrasyon ve bakımları düzenli olarak yapılmaktadır.",
+                    "Yeni tedavi protokolleri ve ilaçlar konusunda zamanında ve eksiksiz eğitim alıyorum.",
+                    "Hasta güvenliği protokolleri, tıbbi hataları (ilaç hatası vb.) en aza indirmektedir."
+                ],
+                "Çalışma Koşulları ve Sosyal Haklar": [
+                    "Çalıştığım hastanenin maaş ve yan hakları sektör ortalamasına göre tatmin edicidir.",
+                    "Vardiya ve nöbet planlamaları, dinlenmeme ve özel hayatıma saygı gösterecek şekilde yapılmaktadır.",
+                    "Hastanenin sosyal imkanları ve dinlenme alanları yeterli ve konforludur.",
+                    "Hastanede iş arkadaşlarımla ve amirlerimle güçlü ve destekleyici bir ilişkimiz var.",
+                    "Hastane, tükenmişlik sendromunu (burnout) önlemeye yönelik programlar sunmaktadır."
+                ],
+                "Hasta Hakları ve Etik": [
+                    "Hastane, etik kurulların kararlarına ve yönlendirmelerine saygı duymaktadır.",
+                    "Çalışırken karşılaştığım etik ikilemleri tartışabileceğim bir mekanizma mevcuttur.",
+                    "Hastaların mahremiyetini ve kişisel verilerini koruma konusunda net talimatlara sahibim.",
+                    "Hastane, hasta hakları ve etik konularında düzenli eğitim vermektedir.",
+                    "Hastaların dini ve kültürel ihtiyaçlarına uygun hizmet sunma konusunda destekleniyorum."
+                ],
+                "Eğitim ve Kariyer Gelişimi": [
+                    "Hastanede yükselme ve kariyer geliştirme fırsatları konusunda şeffaflık vardır.",
+                    "Yöneticilerim, akademik çalışmalarımı ve araştırmalarımı desteklemektedir.",
+                    "Hastane, özel uzmanlık alanlarımda sertifika ve kurs almam için bütçe sağlamaktadır.",
+                    "Koçluk ve mentorluk programları, genç meslektaşlarımın gelişimine katkı sağlamaktadır.",
+                    "Hastanedeki eğitimler, sektördeki en son tıbbi gelişmeleri takip etmeme yardımcı olmaktadır."
+                ],
+                "Acil Servis ve Yoğun Bakım İşleyişi": [
+                    "(Acil/Yoğun Bakım personeli isem) Çalıştığım birimde ekipman ve personel sayısı gelen hasta yoğunluğuna yeterlidir.",
+                    "Travma ve acil müdahale odaları, uluslararası standartlara uygun donanıma sahiptir.",
+                    "Yoğun bakım yatak doluluk oranları ve hasta sevk süreçleri etkin yönetilmektedir.",
+                    "Acil servis ve yoğun bakımdaki izin/tatil planlaması adil yapılmaktadır.",
+                    "Acil durumlarda departmanlar arası koordinasyon (ameliyathane, laboratuvar) sorunsuz ve hızlıdır."
+                ],
+                "Kurumsal Bağlılık ve Memnuniyet": [
+                    "Hastanenin kurumsal misyonu ve değerleri, benim hizmet anlayışımla örtüşmektedir.",
+                    "Yöneticilerim ve idarecilerim, mesleki çabalarımı takdir etmektedir.",
+                    "Hastane yönetiminin kararları, hasta bakımının kalitesini önceliklendirmektedir.",
+                    "Meslektaşlarımla birlikte çalışmaktan ve bu kurumun bir parçası olmaktan gurur duyuyorum.",
+                    "Genel olarak, bu hastanede çalışmaktan memnunum ve kurumuma bağlıyım."
+                ]
+            },
+            "Yönetim": {
+                "Randevu, Kabul ve Taburcu Süreçleri": [
+                    "Hastane Randevu ve Kayıt Sistemi, bekleme sürelerini minimize etme hedefine ulaşmıştır.",
+                    "Hasta kabul ve taburcu personeli, süreç verimliliği ve iletişim becerileri konusunda düzenli eğitim almaktadır.",
+                    "Hastanenin kapasite yönetimi (yatak doluluk, ameliyathane kullanımı) verimli bir şekilde yapılmaktadır.",
+                    "Taburcu sonrası takip ve geri bildirim süreçleri sistematik olarak uygulanmaktadır.",
+                    "Hastanenin online/dijital randevu kanallarının kullanımı hedeflenen orana ulaşmıştır."
+                ],
+                "Tıbbi İletişim ve Bilgilendirme": [
+                    "Hastanemiz, Hasta Memnuniyeti Skorlarında iletişim ve bilgilendirme başlıklarında sektör ortalamasının üzerindedir.",
+                    "Hata bildirimi ve kök neden analizi (RCA) sistemi, öğrenen bir kurum kültürünü desteklemektedir.",
+                    "Tıbbi personelin hasta ve hasta yakınlarıyla iletişim becerileri düzenli olarak değerlendirilmektedir.",
+                    "Hastaların sağlık okuryazarlığını artırmaya yönelik kurumsal programlarımız mevcuttur.",
+                    "Açık Kapı Politikası ile hasta ve personel şikayetleri hızlı ve şeffaf çözülmektedir."
+                ],
+                "Doktor ve Hemşire Bakım Kalitesi": [
+                    "Hastanenin Hemşire-Hasta Oranı, güvenli ve kaliteli bakım standartlarına uygundur.",
+                    "Doktor ve hemşire personelinin maaş ve yan hakları, kurumun kalifiye personel çekme hedefine uygundur.",
+                    "Tıbbi hataların bildirim oranı, risk yönetimi hedeflerimize uygundur (Gizli hataların bildirilmesi teşvik edilmektedir).",
+                    "Yüksek riskli tıbbi işlemler için net ve güncel protokollerimiz mevcuttur.",
+                    "Periyodik Denetimler (Tıbbi Kalite Denetimi) objektif ve etkin bir şekilde yapılmaktadır."
+                ],
+                "Hastane Hijyeni ve Fiziksel Çevre": [
+                    "Hastanenin Enfeksiyon Kontrol Oranları (örneğin hastane kaynaklı enfeksiyonlar) kabul edilebilir limitlerin altındadır.",
+                    "Temizlik ve hijyen hizmetleri için ayrılan bütçe, yüksek standartları korumaya yeterlidir.",
+                    "Hastane, fiziki altyapı ve medikal ekipman yenileme konusunda uzun vadeli yatırım planına sahiptir.",
+                    "Hasta odası ve ortak alan konforu, hasta memnuniyetini doğrudan etkileyecek seviyededir.",
+                    "Hastane, yeşil hastane ve çevre dostu sertifikasyon hedeflerini gerçekleştirmektedir."
+                ],
+                "İlaç ve Tedavi Süreçleri": [
+                    "Hastanenin ilaç stok yönetimi, kritik ilaçlarda eksiklik yaşanmasını önlemektedir.",
+                    "Yeni medikal teknoloji ve cihaz yatırımları, kurumun stratejik büyüme hedeflerini desteklemektedir.",
+                    "Ameliyathane kullanım verimliliği ve doluluk oranları optimize edilmiştir.",
+                    "Tedavi gecikmeleri ve aksaklıkları için düzenli olarak kök neden analizleri yapılmaktadır.",
+                    "Hastanenin satın alma süreçleri, en yüksek kalitede sarf malzemeleri ve cihazları sağlamaktadır."
+                ],
+                "Yemek ve Beslenme Hizmetleri": [
+                    "Hastanenin yemek hizmetleri maliyetleri, bütçe hedeflerini aşmamaktadır.",
+                    "Diyetisyen ve mutfak personeli, tıbbi gereksinimlere uygun menüler hazırlama konusunda koordinelidir.",
+                    "Gıda güvenliği ve hijyen denetimleri (HACCP vb.) etkin bir şekilde uygulanmaktadır.",
+                    "Beslenme hizmetlerinin hasta memnuniyetine etkisi düzenli ölçülmektedir.",
+                    "Hastane, çalışanları ve ziyaretçileri için de sağlıklı yiyecek seçenekleri sunmaktadır."
+                ],
+                "Hasta Hakları ve Etik": [
+                    "Hastanenin hasta hakları birimi, şikayetleri tarafsız ve hızlı bir şekilde çözmektedir.",
+                    "Etik Kurul, zorlu tıbbi ve etik kararlarda etkin bir rol üstlenmektedir.",
+                    "Hastane veri güvenliği ve KVKK (Kişisel Verilerin Korunması) mevzuatına tam uyum sağlamaktadır.",
+                    "Hastanenin finansal şeffaflık ve faturalandırma politikaları, hasta güvenini sağlamaktadır.",
+                    "İnsan Kaynakları Politikaları, personel arasında ayrımcılığı önlemektedir."
+                ],
+                "Eğitim ve Kariyer Gelişimi": [
+                    "Tıbbi kadronun kariyer gelişim planları, kurumun uzun vadeli uzmanlık ihtiyacıyla uyumludur.",
+                    "Hizmet içi eğitim bütçesi, doktor ve hemşirelerin sürekli gelişimini desteklemeye yeterlidir.",
+                    "Hastane, tıbbi araştırmalar ve yayınlar için akademik teşvikler sunmaktadır.",
+                    "Yeni mezun ve genç personel için etkin mentorluk ve koçluk programları mevcuttur.",
+                    "Hastane, çalışan memnuniyeti ve bağlılığını artırmaya yönelik somut aksiyon planları yürütmektedir."
+                ],
+                "Acil Servis ve Yoğun Bakım İşleyişi": [
+                    "Acil servis bekleme süreleri ve hasta akışı, kabul edilebilir limitlerin altında tutulmaktadır.",
+                    "Afet ve acil durum planlarımız, olası krizlere karşı yeterli hazırlığı sağlamaktadır.",
+                    "Hastanenin Yoğun Bakım Yatak Kapasitesi stratejik ihtiyaca uygun optimize edilmiştir.",
+                    "Acil personel devir hızı (turnover rate), hizmet kalitesini olumsuz etkilemeyecek seviyededir.",
+                    "Acil ve yoğun bakım hizmetlerinin maliyetleri, karlılık hedefleriyle uyumlu yönetilmektedir."
+                ],
+                "Genel Başarı ve Kurumsal İtibar": [
+                    "Hastanenin kurumsal itibarı ve marka değeri, sektörde lider konumdadır.",
+                    "Finansal performans ve karlılık hedefleri düzenli olarak aşılmaktadır.",
+                    "Hastanenin toplumsal sağlık projeleri ve sosyal sorumluluk çalışmaları etkilidir.",
+                    "Hastanemiz, ulusal ve uluslararası akreditasyonları sürdürmektedir.",
+                    "Yönetim olarak, hastanenin gelecekteki büyüme ve gelişme potansiyeli hakkında iyimseriz."
+                ]
             }
-            // Eğer eski kurum ise ve status yoksa, Aktif olarak ekle
-            if (!systemData.surveyData.companies[companyKey].status) {
-                systemData.surveyData.companies[companyKey].status = 'Aktif';
-                await saveToFirebase(systemData.surveyData);
-            }
-            return { success: true, key: companyKey };
-        }
-
-        function selectJobType(jobType) {
-            // Sadece rol seçimi yap, anket başlatma
-            window.selectedJobType = jobType;
-            selectedJobType = jobType;
-            console.log('Seçilen rol:', jobType);
-            
-            // Tüm butonları sıfırla
-            const allButtons = document.querySelectorAll('.job-btn');
-            allButtons.forEach(btn => {
-                btn.classList.remove('selected-job');
-                btn.style.border = '';
-                btn.style.backgroundColor = '';
-                btn.style.color = '';
-                btn.style.fontWeight = '';
-                btn.style.transform = '';
-                btn.style.boxShadow = '';
-            });
-
-            // Seçili butonu vurgula
-            const selectedBtn = document.getElementById(jobType === 'Hasta' ? 'patientBtn' : 
-                                                      jobType === 'Doktor' ? 'doctorBtn' : 'managementBtn');
-            if (selectedBtn) {
-                selectedBtn.classList.add('selected-job');
-                selectedBtn.style.border = '3px solid #6366f1';
-                selectedBtn.style.backgroundColor = '#6366f1';
-                selectedBtn.style.color = 'white';
-                selectedBtn.style.fontWeight = 'bold';
-                selectedBtn.style.transform = 'scale(1.05)';
-                selectedBtn.style.boxShadow = '0 4px 8px rgba(99, 102, 241, 0.3)';
-            }
-
-            console.log('Rol seçildi:', jobType);
-        }
+        };
 
         function startTimer() {
             timerInterval = setInterval(() => {
@@ -1039,8 +1063,8 @@ function closeModal() {
             }
         }
 
-        // Eski fonksiyonun yerine Firebase fonksiyonunu kullan
-        const createCompanyIfNotExists = createCompanyIfNotExistsFirebase;
+        // createCompanyIfNotExistsFirebase yerine mevcut fonksiyon kullanılmalı
+        // const createCompanyIfNotExists = createCompanyIfNotExistsFirebase; // Bunu kaldır
 
         function generateCompanyPassword() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -1063,7 +1087,7 @@ function closeModal() {
                     throw new Error('Eksik bilgi: Kurum adı, iş türü ve anket yanıtları gerekli');
                 }
                 
-                const companyResult = await createCompanyIfNotExistsFirebase(companyName);
+                const companyResult = await createCompanyIfNotExists(companyName);
                 
                 if (!companyResult.success) {
                     throw new Error(`Kurum işlemi başarısız: ${companyResult.error}`);
@@ -1148,12 +1172,14 @@ function closeModal() {
         }
 
         async function loginAdmin() {
-            const input = document.getElementById('adminPassword').value.trim();
-            if (input === systemData.adminPassword) {
-                isAdminLoggedIn = true;
+            const password = document.getElementById('adminPassword').value.trim();
+            if (password === systemData.adminPassword) {
                 document.getElementById('adminLogin').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
-                loadAdminDashboard();
+                isAdminLoggedIn = true;
+                if (typeof loadAdminDashboard === 'function') {
+                    await loadAdminDashboard();
+                }
             } else {
                 showModal('❌ Hatalı Şifre', 'Yönetici şifresi yanlış. Lütfen tekrar deneyin.');
             }
@@ -1240,7 +1266,7 @@ function closeModal() {
                 showModal('❌ Hatalı Şifre', 'Girilen şifre yanlış.');
                 return;
             }
-            if (companies[companyKey].status === 'Pasif') {
+            if (companies[companyKey].status && companies[companyKey].status.toLowerCase() === 'pasif') {
                 showModal('⛔ Askıya Alındı', 'Bu kurum şu anda askıya alınmış/dondurulmuş. Lütfen yöneticinizle iletişime geçin.');
                 return;
             }
@@ -1663,423 +1689,80 @@ function closeModal() {
             }
         }
 
-        function getParticipantCount(surveys) {
-            return surveys ? surveys.length : 0;
-        }
-
-        function loadParticipantTable(surveys) {
-            const tbody = document.getElementById('participantTableBody');
-            if (!tbody) return;
-            
-            if (!surveys || surveys.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Henüz katılımcı bulunmuyor.</td></tr>';
-                return;
-            }
-            
-            // Puana göre yüksekten düşüğe sırala
-            const sortedSurveys = [...surveys].sort((a, b) => 
-                parseFloat(b.averageScore) - parseFloat(a.averageScore)
-            );
-            
-            tbody.innerHTML = sortedSurveys.map(survey => {
-                const displayName = (survey.firstName && survey.lastName) ? 
-                    `${survey.firstName} ${survey.lastName}` : 
-                    (survey.firstName || survey.lastName || 'İsimsiz');
-                
-                const avgScore = parseFloat(survey.averageScore);
-                let evaluation = '';
-                let evaluationColor = '';
-                let evaluationIcon = '';
-                
-                if (avgScore >= 4.5) {
-                    evaluation = 'Çok Memnun';
-                    evaluationColor = 'text-green-600';
-                    evaluationIcon = '5';
-                } else if (avgScore >= 3.5) {
-                    evaluation = 'Memnun';
-                    evaluationColor = 'text-green-500';
-                    evaluationIcon = '4';
-                } else if (avgScore >= 2.5) {
-                    evaluation = 'Orta';
-                    evaluationColor = 'text-yellow-600';
-                    evaluationIcon = '3';
-                } else if (avgScore >= 1.5) {
-                    evaluation = 'Düşük';
-                    evaluationColor = 'text-orange-600';
-                    evaluationIcon = '2';
-                } else {
-                    evaluation = 'Çok Düşük';
-                    evaluationColor = 'text-red-600';
-                    evaluationIcon = '1';
-                }
-                
-                return `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-3 py-2 font-medium">${displayName}</td>
-                        <td class="px-3 py-2">
-                            <span class="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                ${survey.jobType}
-                            </span>
-                        </td>
-                        <td class="px-3 py-2 text-center font-semibold">${avgScore.toFixed(1)}</td>
-                        <td class="px-3 py-2 text-center ${evaluationColor} font-semibold">
-                            <span class="inline-flex items-center gap-1">
-                                <span class="inline-block w-6 h-6 rounded-full bg-gray-100 text-gray-700 text-sm font-bold flex items-center justify-center">${evaluationIcon}</span>
-                                ${evaluation}
-                            </span>
-                        </td>
-                        <td class="px-3 py-2 text-center text-sm text-gray-600">${new Date(survey.submittedAt).toLocaleDateString('tr-TR')}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Katılımcı detaylarını aç/kapat
-        function toggleParticipantDetails() {
-            const details = document.getElementById('participantDetails');
-            if (!details) return;
-            
-            const btn = document.getElementById('toggleParticipantsBtn');
-            
-            if (details.classList.contains('hidden')) {
-                details.classList.remove('hidden');
-                // Mevcut verileri kullan (filtrelenmiş veya tüm veriler)
-                let surveys = (typeof filteredSurveys !== 'undefined' && filteredSurveys !== null) ? 
-                    filteredSurveys : 
-                    (systemData.surveyData ? systemData.surveyData.responses.filter(s => 
-                        s.companyName && s.companyName.toLowerCase() === loggedInCompany.name.toLowerCase()
-                    ) : []);
-                
-                loadParticipantTable(surveys);
-                // Buton metnini katılımcı sayısıyla güncelle
-                const participantCount = getParticipantCount(surveys);
-                btn.textContent = `📋 Katılımcıları Gizle (${participantCount})`;
-            } else {
-                details.classList.add('hidden');
-                btn.textContent = '📋 Katılımcıları Görüntüle';
-            }
-        }
-    // Detaylı frekans tablosu fonksiyonu (Türkçe etiketlerle)
-    function renderDetailedFrequencyTables(surveys) {
-        const container = document.getElementById('detailedFrequencyTables');
-        if (!container) return;
-        if (!surveys || surveys.length === 0) {
-            container.innerHTML = `<div class="text-gray-400 text-center py-4">Frekans verisi yok.</div>`;
-            return;
-        }
-        // Soru başlıklarını al
-        const allQuestions = [];
+        function showCategoryDetail(groupName, categoryIndex, categoryName) {
+    if (!systemData.surveyData) return;
+    // Tüm anketleri al
+    const surveys = systemData.surveyData.responses || [];
+    // Grup sorularını al
+    const groupQuestions = questions[groupName];
+    if (!groupQuestions) return;
+    // Soru index aralığını hesapla (her kategori 5 soru)
+    const startIndex = categoryIndex * 5;
+    const endIndex = startIndex + 5;
+    const categoryQuestions = groupQuestions.slice(startIndex, endIndex);
+    let detailHTML = '';
+    categoryQuestions.forEach((question, qIdx) => {
+        // Her soru için frekansları hesapla
+        const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let total = 0;
         surveys.forEach(s => {
-            s.answers.forEach((a, idx) => {
-                if (!allQuestions[idx]) allQuestions[idx] = a.question;
-            });
+            const a = s.answers && s.answers[startIndex + qIdx];
+            if (a && a.score) {
+                freq[a.score] = (freq[a.score] || 0) + 1;
+                total++;
+            }
         });
-        // Türkçe puan etiketleri
-        const scoreLabels = {
-            5: 'Çok Memnunum',
-            4: 'Memnunuyum',
-            3: 'Kararsızım',
-            2: 'Memnun Değilim',
-            1: 'Hiç Memnun Değilim'
-        };
-        let html = '';
-        allQuestions.forEach((question, qIdx) => {
-            // Her soru için frekansları hesapla
-            const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-            let total = 0;
-            surveys.forEach(s => {
-                const a = s.answers[qIdx];
-                if (a && a.score) {
-                    freq[a.score] = (freq[a.score] || 0) + 1;
-                    total++;
-                }
-            });
-            // Sonuç cümlesi
-            const memnun = freq[4] + freq[5];
-            const memnunYuzde = total > 0 ? Math.round((memnun/total)*100) : 0;
-            let resultText = '';
-            if (memnunYuzde >= 80) resultText = `Katılımcıların %${memnunYuzde}'i bu konuda memnun veya çok memnun.`;
-            else if (memnunYuzde >= 60) resultText = `Katılımcıların çoğu bu konuda memnun.`;
-            else if (memnunYuzde >= 40) resultText = `Memnuniyet oranı orta seviyede.`;
-            else resultText = `Katılımcıların çoğu bu konuda memnun değil.`;
-            html += `<div class="mb-8">
-                <div class="font-semibold text-gray-800 mb-2">${qIdx+1}. ${question}</div>
-                <div class="mb-2 text-sm text-blue-700 font-medium">Sonuç: ${resultText}</div>
-                <div class="overflow-x-auto">
-                <table class="min-w-full text-sm text-center border border-gray-300 rounded-lg">
-                    <thead>
+        // Sonuç cümlesi
+        const memnun = freq[4] + freq[5];
+        const memnunYuzde = total > 0 ? Math.round((memnun/total)*100) : 0;
+        let resultText = '';
+        if (memnunYuzde >= 80) resultText = `Katılımcıların %${memnunYuzde}'i bu konuda memnun veya çok memnun.`;
+        else if (memnunYuzde >= 60) resultText = `Katılımcıların çoğu bu konuda memnun.`;
+        else if (memnunYuzde >= 40) resultText = `Memnuniyet oranı orta seviyede.`;
+        else resultText = `Katılımcıların çoğu bu konuda memnun değil.`;
+        detailHTML += `<div class="mb-8">
+            <div class="font-semibold text-gray-800 mb-2">${qIdx+1}. ${question}</div>
+            <div class="mb-2 text-sm text-blue-700 font-medium">Sonuç: ${resultText}</div>
+            <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-center border border-gray-300 rounded-lg">
+                <thead>
+                    <tr>
+                        <th class="bg-gray-100 border p-2">Seçenek</th>
+                        <th class="bg-gray-100 border p-2">Frekans</th>
+                        <th class="bg-gray-100 border p-2">Yüzde</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${[5,4,3,2,1].map(score => `
                         <tr>
-                            <th class="bg-gray-100 border p-2">Seçenek</th>
-                            <th class="bg-gray-100 border p-2">Frekans</th>
-                            <th class="bg-gray-100 border p-2">Yüzde</th>
+                            <td class="border p-2">${score === 5 ? 'Çok Memnunum' : score === 4 ? 'Memnun' : score === 3 ? 'Kararsızım' : score === 2 ? 'Memnun Değilim' : 'Hiç Memnun Değilim'}</td>
+                            <td class="border p-2">${freq[score]}</td>
+                            <td class="border p-2">${total > 0 ? ((freq[score]/total)*100).toFixed(1) : '0.0'}%</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        ${[5,4,3,2,1].map(score => `
-                            <tr>
-                                <td class="border p-2">${scoreLabels[score]}</td>
-                                <td class="border p-2">${freq[score]}</td>
-                                <td class="border p-2">${total > 0 ? ((freq[score]/total)*100).toFixed(1) : '0.0'}%</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                </div>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-    // Excel tarzı özet frekans tablosu fonksiyonu (10 soru x 5 puan, grup başlığında yüzde ortalama)
-    function renderSummaryFrequencyTable(surveys) {
-        const container = document.getElementById('detailedFrequencyTables');
-        if (!container) return;
-        if (!surveys || surveys.length === 0) {
-            container.innerHTML = `<div class="text-gray-400 text-center py-4">Frekans verisi yok.</div>`;
-            return;
-        }
-        // Gruplar ve başlıklar
-        const groupTitles = {
-            'Hasta': [
-                'Hizmet Kalitesi',
-                'İletişim',
-                'Tedavi Süreci',
-                'Fiziksel Koşullar',
-                'Personel Davranışları',
-                'Randevu ve Kabul',
-                'Dijital Hizmetler',
-                'Bekleme Süreleri',
-                'Güven ve İtibar',
-                'Genel Memnuniyet'
-            ],
-            'Doktor': [
-                'Çalışma Ortamı',
-                'Yönetim ve Liderlik',
-                'İş Yükü ve Dengesi',
-                'İç İletişim',
-                'Kariyer Gelişimi',
-                'Ücret ve Yan Haklar',
-                'Takdir ve Geri Bildirim',
-                'İş Süreçleri',
-                'Kurum Kültürü',
-                'Genel İş Memnuniyeti'
-            ],
-            'Yönetim': [
-                'Finansal Performans ve Operasyonel Verimlilik',
-                'Pazarlama ve Marka Yönetimi',
-                'İnsan Kaynakları Yönetimi',
-                'Hasta İlişkileri ve Kalite Kontrol',
-                'Teknolojik Altyapı ve Gelecek Vizyonu'
-            ]
-        };
-        const groups = Object.keys(groupTitles);
-        // Puan etiketleri
-        const scoreLabels = {
-            5: 'Çok Memnunum',
-            4: 'Memnun',
-            3: 'Kararsızım',
-            2: 'Memnun Değilim',
-            1: 'Hiç Memnun Değilim'
-        };
-        let html = '<div class="mb-6"><div class="font-semibold text-gray-800 mb-2">Özet Frekans Tablosu</div>';
-        html += '<div class="overflow-x-auto"><table class="survey-table">';
-        html += '<thead><tr><th style="text-align: left; width: 250px;">Grup / Kategori</th>';
-        [5,4,3,2,1].forEach(score => {
-            html += `<th style="width: 120px;">${scoreLabels[score]}</th>`;
-        });
-        html += '</tr></thead><tbody>';
-        groups.forEach(group => {
-            // Grup başlık satırı: ortalama yüzdeler
-            let groupTotal = 0;
-            const groupScoreTotals = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-            let groupAnswerCount = 0;
-            // Soru bazında frekanslar
-            const questionFreqs = [];
-            for (let catIdx = 0; catIdx < groupTitles[group].length; catIdx++) {
-                const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                
-                // Her kategori için soru aralığını hesapla
-                let questionsPerCategory = (group === 'Yönetim') ? 10 : 5;
-                let startQuestionIdx = catIdx * questionsPerCategory;
-                
-                // Bu kategoriye ait tüm soruları topla
-                for (let qIdx = startQuestionIdx; qIdx < startQuestionIdx + questionsPerCategory; qIdx++) {
-                    surveys.forEach(s => {
-                        if (s.jobType === group && s.answers[qIdx]) {
-                            const score = s.answers[qIdx].score;
-                            if (score) {
-                                freq[score] = (freq[score] || 0) + 1;
-                                groupScoreTotals[score]++;
-                                groupTotal++;
-                                groupAnswerCount++;
-                            }
-                        }
-                    });
-                }
-                questionFreqs.push(freq);
-            }
-            // Grup başlık satırı (yüzdeler)
-            html += `<tr class="main-group-row">
-                <td style="text-align: left; font-weight: 700;">${group}</td>`;
-            [5,4,3,2,1].forEach(score => {
-                const percent = groupAnswerCount > 0 ? ((groupScoreTotals[score]/groupAnswerCount)*100).toFixed(1) : '0.0';
-                html += `<td style="font-weight: 600;">${percent}%</td>`;
-            });
-            html += '</tr>';
-            // Kategori satırları
-            groupTitles[group].forEach((title, qIdx) => {
-                html += `<tr>
-                    <td class="sub-category">${title}</td>`;
-                [5,4,3,2,1].forEach(score => {
-                    // Her puan için gerçek frekansı (kaç kişi o puanı verdi) göster
-                    html += `<td style="text-align: center;">${questionFreqs[qIdx][score] || 0}</td>`;
-                });
-                html += '</tr>';
-            });
-        });
-        html += '</tbody></table></div></div>';
-        
-        // Grafik alanı ekle
-        const totalResponses = surveys.length;
-        const chartTitle = totalResponses > 0 ? 
-            `📊 Grup Bazlı Memnuniyet Dağılımı (${totalResponses} Katılımcı)` : 
-            '📊 Grup Bazlı Memnuniyet Dağılımı (Veri Yok)';
-            
-        const chartSection = `
-            <div class="mt-8 bg-white border rounded-lg p-6" style="box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <h3 class="text-lg font-semibold mb-4 text-gray-800">${chartTitle}</h3>
-                <div style="width: 100%; height: 400px;">
-                    <canvas id="hospitalChart"></canvas>
-                </div>
-                ${totalResponses === 0 ? 
-                    '<p class="text-gray-500 text-center mt-4">Henüz anket verisi bulunmuyor. Grafik veriler geldiğinde otomatik olarak güncellenecektir.</p>' : 
-                    '<p class="text-gray-600 text-sm text-center mt-4">Grafik tüm gruplardan gelen cevapları birleştirerek genel memnuniyet dağılımını gösterir.</p>'
-                }
+                    `).join('')}
+                </tbody>
+            </table>
             </div>
-        `;
-        
-        container.innerHTML = html + chartSection;
-        
-        // Grafik oluştur
-        generateHospitalChart(surveys);
-    }
+        </div>`;
+    });
+    document.getElementById('categoryDetailTitle').textContent = `📋 ${categoryName} Detayları`;
+    document.getElementById('categoryDetailContent').innerHTML = detailHTML;
+    document.getElementById('categoryDetailModal').classList.add('show');
+}
 
-    let hospitalChartInstance = null;
-
-    function generateHospitalChart(surveys) {
-        try {
-            console.log('generateHospitalChart çalışıyor, survey sayısı:', surveys ? surveys.length : 0);
-            
-            // Önce survey verilerinin yapısını inceleyelim
-            if (surveys && surveys.length > 0) {
-                console.log('İlk hastane survey örneği:', surveys[0]);
+function showModule(module) {
+    const modules = ['survey', 'company', 'admin'];
+    modules.forEach(m => {
+        const el = document.getElementById(m + 'Module');
+        if (el) {
+            if (m === module) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
             }
-            
-            // Mevcut grafiği temizle
-            if (hospitalChartInstance) {
-                hospitalChartInstance.destroy();
-                hospitalChartInstance = null;
-            }
-
-            const canvas = document.getElementById('hospitalChart');
-            if (!canvas) {
-                console.log('hospitalChart canvas bulunamadı');
-                return;
-            }
-
-            // Memnuniyet verilerini hazırla - Basit yaklaşım
-            const satisfactionData = [0, 0, 0, 0, 0]; // [Çok Memnun, Memnun, Kararsız, Memnun Değil, Hiç Memnun Değil]
-
-            // Survey verilerinden memnuniyet hesapla
-            if (surveys && surveys.length > 0) {
-                console.log('Hastane grafiği için işlenen survey sayısı:', surveys.length);
-                
-                // Her survey için ortalama puan üzerinden memnuniyet hesapla
-                surveys.forEach((survey, surveyIndex) => {
-                    const avgScore = parseFloat(survey.averageScore) || 0;
-                    
-                    if (avgScore > 0) {
-                        // Ortalama puana göre memnuniyet seviyesi belirle
-                        let satisfactionIndex;
-                        if (avgScore >= 4.5) satisfactionIndex = 0; // Çok Memnun
-                        else if (avgScore >= 3.5) satisfactionIndex = 1; // Memnun
-                        else if (avgScore >= 2.5) satisfactionIndex = 2; // Kararsız
-                        else if (avgScore >= 1.5) satisfactionIndex = 3; // Memnun Değil
-                        else satisfactionIndex = 4; // Hiç Memnun Değil
-                        
-                        satisfactionData[satisfactionIndex]++;
-                        
-                        console.log(`Hastane Survey ${surveyIndex}: avgScore=${avgScore}, satisfactionIndex=${satisfactionIndex}`);
-                    }
-                });
-            }
-
-            console.log('Hastane memnuniyet dağılımı:', satisfactionData);
-
-            // Grafik verilerini hazırla
-            const chartData = {
-                labels: ['Çok Memnun', 'Memnun', 'Kararsız', 'Memnun Değil', 'Hiç Memnun Değil'],
-                datasets: [{
-                    label: 'Hastane Memnuniyet Dağılımı',
-                    data: satisfactionData,
-                    backgroundColor: [
-                        '#22C55E', // Çok Memnun - Yeşil
-                        '#84CC16', // Memnun - Açık Yeşil  
-                        '#EAB308', // Kararsız - Sarı
-                        '#F97316', // Memnun Değil - Turuncu
-                        '#EF4444'  // Hiç Memnun Değil - Kırmızı
-                    ],
-                    borderColor: [
-                        '#16A34A',
-                        '#65A30D', 
-                        '#CA8A04',
-                        '#EA580C',
-                        '#DC2626'
-                    ],
-                    borderWidth: 2
-                }]
-            };
-
-            // Grafik ayarları (eğitim anketindeki gibi)
-            const config = {
-                type: 'bar',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Katılımcı Sayısı'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = satisfactionData.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
-                                    return context.dataset.label + ': ' + context.raw + ' (' + percentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            // Grafiği oluştur
-            const ctx = canvas.getContext('2d');
-            hospitalChartInstance = new Chart(ctx, config);
-            
-        } catch (error) {
-            console.error('Hastane grafiği oluşturma hatası:', error);
         }
-    }
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    });
+}
+</script>
+</body>
 </html>
