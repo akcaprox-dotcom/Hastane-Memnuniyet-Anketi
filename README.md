@@ -145,31 +145,7 @@
                 </div>
                 <!-- Kurum Seçim Tipi -->
                 <div class="mb-3">
-                    <div class="flex gap-4 mb-2">
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="companyType" value="new" id="newCompanyRadio" class="mr-2 text-purple-600 focus:ring-purple-500" checked>
-                            <span class="text-sm font-medium text-gray-700">🆕 Yeni Kurum</span>
-                        </label>
-                        <label class="flex items-center cursor-pointer">
-                            <input type="radio" name="companyType" value="existing" id="existingCompanyRadio" class="mr-2 text-purple-600 focus:ring-purple-500">
-                            <span class="text-sm font-medium text-gray-700">📋 Kayıtlı Kurum</span>
-                        </label>
-                    </div>
-                </div>
-                <!-- Manuel Kurum Adı Girişi -->
-                <div class="mb-3" id="manualCompanyInput">
                     <input type="text" id="companyName" placeholder="Kurum adınızı girin (Hastane, Klinik vb.)" class="w-full border-2 border-purple-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-                </div>
-                <!-- Kayıtlı Kurumlar Dropdown -->
-                <div class="mb-3 hidden" id="existingCompanySelect">
-                    <div class="flex gap-2">
-                        <select id="companyDropdown" class="flex-1 border-2 border-purple-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white">
-                            <option value="">Kurumunuzu seçin...</option>
-                        </select>
-                        <button type="button" id="refreshCompaniesBtn" class="px-3 py-2 bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 rounded text-sm font-medium text-purple-700 transition-colors" title="Kurum listesini yenile">
-                            🔄
-                        </button>
-                    </div>
                 </div>
                 <div class="mb-3">
                     <p class="text-xs text-gray-600 mb-2">Rolünüzü seçin:</p>
@@ -565,17 +541,12 @@ function closeModal() {
             const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
-            // selectedJobType artık global değişken
-
-            // Zorunlu alanlar kontrolü
             let missingFields = [];
             if (!disclaimerAccepted) missingFields.push('Veri koruma beyanı');
             if (!companyName) missingFields.push('Kurum adı');
             if (!firstName) missingFields.push('Adınız');
             if (!lastName) missingFields.push('Soyadınız');
             if (!selectedJobType) missingFields.push('Rolünüz');
-
-            // Google Sign-In enforcement
             if (!googleUser) {
                 showModal(
                     '🔒 Giriş Gerekli',
@@ -591,7 +562,6 @@ function closeModal() {
                 if (e) e.preventDefault();
                 return;
             }
-
             if (missingFields.length > 0) {
                 showModal(
                     '❌ Eksik Bilgi',
@@ -1111,18 +1081,8 @@ function closeModal() {
             try {
                 console.log('Anket gönderiliyor...');
                 
-                // Şirket adını hem manuel hem dropdown'dan al
-                let companyName = '';
-                const isNewCompany = document.getElementById('newCompanyRadio') && document.getElementById('newCompanyRadio').checked;
-                if (isNewCompany) {
-                    companyName = document.getElementById('companyName').value.trim();
-                } else {
-                    // companyDropdown id'li select'i öncelikli kontrol et
-                    const existingDropdown = document.getElementById('companyDropdown') || document.getElementById('existingCompanyDropdown') || document.getElementById('existingCompanySelect');
-                    if (existingDropdown) {
-                        companyName = existingDropdown.value.trim();
-                    }
-                }
+                // Sadece tek bir kurum adı alanı kullan
+                let companyName = document.getElementById('companyName').value.trim();
                 const firstName = document.getElementById('firstName').value.trim() || 'Anonim';
                 const lastName = document.getElementById('lastName').value.trim() || 'Kullanıcı';
                 
