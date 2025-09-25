@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akça Pro X - Kurum Değerlendirme Anketi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -101,26 +101,26 @@
             <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Hoş Geldiniz</h2>
             
             <p class="text-gray-700 mb-6">
-                [cite_start]Bu Kurum Değerlendirme Anketi, hizmet kalitemizi anlamak ve iyileştirmek amacıyla tasarlanmıştır. [cite: 13] [cite_start]Görüşleriniz tamamen gizli tutulacak ve sadece istatistiksel analizler için kullanılacaktır. [cite: 14] Katılımınız için teşekkür ederiz.
+                Bu Kurum Değerlendirme Anketi, hizmet kalitemizi anlamak ve iyileştirmek amacıyla tasarlanmıştır. Görüşleriniz tamamen gizli tutulacak ve sadece istatistiksel analizler için kullanılacaktır. Katılımınız için teşekkür ederiz.
             </p>
 
             <div class="mb-8 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded-lg">
                 <p class="font-semibold">Lütfen Dikkat:</p>
                 <ul class="list-disc pl-5 mt-1 text-sm">
-                    [cite_start]<li>Anket yaklaşık 5-10 dakikanızı alacaktır. [cite: 15]</li>
-                    [cite_start]<li>Tüm soruları dürüstçe yanıtlamanız, raporumuzun doğruluğu için kritiktir. [cite: 15]</li>
+                    <li>Anket yaklaşık 5-10 dakikanızı alacaktır.</li>
+                    <li>Tüm soruları dürüstçe yanıtlamanız, raporumuzun doğruluğu için kritiktir.</li>
                 </ul>
             </div>
             
             <div class="mb-8 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded-lg">
                  <p class="font-semibold">Veri Güvencesi:</p>
-                 [cite_start]<p class="text-sm">Tüm anket verileri, <b class="text-blue-700">Google Firebase</b> altyapısı üzerinde yüksek güvenlik ve gizlilik standartları ile saklanmaktadır. [cite: 16] [cite_start]Verilerinizin sorumluluğu ve güvencesi Google'ın küresel altyapısı altındadır. [cite: 16]</p>
+                 <p class="text-sm">Tüm anket verileri, <b class="text-blue-700">Google Firebase</b> altyapısı üzerinde yüksek güvenlik ve gizlilik standartları ile saklanmaktadır. Verilerinizin sorumluluğu ve güvencesi Google'ın küresel altyapısı altındadır.</p>
             </div>
             
             <div class="flex items-center mb-8">
                 <input type="checkbox" id="acceptDisclaimer" class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
                 <label for="acceptDisclaimer" class="ml-3 text-gray-700 select-none">
-                    [cite_start]Veri koruma beyanını okudum ve anket sonuçlarımın anonim olarak analiz edilmesini kabul ediyorum. [cite: 17]
+                    Veri koruma beyanını okudum ve anket sonuçlarımın anonim olarak analiz edilmesini kabul ediyorum.
                 </label>
             </div>
 
@@ -420,11 +420,11 @@
             document.getElementById('modal').classList.remove('show');
         }
         
-        // ** DÜZELTİLMİŞ FIREBASE CONFIG **
+        // 🔥 KRİTİK DÜZELTME: Firebase Config'in doğru ve tam olduğundan emin olduk.
         const firebaseConfig = {
             apiKey: "AIzaSyDp2Yh8hamXi6OTfw03MT0S4rp5CjnlAcg",
             authDomain: "akcaprox-anket.firebaseapp.com",
-            // Hata mesajınızdaki doğru veritabanı adresi eklendi:
+            // 🔥 Hatanın kaynağı olan databaseURL'nin TAM ve DOĞRU yazılmış hali.
             databaseURL: "https://akcaprox-anket-default-rtdb.firebaseio.com/", 
             projectId: "akcaprox-anket",
             storageBucket: "akcaprox-anket.appspot.com",
@@ -529,6 +529,7 @@
                             }
                         })
                         .catch((error) => {
+                            // popup.ts hatası burada yakalanır, ancak genellikle tarayıcı güvenliği kaynaklıdır.
                             showModal('❌ Giriş Hatası', 'Google ile giriş başarısız oldu: ' + error.message);
                         });
                 });
@@ -829,6 +830,7 @@
         let allSurveys = [];
         let participantChart, satisfactionChart, trendChart, timeChart; 
 
+        // 🔥 KRİTİK DÜZELTME: loadCompanyData'nın Promise'ini beklemek için 'async/await' veya '.then()' kullanıyoruz.
         function loginCompany() {
             const companyLoginName = document.getElementById('companyLoginName').value.trim();
             const companyPassword = document.getElementById('companyPassword').value.trim();
@@ -837,8 +839,15 @@
             if (COMPANY_PASSWORDS[companyId] === companyPassword) {
                 loggedInCompany = companyId;
                 document.getElementById('companyNameDisplay').textContent = `${companyLoginName} Rapor Paneli`;
-                showModule('companyDashboard');
-                loadCompanyData(loggedInCompany);
+                
+                // ⚠️ loadCompanyData'nın Promise'ini bekliyoruz ki, grafikler boş yüklenmesin.
+                loadCompanyData(loggedInCompany).then(() => {
+                     showModule('companyDashboard');
+                }).catch(error => {
+                     showModal('Hata', 'Rapor verileri yüklenirken bir sorun oluştu. Lütfen şifrenizi ve ağ bağlantınızı kontrol edin.');
+                     console.error("Giriş sonrası veri yükleme hatası:", error);
+                });
+
             } else {
                 showModal('❌ Giriş Hatası', 'Kurum Adı veya Şifre yanlış.');
             }
@@ -869,13 +878,14 @@
             showModal('Filtre Uygulandı', `Seçilen tarihler arasında ${filteredSurveys.length} anket bulundu.`);
         }
 
-        function loadCompanyData(companyId) {
-            // Filtreyi sıfırla
+        // 🔥 KRİTİK DÜZELTME: loadCompanyData fonksiyonu artık Promise döndürüyor.
+        function loadCompanyData(companyId) { 
             filteredSurveys = null;
             document.getElementById('reportStartDate').value = '';
             document.getElementById('reportEndDate').value = '';
 
-            db.ref(`surveys/${companyId}`).once('value')
+            // ⚠️ KRİTİK DÜZELTME: Promise'i döndürerek loginCompany'nin beklemesini sağlıyoruz.
+            return db.ref(`surveys/${companyId}`).once('value')
                 .then(snapshot => {
                     const data = snapshot.val();
                     if (data) {
@@ -886,14 +896,16 @@
                         renderDashboard([]);
                         showModal('Bilgi', 'Bu kurum için henüz tamamlanmış anket bulunmamaktadır.');
                     }
+                    return true; 
                 })
                 .catch(error => {
                     console.error("Veri çekme hatası:", error);
                     showModal('❌ Hata', `Veriler çekilirken bir hata oluştu: ${error.message}`);
+                    throw error; 
                 });
         }
         
-        // ... (renderDashboard ve diğer Chart/Dashboard fonksiyonları buraya gelecek)
+        // ... (renderDashboard ve diğer Chart/Dashboard fonksiyonları)
         function renderDashboard(surveys) {
             const totalParticipants = surveys.length;
             document.getElementById('totalParticipants').textContent = totalParticipants;
