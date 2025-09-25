@@ -394,12 +394,6 @@
             const targetElement = document.getElementById(moduleId);
             if (targetElement) {
                  targetElement.classList.remove('hidden');
-                 
-                 // ✅ DÜZELTME 1: cite_start gibi istenmeyen metinleri temizle
-                 let content = targetElement.innerHTML;
-                 content = content.replace(/\[cite_start\]|\[cite_end\]|dashbordda/g, ''); 
-                 targetElement.innerHTML = content;
-                 // DÜZELTME BİTİŞİ
             }
         }
         
@@ -515,44 +509,31 @@
                 startBtn.addEventListener('click', startSurvey);
             }
 
-            const googleBtn = document.getElementById('googleSignInBtn');
-            const userInfoDiv = document.getElementById('googleUserInfo');
-            if (googleBtn) {
-                googleBtn.addEventListener('click', function() {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    auth.signInWithPopup(provider)
-                        .then((result) => {
-                            const user = result.user;
-                            if (user) {
-                                googleUser = user;
-                                document.getElementById('firstName').value = user.displayName ?
-                                user.displayName.split(' ')[0] : '';
-                                document.getElementById('lastName').value = user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '';
-                                userInfoDiv.textContent = `Giriş yapıldı: ${user.displayName} (${user.email})`;
-                                userInfoDiv.classList.remove('hidden');
-                                document.getElementById('firstName').readOnly = false;
-                                document.getElementById('lastName').readOnly = false;
-                            }
-                        })
-                        .catch((error) => {
-                             // ⚠️ DÜZELTME 2: Gelişmiş Hata Yönetimi
-                            let errorMessage = 'Google ile giriş başarısız oldu. Lütfen tekrar deneyin.';
-                            
-                            if (error.code === 'auth/popup-blocked') {
-                               errorMessage = 'Pop-up Engellendi! Lütfen tarayıcınızın pop-up engelleyicisini bu site için devre dışı bırakın ve tekrar deneyin.';
-                            } else if (error.code === 'auth/cancelled-popup-request') {
-                               errorMessage = 'Giriş penceresi, sizden önce açılmış başka bir pencere nedeniyle iptal edildi. Lütfen tek bir giriş denemesi yapın.';
-                            } else if (error.code === 'auth/operation-not-allowed') {
-                                errorMessage = 'Firebase Ayarı Eksik: Firebase Konsolunuzda (Authentication > Sign-in Method) Google ile girişin etkinleştirildiğinden emin olun.';
-                            } else {
-                               errorMessage += ` (Kod: ${error.code || 'Bilinmiyor'})`;
-                            }
-
-                            showModal('❌ Giriş Hatası', errorMessage);
-                            console.error("Google Giriş Hatası:", error);
-                        });
-                });
+            function googleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            if (user) {
+                googleUser = user;
+                document.getElementById("firstName").value = user.displayName ? user.displayName.split(" ")[0] : "";
+                document.getElementById("lastName").value = user.displayName ? user.displayName.split(" ").slice(1).join(" ") : "";
+                const userInfoDiv = document.getElementById("googleUserInfo");
+                userInfoDiv.textContent = `Giriş yapıldı: ${user.displayName} (${user.email})`;
+                userInfoDiv.classList.remove("hidden");
+                document.getElementById("firstName").readOnly = false;
+                document.getElementById("lastName").readOnly = false;
             }
+        })
+        .catch((error) => {
+            if (error.code === "auth/operation-not-supported-in-this-environment") {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithRedirect(provider);
+            } else {
+                showModal("❌ Giriş Hatası", "Google ile giriş başarısız oldu: " + error.message);
+            }
+        });
+}
         });
 
         // Anket başlatma fonksiyonu: Kurum Adı kontrolü güncellendi
@@ -816,10 +797,9 @@
                 })
                 .catch(error => {
                     console.error("Anket gönderme hatası:", error);
-                    // ⚠️ UYARI: Bu hata büyük ihtimalle Firebase Rules yüzündendir.
                     showModal(
                         '❌ Gönderme Hatası',
-                        `Anket gönderilirken bir hata oluştu: ${error.message}. Lütfen <b class="text-red-600">Firebase Güvenlik Kurallarınızın (Rules)</b> doğru ayarlandığından (auth != null) ve ağ bağlantınızı kontrol edin.`
+                        `Anket gönderilirken bir hata oluştu: ${error.message}. Lütfen Firebase Güvenlik Kurallarınızın (auth != null) doğru olduğundan ve ağ bağlantınızı kontrol edin.`
                     );
                     startTimer(); 
                 });
@@ -1190,7 +1170,7 @@
                 "Hasta verilerine erişim ve kayıt sistemlerinin hızı ve güvenilirliği tatmin edici mi?",
                 "Laboratuvar ve görüntüleme hizmetlerinin sonuç verme süresi tanı sürecini aksatıyor mu?",
                 "Zor vakalarda hastane bünyesinde konsültasyon desteği kolaylıkla sağlanabiliyor mu?",
-                "Hastanenin Enfeksiyon Kontrol Komitesi'nin çalışmalarını ve sonuçlarını yeterli buluyor musunuz?",
+                "Hastane Enfeksiyon Kontrol Komitesi'nin çalışmalarını ve sonuçlarını yeterli buluyor musunuz?",
                 "Tıbbi uygulama hatalarının (malpraktis) önlenmesi konusunda hastanenin politikaları net mi?",
                 "Hastanenin uzmanlık alanınızdaki gelişmelere yatırım yapma isteğini nasıl değerlendirirsiniz?",
                 // Kategori 2: Personel Davranışları ve İletişim (11-20)
