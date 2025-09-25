@@ -394,6 +394,12 @@
             const targetElement = document.getElementById(moduleId);
             if (targetElement) {
                  targetElement.classList.remove('hidden');
+                 
+                 // ⚠️ YENİ DÜZELTME: gibi istenmeyen metinleri temizle
+                 let content = targetElement.innerHTML;
+                 content = content.replace(/\[cite_start\]|\[cite_end\]|dashbordda/g, ''); 
+                 targetElement.innerHTML = content;
+                 // ⚠️ DÜZELTME BİTİŞİ
             }
         }
         
@@ -797,9 +803,10 @@
                 })
                 .catch(error => {
                     console.error("Anket gönderme hatası:", error);
+                    // ⚠️ UYARI: Bu hata büyük ihtimalle Firebase Rules yüzündendir.
                     showModal(
                         '❌ Gönderme Hatası',
-                        `Anket gönderilirken bir hata oluştu: ${error.message}. Lütfen Firebase Güvenlik Kurallarınızın (auth != null) doğru olduğundan ve ağ bağlantınızı kontrol edin.`
+                        `Anket gönderilirken bir hata oluştu: ${error.message}. Lütfen <b class="text-red-600">Firebase Güvenlik Kurallarınızın (Rules)</b> doğru ayarlandığından ve ağ bağlantınızı kontrol edin. (Bkz: auth != null kuralı)`
                     );
                     startTimer(); 
                 });
@@ -1170,7 +1177,7 @@
                 "Hasta verilerine erişim ve kayıt sistemlerinin hızı ve güvenilirliği tatmin edici mi?",
                 "Laboratuvar ve görüntüleme hizmetlerinin sonuç verme süresi tanı sürecini aksatıyor mu?",
                 "Zor vakalarda hastane bünyesinde konsültasyon desteği kolaylıkla sağlanabiliyor mu?",
-                "Hastane Enfeksiyon Kontrol Komitesi'nin çalışmalarını ve sonuçlarını yeterli buluyor musunuz?",
+                "Hastanenin Enfeksiyon Kontrol Komitesi'nin çalışmalarını ve sonuçlarını yeterli buluyor musunuz?",
                 "Tıbbi uygulama hatalarının (malpraktis) önlenmesi konusunda hastanenin politikaları net mi?",
                 "Hastanenin uzmanlık alanınızdaki gelişmelere yatırım yapma isteğini nasıl değerlendirirsiniz?",
                 // Kategori 2: Personel Davranışları ve İletişim (11-20)
