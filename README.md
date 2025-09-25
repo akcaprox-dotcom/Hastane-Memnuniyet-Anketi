@@ -602,7 +602,7 @@ function closeModal() {
             }
 
             // Seçilen role göre soruları al
-            currentQuestions = questions[selectedJobType];
+            currentQuestions = Object.values(questions[selectedJobType]).flat();
             console.log('Seçilen rol:', selectedJobType);
             console.log('Sorular:', currentQuestions);
 
