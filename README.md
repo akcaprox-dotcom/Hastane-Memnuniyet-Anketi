@@ -62,18 +62,19 @@
             height: 350px;
             width: 100%;
         }
-        /* Yönetici Gizli Butonu */
+        /* Yönetici Gizli Butonu: Artık Hafifçe Görünür */
         .admin-icon {
-            opacity: 0;
+            opacity: 0.2; /* Hafifçe görünür */
+            transition: opacity 0.3s, color 0.3s; /* Geçişleri etkinleştir */
         }
         .admin-icon:hover {
-            opacity: 100;
+            opacity: 1; /* Üzerine gelince tam görünür */
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
 
-    <div onclick="showModule('adminLogin')" class="fixed top-0 left-0 p-2 cursor-pointer z-[1001] transition-opacity duration-300 admin-icon">
+    <div onclick="showModule('adminLogin')" class="fixed top-0 left-0 p-2 cursor-pointer z-[1001] admin-icon">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2v5a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2h6zM15 7V4a2 2 0 00-2-2h-2a2 2 0 00-2 2v3m0 6h.01M10 11h4v4h-4v-4z" />
         </svg>
@@ -430,6 +431,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.database(); // Database referansı eklendi
         
         // ** YÖNETİCİ GİRİŞ MANTIĞI BAŞLANGIÇ **
         const ADMIN_PASSWORD = "030714"; 
@@ -443,7 +445,7 @@
                 document.getElementById('adminDashboard').classList.remove('hidden');
                 
                 console.log('✅ Yönetici Girişi Başarılı!');
-                document.getElementById('totalCompanies').textContent = registeredCompanies.length; // Kayıtlı kurum sayısını kullan
+                document.getElementById('totalCompanies').textContent = registeredCompanies.length; 
                 document.getElementById('activeSurveys').textContent = window.allSurveys ? window.allSurveys.length : 0;
                 document.getElementById('totalUsers').textContent = window.allSurveys ? window.allSurveys.length : 0;
 
@@ -649,13 +651,12 @@
                 const questionNumber = currentQuestionIndex + 1;
                 
                 let groupTitle = '';
-                if (selectedJobType === 'Hasta') {
-                    if (questionNumber >= 1 && questionNumber <= 10) groupTitle = 'Tıbbi Hizmet Kalitesi';
-                    else if (questionNumber >= 11 && questionNumber <= 20) groupTitle = 'Personel Davranışları ve İletişim';
-                    else if (questionNumber >= 21 && questionNumber <= 30) groupTitle = 'Hastane Ortamı ve İmkanlar';
-                    else if (questionNumber >= 31 && questionNumber <= 40) groupTitle = 'Yönlendirme ve Bilgilendirme';
-                    else if (questionNumber >= 41 && questionNumber <= 50) groupTitle = 'Genel Deneyim ve Tavsiye';
-                }
+                // 50 Soruluk Setler İçin Kategori Gruplaması (10'lu Bloklar)
+                if (questionNumber >= 1 && questionNumber <= 10) groupTitle = 'Tıbbi Hizmet Kalitesi';
+                else if (questionNumber >= 11 && questionNumber <= 20) groupTitle = 'Personel Davranışları ve İletişim';
+                else if (questionNumber >= 21 && questionNumber <= 30) groupTitle = 'Kurum Ortamı ve İmkanlar'; // Başlık güncellendi
+                else if (questionNumber >= 31 && questionNumber <= 40) groupTitle = 'Yönlendirme ve Bilgilendirme';
+                else if (questionNumber >= 41 && questionNumber <= 50) groupTitle = 'Genel Deneyim ve Tavsiye';
                 
                 let titleHTML = '';
                 if (groupTitle) {
@@ -756,19 +757,18 @@
             const groupMap = {
                  'Tıbbi Hizmet Kalitesi': [0, 9],
                  'Personel Davranışları ve İletişim': [10, 19],
-                 'Hastane Ortamı ve İmkanlar': [20, 29],
+                 'Kurum Ortamı ve İmkanlar': [20, 29],
                  'Yönlendirme ve Bilgilendirme': [30, 39],
                  'Genel Deneyim ve Tavsiye': [40, 49]
             };
             
-            if (selectedJobType === 'Hasta') {
-                for (const groupName in groupMap) {
-                    const [start, end] = groupMap[groupName];
-                    const groupAnswers = answers.slice(start, end + 1);
-                    const groupTotal = groupAnswers.reduce((sum, score) => sum + score, 0);
-                    const groupAverage = groupAnswers.length > 0 ? (groupTotal / groupAnswers.length).toFixed(2) : 0;
-                    groupScores[groupName] = parseFloat(groupAverage);
-                }
+            // Kategori skorlarını hesapla
+            for (const groupName in groupMap) {
+                const [start, end] = groupMap[groupName];
+                const groupAnswers = answers.slice(start, end + 1);
+                const groupTotal = groupAnswers.reduce((sum, score) => sum + score, 0);
+                const groupAverage = groupAnswers.length > 0 ? (groupTotal / groupAnswers.length).toFixed(2) : 0;
+                groupScores[groupName] = parseFloat(groupAverage);
             }
 
 
@@ -786,8 +786,9 @@
                 submittedAt: new Date().getTime()
             };
 
-            const db = firebase.database();
-            const companyRef = db.ref('surveys').child(surveyData.companyName.replace(/[.#$/[\]]/g, "_"));
+            // Firebase key'i için kurum adını temizle. Hata almamak için tüm yasaklı karakterler '_' ile değiştirildi.
+            const safeCompanyName = surveyData.companyName.replace(/[.#$/[\]]/g, "_");
+            const companyRef = db.ref('surveys').child(safeCompanyName);
 
             companyRef.push(surveyData)
                 .then(() => {
@@ -805,7 +806,7 @@
                 })
                 .catch((error) => {
                     console.error("Firebase'e veri gönderme hatası:", error);
-                    showModal('❌ Kayıt Hatası', `Anket kaydedilirken bir sorun oluştu: ${error.message}`);
+                    showModal('❌ Kayıt Hatası', `Anket kaydedilirken bir sorun oluştu. Lütfen konsol loglarını kontrol edin. Hata Mesajı: ${error.message}`);
                     startTimer();
                 });
         }
@@ -857,8 +858,9 @@
         }
         
         function loadCompanyData(companyName) {
-            const db = firebase.database();
-            const companyRef = db.ref('surveys').child(companyName.replace(/[.#$/[\]]/g, "_"));
+            // Firebase key'i için kurum adını temizle
+            const safeCompanyName = companyName.replace(/[.#$/[\]]/g, "_");
+            const companyRef = db.ref('surveys').child(safeCompanyName);
             
             companyRef.once('value', (snapshot) => {
                 const surveysObject = snapshot.val();
@@ -1219,8 +1221,8 @@
             const container = document.getElementById('detailedFrequencyTables');
             container.innerHTML = `<h3 class="text-xl font-semibold mb-4 border-b pb-2">Detaylı Soru Frekans Analizi</h3>`;
             
-            if (surveys.length === 0) {
-                 container.innerHTML += '<p class="text-gray-500">Analiz için yeterli anket sonucu yok.</p>';
+            if (surveys.length === 0 || !surveys[0].questions) {
+                 container.innerHTML += '<p class="text-gray-500">Analiz için yeterli anket sonucu yok veya soru listesi bulunamadı.</p>';
                  return;
             }
 
@@ -1280,10 +1282,10 @@
             container.innerHTML += tablesHTML;
         }
 
-        // Soru setleri (Soruları bu objede güncelleyeceğiz)
+        // Soru setleri (TÜM ROLLER İÇİN 50'ŞER SORU, TOPLAM 150 SORU)
         const questions = {
             "Hasta": [
-                 // Tıbbi Hizmet Kalitesi (10 Soru)
+                 // Kategori 1: Tıbbi Hizmet Kalitesi (1-10)
                 "Doktorunuzun teşhis ve tedavi sürecine ne kadar güveniyorsunuz?",
                 "Aldığınız tıbbi tedavinin açıklayıcı ve anlaşılır olduğunu düşünüyor musunuz?",
                 "Doktorunuzun sorularınıza yeterli zaman ayırdığına inanıyor musunuz?",
@@ -1294,7 +1296,7 @@
                 "Aldığınız tedavinin beklediğiniz faydayı sağladığını düşünüyor musunuz?",
                 "Doktorunuzun sizi tedavi planı konusunda karar sürecine dahil ettiğine inanıyor musunuz?",
                 "Tıbbi hizmetlerin genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Personel Davranışları ve İletişim (10 Soru)
+                 // Kategori 2: Personel Davranışları ve İletişim (11-20)
                 "Hemşire ve diğer sağlık personelinin size karşı nazik ve saygılı davrandığına inanıyor musunuz?",
                 "Personelin, ihtiyaç duyduğunuzda size hızlı bir şekilde yanıt verdiğini düşünüyor musunuz?",
                 "Sağlık personelinin, sizi bilgilendirme konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
@@ -1305,7 +1307,7 @@
                 "Sağlık personelinin size güvence ve moral verdiğini düşünüyor musunuz?",
                 "Tedaviniz sırasında duygusal olarak desteklendiğinize inanıyor musunuz?",
                 "Personel ile iletişiminizin genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Hastane Ortamı ve İmkanlar (10 Soru)
+                 // Kategori 3: Kurum Ortamı ve İmkanlar (21-30)
                 "Hastane odasının temizliğinden ve konforundan memnun musunuz?",
                 "Genel hastane ortamının (koridorlar, bekleme alanları) temiz ve düzenli olduğunu düşünüyor musunuz?",
                 "Hastanenin genel gürültü seviyesinin kabul edilebilir olduğunu düşünüyor musunuz?",
@@ -1316,7 +1318,7 @@
                 "Tuvaletlerin ve banyo imkanlarının hijyenik olduğunu düşünüyor musunuz?",
                 "Hastanenin güvenlik önlemlerinin yeterli olduğuna inanıyor musunuz?",
                 "Hastane ortamının genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Yönlendirme ve Bilgilendirme (10 Soru)
+                 // Kategori 4: Yönlendirme ve Bilgilendirme (31-40)
                 "Hastaneye yatış sürecinin kolay ve anlaşılır olduğunu düşünüyor musunuz?",
                 "Hastane personeli tarafından randevu ve kayıt işlemlerinde yeterince yönlendirildiğinize inanıyor musunuz?",
                 "Tıbbi prosedürler ve riskler hakkında size yeterli bilgi verildiğini düşünüyor musunuz?",
@@ -1327,7 +1329,7 @@
                 "Hastane çalışanlarının sizi doğru servislere ve birimlere yönlendirmesinden memnun musunuz?",
                 "Hasta haklarınız konusunda yeterli bilgiye sahip olduğunuza inanıyor musunuz?",
                 "Hastaneye yatış sürecinin genel kalitesini nasıl değerlendiriyorsunuz?",
-                 // Genel Deneyim ve Tavsiye (10 Soru)
+                 // Kategori 5: Genel Deneyim ve Tavsiye (41-50)
                 "Hastanede yaşadığınız genel deneyimden memnun musunuz?",
                 "Hastaneyi, yakınlarınıza veya arkadaşlarınıza tavsiye eder misiniz?",
                 "Acil durumlar için bu hastaneyi tekrar tercih eder misiniz?",
@@ -1340,28 +1342,118 @@
                 "Genel olarak hastane deneyiminizi kaç puan üzerinden değerlendirirsiniz? (1-5)"
             ],
             "Doktor": [
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "Laboratuvar ve görüntüleme hizmetlerinin tanı süreçlerini hızlandırdığına inanıyor musunuz?",
-                "Diğer birimlerle (hemşirelik, idari, vs.) iletişim ve koordinasyonun verimli olduğunu düşünüyor musunuz?",
-                "Kendi alanınızda sürekli eğitim ve gelişim imkanlarının yeterli olduğunu düşünüyor musunuz?",
-                "Çalışma saatlerinizin hasta bakımı kalitesini olumsuz etkilediğine inanıyor musunuz?",
-                "Hastanenin idari personelinin tıbbi kararlara saygı gösterdiğine inanıyor musunuz?",
-                "Hastane yönetiminin geri bildirimlerinizi dikkate aldığına inanıyor musunuz?",
-                "Hasta mahremiyeti ve veri güvenliği protokollerinin yeterli olduğunu düşünüyor musunuz?",
-                "Hastanede aldığınız ücretin ve sosyal hakların beklentilerinizi karşıladığını düşünüyor musunuz?",
-                "Genel olarak hastanenizin çalışma ortamını meslektaşlarınıza tavsiye eder misiniz?"
+                // Kategori 1: Tıbbi Hizmet Kalitesi ve Destek (1-10)
+                "Tanı ve tedavi süreçlerinde kullanılan tıbbi cihaz ve ekipmanların kalitesinden memnun musunuz?",
+                "Klinik karar verme süreçlerinizde gerekli güncel tıbbi literatüre erişiminiz yeterli mi?",
+                "Hastanenin laboratuvar ve görüntüleme birimlerinin sunduğu hizmetlerin hızını ve güvenilirliğini nasıl değerlendiriyorsunuz?",
+                "Hastanenin, mesleki gelişiminiz için düzenli ve yeterli eğitim/seminer imkanları sunduğuna inanıyor musunuz?",
+                "Hasta yükünüzün, size kaliteli ve etik sağlık hizmeti sunma imkanı tanıdığını düşünüyor musunuz?",
+                "Tedavi süreçlerinde diğer branşlardan konsültasyon taleplerine hızlı ve profesyonel dönüş alabildiğinize inanıyor musunuz?",
+                "Hastanenin acil servis ve yoğun bakım birimlerinin etkinliğini ve destekleyici yapısını nasıl değerlendiriyorsunuz?",
+                "Tıbbi kayıt ve raporlama sistemlerinin (HBYS) kullanım kolaylığı ve verimliliğinden memnun musunuz?",
+                "Bireysel tıbbi başarınızın ve çabanızın hastane yönetimi tarafından takdir edildiğini düşünüyor musunuz?",
+                "Hastanenin genel tıbbi mükemmeliyet standartlarını nasıl değerlendiriyorsunuz?",
+                // Kategori 2: Personel Davranışları ve İletişim (11-20)
+                "Hemşirelik personeli ile hasta bakımı ve tedavi planı konusundaki iletişiminiz ne kadar verimli?",
+                "İdari ve destek personelinin (sekreterlik, bilgi işlem) size sunduğu hizmetten memnun musunuz?",
+                "Çalışma arkadaşlarınızla (diğer doktorlar) işbirliği ve ekip ruhu seviyenizi nasıl değerlendiriyorsunuz?",
+                "Tıbbi hataların veya istenmeyen olayların şeffaf ve yapıcı bir şekilde ele alındığına inanıyor musunuz?",
+                "Farklı disiplinler arası toplantı ve iletişim kanallarının yeterli sıklıkta ve kalitede olduğunu düşünüyor musunuz?",
+                "Hastane yönetiminin, personel arasındaki çatışma ve anlaşmazlıkları etkili bir şekilde çözdüğüne inanıyor musunuz?",
+                "Asistan doktor ve stajyerlerin eğitim ve denetim süreçlerinin yeterli ve adil olduğunu düşünüyor musunuz?",
+                "Hasta yakınları ile zorlu iletişim durumlarında idari destek aldığınıza inanıyor musunuz?",
+                "Personel genelinde gizlilik ve etik kurallara uyum seviyesini nasıl değerlendiriyorsunuz?",
+                "Çalışanlar arası iletişim kültürünün genel kalitesini nasıl değerlendiriyorsunuz?",
+                // Kategori 3: Kurum Ortamı ve İmkanlar (21-30)
+                "Size ayrılan ofis, muayene odası ve dinlenme alanlarının fiziki şartları ve konforu yeterli mi?",
+                "Kullanmak zorunda olduğunuz tıbbi sarf malzemelerinin kalitesi ve stok durumu tatmin edici mi?",
+                "Hastanenin temizlik ve hijyen standartlarının, hasta güvenliği için yeterli olduğunu düşünüyor musunuz?",
+                "Hastanenin sunduğu yemekhane ve personel kafeteryası hizmetlerinden memnun musunuz?",
+                "Hastanenin otopark, güvenlik ve ulaşım imkanlarının personel için uygun olduğunu düşünüyor musunuz?",
+                "Çalışma ortamınızda maruz kaldığınız gürültü, ışıklandırma gibi çevresel faktörler verimliliğinizi etkiliyor mu?",
+                "Kişisel eşyalarınız ve tıbbi malzemeler için yeterli ve güvenli depolama alanları mevcut mu?",
+                "Hastanenin bilgi teknolojileri altyapısının (ağ, internet) hız ve güvenilirliğini nasıl değerlendiriyorsunuz?",
+                "Teknik arızaların (cihaz, elektrik, su) hızlı ve etkin bir şekilde giderildiğine inanıyor musunuz?",
+                "Çalışma ortamının genel fiziki koşullarını nasıl değerlendiriyorsunuz?",
+                // Kategori 4: Yönlendirme ve Bilgilendirme (31-40)
+                "Hastanenin misyon, vizyon ve stratejik hedeflerinin size açıkça iletildiğine inanıyor musunuz?",
+                "İdari kararların (izin, mesai, nöbet) alınmasında şeffaf ve adil bir süreç izlendiğini düşünüyor musunuz?",
+                "Hastanenin mali performansı ve bütçe kısıtlamaları hakkında yeterince bilgilendiriliyor musunuz?",
+                "Size yönelik performans değerlendirme ve geri bildirim sisteminin yapıcı ve geliştirici olduğuna inanıyor musunuz?",
+                "Hastanenin, yasal düzenlemelere ve akreditasyon standartlarına uyum konusunda etkili olduğuna inanıyor musunuz?",
+                "Yeni tıbbi teknolojilerin hastaneye entegrasyonu konusunda yönetim tarafından destekleniyor musunuz?",
+                "Hasta güvenliği protokollerinin (el hijyeni, düşme önleme) uygulanması konusunda yeterli destek ve eğitim alıyor musunuz?",
+                "Hastane içi iletişim kanallarının (duyurular, e-posta) bilgi akışını etkin sağladığını düşünüyor musunuz?",
+                "Mesleki sorumluluk sigortası ve hukuki destek konularında hastane politikasının yeterli olduğunu düşünüyor musunuz?",
+                "Yönetim tarafından sağlanan yönlendirme ve desteğin genel kalitesini nasıl değerlendiriyorsunuz?",
+                // Kategori 5: Genel Deneyim ve Tavsiye (41-50)
+                "Hastanede çalışmaktan duyduğunuz genel memnuniyet seviyesini nasıl değerlendiriyorsunuz?",
+                "Hastanenizin, mesleki itibarınıza olumlu katkı sağladığını düşünüyor musunuz?",
+                "Hastaneyi, alanınızdaki diğer meslektaşlarınıza gönül rahatlığıyla tavsiye eder misiniz?",
+                "Hastanenin, kariyer gelişiminiz için uzun vadeli fırsatlar sunduğuna inanıyor musunuz?",
+                "Çalışma yaşam dengenizin hastaneniz tarafından desteklendiğini düşünüyor musunuz?",
+                "Performansınıza göre aldığınız ücret ve yan hakların adil olduğunu düşünüyor musunuz?",
+                "Hastanenin, çalışan memnuniyetini artırmaya yönelik çabalarını nasıl değerlendiriyorsunuz?",
+                "Kendinizi hastanenizin vizyon ve değerlerinin bir parçası olarak hissediyor musunuz?",
+                "Hastanenizin gelecekteki başarısına olan inancınız nedir?",
+                "Genel olarak çalıştığınız hastaneyi kaç puan üzerinden değerlendirirsiniz? (1-5)"
             ],
             "Yönetim": [
-                "Personel (doktor, hemşire, idari) arasındaki iş birliği ve uyum seviyesini nasıl değerlendiriyorsunuz?",
-                "Bütçe ve kaynak dağılımının hastane hizmetlerinin kalitesini desteklediğine inanıyor musunuz?",
-                "Hastanenin teknolojik altyapısının (HBYS, otomasyon) ihtiyaçları karşıladığını düşünüyor musunuz?",
-                "Risk yönetimi ve acil durum planlarının güncel ve etkili olduğunu düşünüyor musunuz?",
-                "Hasta şikayetlerinin ele alınma ve çözülme sürecinin verimli olduğuna inanıyor musunuz?",
-                "Hastanenin pazarlama ve halkla ilişkiler faaliyetlerinin kurum imajını güçlendirdiğini düşünüyor musunuz?",
-                "Sürdürülebilirlik ve çevre dostu uygulamalara yeterince önem verildiğini düşünüyor musunuz?",
-                "Yeni personel alım ve oryantasyon sürecinin yeterli olduğunu düşünüyor musunuz?",
-                "Hastanenin uzun vadeli stratejik hedeflerine ulaşma potansiyelini nasıl değerlendiriyorsunuz?",
-                "Genel olarak hastanenin performans yönetim sisteminden memnun musunuz?"
+                // Kategori 1: Tıbbi Hizmet Kalitesi ve Denetim (1-10)
+                "Hizmet Kalitesi Denetim (Audit) sonuçlarının hastane hedefleriyle uyumunu nasıl değerlendiriyorsunuz?",
+                "Tıbbi hataların analizi ve önlenmesine yönelik uygulanan protokollerin etkinliğinden memnun musunuz?",
+                "Teknolojik yatırım kararlarının tıbbi personel ihtiyaçları ve hasta sonuçları üzerindeki etkisini izliyor musunuz?",
+                "Hasta memnuniyeti skorlarının (HES) kalite iyileştirme süreçlerine yeterince entegre edildiğine inanıyor musunuz?",
+                "Tıbbi sarf malzeme ve ilaç tedarik zincirinin kesintisiz ve maliyet-etkin olduğunu düşünüyor musunuz?",
+                "Kritik klinik göstergelerin (KPI'lar) düzenli ve doğru bir şekilde raporlandığına inanıyor musunuz?",
+                "Acil ve kritik bakım hizmetlerinin ulusal standartlara uygunluğunu nasıl değerlendiriyorsunuz?",
+                "Sağlık turizmi gibi yeni hizmet alanlarının geliştirilmesi için yeterli kaynak ayırıyor musunuz?",
+                "Hastanenin Enfeksiyon Kontrol Komitesi'nin çalışmalarını ne kadar başarılı buluyorsunuz?",
+                "Hastanenin genel tıbbi hizmet kalitesi skorunu nasıl değerlendiriyorsunuz?",
+                // Kategori 2: Personel Davranışları ve İletişim (11-20)
+                "Tüm personel grupları arasındaki iç iletişimin şeffaflık ve hızından memnun musunuz?",
+                "Çalışan devir hızının (turnover rate) kabul edilebilir seviyelerde olduğunu düşünüyor musunuz?",
+                "Personel performans değerlendirme sisteminin adil ve motive edici olduğuna inanıyor musunuz?",
+                "Personel şikayetlerinin ve disiplin süreçlerinin etkin ve objektif bir şekilde yönetildiğini düşünüyor musunuz?",
+                "Yöneticilerinizin, liderlik ve mentorluk becerilerini yeterli buluyor musunuz?",
+                "Çalışan memnuniyet anketlerinin sonuçlarına göre somut iyileştirmeler yapabildiğinize inanıyor musunuz?",
+                "İşe alım ve oryantasyon programlarının yeni personeli yeterince hazırladığına inanıyor musunuz?",
+                "Personel için uygulanan etik kurallar ve uyum programlarının etkinliğini nasıl değerlendiriyorsunuz?",
+                "Farklı kademelerdeki personelin hastane yönetimine sesini duyurma kanallarının yeterli olduğunu düşünüyor musunuz?",
+                "Personel yönetiminin genel başarısını nasıl değerlendiriyorsunuz?",
+                // Kategori 3: Kurum Ortamı ve İmkanlar (21-30)
+                "Hastanenin genel bütçe planlamasının, belirlenen stratejik hedefleri desteklediğine inanıyor musunuz?",
+                "Mevcut fiziki altyapının (bina, tesisat, teknik sistemler) hasta ve personel ihtiyaçlarına uygun olduğunu düşünüyor musunuz?",
+                "Enerji yönetimi ve çevre dostu (yeşil hastane) uygulamalar konusunda yeterli ilerleme kaydettiniz mi?",
+                "Tıbbi atık ve diğer atık yönetim süreçlerinin ulusal düzenlemelere tam olarak uyduğunu düşünüyor musunuz?",
+                "Hastanenin bilgi teknolojileri (BT) bütçesinin, teknolojik dönüşüm için yeterli olduğunu düşünüyor musunuz?",
+                "Tıbbi cihazların bakım ve kalibrasyon süreçlerinin maliyet-etkin ve zamanında yapıldığına inanıyor musunuz?",
+                "Hasta ve personel güvenliğine yönelik fiziksel güvenlik önlemlerinin (kamera, erişim kontrolü) yeterliliğini nasıl değerlendiriyorsunuz?",
+                "Hastanenin acil durum ve afet yönetim planlarının güncel ve uygulanabilir olduğunu düşünüyor musunuz?",
+                "Sigorta ve tedarikçilerle yapılan sözleşmelerin hastane için en uygun koşulları sağladığına inanıyor musunuz?",
+                "Kurumun mali ve fiziki imkanlarının genel kalitesini nasıl değerlendiriyorsunuz?",
+                // Kategori 4: Yönlendirme ve Bilgilendirme (31-40)
+                "Hastanenin 5 yıllık stratejik planının tüm yönetim kademeleri tarafından benimsendiğine inanıyor musunuz?",
+                "Pazar araştırması ve rekabet analizi sonuçlarının stratejik kararlarınıza yeterince yol gösterdiğini düşünüyor musunuz?",
+                "Kurumsal iletişim ve halkla ilişkiler faaliyetlerinin hastane itibarını etkili bir şekilde artırdığına inanıyor musunuz?",
+                "Hastanenin dijital dönüşüm (online hizmetler, mobil uygulamalar) hedeflerine ulaşma hızından memnun musunuz?",
+                "Hukuki ve düzenleyici kurumlarla ilişkilerin (bakanlık, dernekler) etkin ve olumlu yönetildiğini düşünüyor musunuz?",
+                "Yeni hizmet birimlerinin açılması veya mevcutların kapatılması kararlarının veri temelli olduğuna inanıyor musunuz?",
+                "Yönetim Kurulu ve hissedarların geri bildirimlerinin şeffaf ve anlaşılır olduğuna inanıyor musunuz?",
+                "Hastanenin toplumsal sorumluluk projelerinin (CSR) etkin ve faydalı olduğunu düşünüyor musunuz?",
+                "Veri analitiği ve iş zekası (BI) araçlarının karar verme süreçlerinize yeterince katkı sağladığını düşünüyor musunuz?",
+                "Kurumsal yönetim ve yönlendirme kalitesini nasıl değerlendiriyorsunuz?",
+                // Kategori 5: Genel Deneyim ve Tavsiye (41-50)
+                "Hastanenin yönetim ekibinin genel başarısından memnun musunuz?",
+                "Hastanenizin, sağlık sektöründeki diğer kurumlara göre rekabet avantajı olduğunu düşünüyor musunuz?",
+                "Kendi kariyeriniz açısından bu hastanede çalışmayı meslektaşlarınıza tavsiye eder misiniz?",
+                "Hastanenin finansal sürdürülebilirliğine olan güveniniz tam mı?",
+                "Aldığınız yönetim ücreti ve teşviklerin sorumluluklarınızla orantılı olduğunu düşünüyor musunuz?",
+                "Hastanenizin gelecekteki pazar payını artırma potansiyelini nasıl görüyorsunuz?",
+                "Yönetim ekibinin yenilikçi fikirlere ve değişim önerilerine açık olduğuna inanıyor musunuz?",
+                "Hastanenin, çalışanlara ve topluma karşı etik sorumluluklarını yerine getirdiğine inanıyor musunuz?",
+                "Kurumun vizyonuna ulaşmak için yönetim ekibinin yeterli kararlılığa sahip olduğunu düşünüyor musunuz?",
+                "Genel olarak yönetici olarak hastanenizi kaç puan üzerinden değerlendirirsiniz? (1-5)"
             ]
         };
 
