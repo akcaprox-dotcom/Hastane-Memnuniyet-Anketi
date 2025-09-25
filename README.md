@@ -818,6 +818,7 @@ function closeModal() {
 
         async function createCompanyIfNotExistsFirebase(companyName) {
             if (!systemData.surveyData) await loadFromFirebase();
+            if (!systemData.surveyData) systemData.surveyData = {};
             if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
             const normalizedName = companyName.trim().toLowerCase();
             let companyKey = Object.keys(systemData.surveyData.companies).find(key => (systemData.surveyData.companies[key].name || '').trim().toLowerCase() === normalizedName);
@@ -1170,11 +1171,14 @@ function closeModal() {
 
         function loadAdminDashboard() {
             loadFromFirebase().then(() => {
+                if (!systemData.surveyData) systemData.surveyData = {};
+                if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
+                if (!systemData.surveyData.responses) systemData.surveyData.responses = [];
                 // Toplam kurum
-                const totalCompanies = systemData.surveyData.companies ? Object.keys(systemData.surveyData.companies).length : 0;
+                const totalCompanies = Object.keys(systemData.surveyData.companies).length;
                 document.getElementById('totalCompanies').textContent = totalCompanies;
                 // Toplam katılımcı
-                const totalUsers = systemData.surveyData.responses ? systemData.surveyData.responses.length : 0;
+                const totalUsers = systemData.surveyData.responses.length;
                 document.getElementById('totalUsers').textContent = totalUsers;
                 // Aktif anketler (örnek: toplam kurum sayısı)
                 document.getElementById('activeSurveys').textContent = totalCompanies;
@@ -1182,8 +1186,8 @@ function closeModal() {
                 const tbody = document.getElementById('companyList');
                 if (tbody) {
                     // Arama ve alfabetik sıralama
-                    const companies = systemData.surveyData.companies || {};
-                    const responses = systemData.surveyData.responses || [];
+                    const companies = systemData.surveyData.companies;
+                    const responses = systemData.surveyData.responses;
                     let search = '';
                     const searchInput = document.getElementById('companySearchInput');
                     if (searchInput) search = searchInput.value.trim().toLowerCase();
@@ -1231,7 +1235,9 @@ function closeModal() {
                 return;
             }
             await loadFromFirebase();
-            const companies = systemData.surveyData.companies || {};
+            if (!systemData.surveyData) systemData.surveyData = {};
+            if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
+            const companies = systemData.surveyData.companies;
             const normalizedName = companyName.trim().toLowerCase();
             const companyKey = Object.keys(companies).find(key => (companies[key].name || '').trim().toLowerCase() === normalizedName);
             if (!companyKey) {
@@ -1504,7 +1510,7 @@ function closeModal() {
                 </div>
                 <div style='text-align:right;font-size:0.9rem;color:#888;margin-top:32px;'>Akça Pro X - Profesyonel Kurum Değerlendirme Sistemi | ${dateStr} ${timeStr}<br>Bu rapor ${totalAnswers} adet soru yanıtı analiz edilerek oluşturulmuştur.${dateInfo ? `<br>Filtre: ${dateInfo}` : ''}</div>
             </body>
-</html>
+
             `;
         }
 
