@@ -1111,7 +1111,17 @@ function closeModal() {
             try {
                 console.log('Anket gönderiliyor...');
                 
-                const companyName = document.getElementById('companyName').value.trim();
+                // Şirket adını hem manuel hem dropdown'dan al
+                let companyName = '';
+                const isNewCompany = document.getElementById('newCompanyRadio') && document.getElementById('newCompanyRadio').checked;
+                if (isNewCompany) {
+                    companyName = document.getElementById('companyName').value.trim();
+                } else {
+                    const existingDropdown = document.getElementById('existingCompanyDropdown') || document.getElementById('existingCompanySelect');
+                    if (existingDropdown) {
+                        companyName = existingDropdown.value.trim();
+                    }
+                }
                 const firstName = document.getElementById('firstName').value.trim() || 'Anonim';
                 const lastName = document.getElementById('lastName').value.trim() || 'Kullanıcı';
                 
