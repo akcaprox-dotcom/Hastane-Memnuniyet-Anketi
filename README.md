@@ -1117,7 +1117,8 @@ function closeModal() {
                 if (isNewCompany) {
                     companyName = document.getElementById('companyName').value.trim();
                 } else {
-                    const existingDropdown = document.getElementById('existingCompanyDropdown') || document.getElementById('existingCompanySelect');
+                    // companyDropdown id'li select'i öncelikli kontrol et
+                    const existingDropdown = document.getElementById('companyDropdown') || document.getElementById('existingCompanyDropdown') || document.getElementById('existingCompanySelect');
                     if (existingDropdown) {
                         companyName = existingDropdown.value.trim();
                     }
