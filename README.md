@@ -692,7 +692,46 @@ function closeModal() {
 
 
         // Firebase Realtime Database URL
+
         const FIREBASE_DB_URL = 'https://json-19344-default-rtdb.europe-west1.firebasedatabase.app/';
+
+        // Firebase Realtime Database'den veri yükle
+        async function loadFromFirebase() {
+            try {
+                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    systemData.surveyData = data || { companies: {}, responses: [], statistics: {} };
+                    return systemData.surveyData;
+                } else {
+                    throw new Error('Firebase veri yükleme hatası');
+                }
+            } catch (error) {
+                console.error('Firebase yükleme hatası:', error);
+                const defaultData = { companies: {}, responses: [], statistics: {} };
+                systemData.surveyData = defaultData;
+                return defaultData;
+            }
+        }
+
+        // Firebase Realtime Database'e veri kaydet
+        async function saveToFirebase(data) {
+            try {
+                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (response.ok) {
+                    return { success: true };
+                } else {
+                    return { success: false, error: 'Firebase veri kaydetme hatası' };
+                }
+            } catch (error) {
+                console.error('Firebase bağlantı hatası:', error);
+                return { success: false, error: `Bağlantı Hatası: ${error.message}` };
+            }
+        }
 
         // Kayıtlı kurumları dropdown'a yükle (işlet.html mantığı)
         async function loadExistingCompanies() {
