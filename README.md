@@ -409,6 +409,55 @@
     </div>
 
         <script>
+// Ortam tespiti: local mi canlı mı?
+function isLocalhost() {
+    return ["localhost", "127.0.0.1", "0.0.0.0"].includes(window.location.hostname) || window.location.hostname.startsWith("192.168.");
+}
+
+// Ortama göre kurumları yükle
+async function loadCompanyListForInput() {
+    const companyInput = document.getElementById('companyName');
+    if (!companyInput) return;
+    if (isLocalhost()) {
+        // Lokal ortam: örnek kurumlar
+        const localCompanies = [
+            "Test Hastanesi",
+            "Demo Klinik",
+            "Örnek Tıp Merkezi"
+        ];
+        companyInput.setAttribute('list', 'companyListDatalist');
+        let datalist = document.getElementById('companyListDatalist');
+        if (!datalist) {
+            datalist = document.createElement('datalist');
+            datalist.id = 'companyListDatalist';
+            document.body.appendChild(datalist);
+        }
+        datalist.innerHTML = localCompanies.map(c => `<option value="${c}">`).join('');
+    } else {
+        // Canlı ortam: Firebase'den kurumları çek
+        try {
+            const snapshot = await firebase.database().ref('companies').once('value');
+            const companies = snapshot.val() ? Object.values(snapshot.val()).map(c => c.name) : [];
+            companyInput.setAttribute('list', 'companyListDatalist');
+            let datalist = document.getElementById('companyListDatalist');
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = 'companyListDatalist';
+                document.body.appendChild(datalist);
+            }
+            datalist.innerHTML = companies.map(c => `<option value="${c}">`).join('');
+        } catch (e) {
+            // Hata olursa datalist'i temizle
+            let datalist = document.getElementById('companyListDatalist');
+            if (datalist) datalist.innerHTML = '';
+        }
+    }
+}
+
+// Sayfa yüklendiğinde kurum listesini yükle
+document.addEventListener('DOMContentLoaded', function() {
+    loadCompanyListForInput();
+});
 // systemData global tanımı (en başa eklenmeli)
 let systemData = {
     adminPassword: '030714',
