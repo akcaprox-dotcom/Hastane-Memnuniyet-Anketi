@@ -394,6 +394,12 @@
             const targetElement = document.getElementById(moduleId);
             if (targetElement) {
                  targetElement.classList.remove('hidden');
+                 
+                 // ✅ DÜZELTME 1: cite_start gibi istenmeyen metinleri temizle
+                 let content = targetElement.innerHTML;
+                 content = content.replace(/\[cite_start\]|\[cite_end\]|dashbordda/g, ''); 
+                 targetElement.innerHTML = content;
+                 // DÜZELTME BİTİŞİ
             }
         }
         
@@ -529,8 +535,21 @@
                             }
                         })
                         .catch((error) => {
-                            // popup.ts hatası burada yakalanır, ancak genellikle tarayıcı güvenliği kaynaklıdır.
-                            showModal('❌ Giriş Hatası', 'Google ile giriş başarısız oldu: ' + error.message);
+                             // ⚠️ DÜZELTME 2: Gelişmiş Hata Yönetimi
+                            let errorMessage = 'Google ile giriş başarısız oldu. Lütfen tekrar deneyin.';
+                            
+                            if (error.code === 'auth/popup-blocked') {
+                               errorMessage = 'Pop-up Engellendi! Lütfen tarayıcınızın pop-up engelleyicisini bu site için devre dışı bırakın ve tekrar deneyin.';
+                            } else if (error.code === 'auth/cancelled-popup-request') {
+                               errorMessage = 'Giriş penceresi, sizden önce açılmış başka bir pencere nedeniyle iptal edildi. Lütfen tek bir giriş denemesi yapın.';
+                            } else if (error.code === 'auth/operation-not-allowed') {
+                                errorMessage = 'Firebase Ayarı Eksik: Firebase Konsolunuzda (Authentication > Sign-in Method) Google ile girişin etkinleştirildiğinden emin olun.';
+                            } else {
+                               errorMessage += ` (Kod: ${error.code || 'Bilinmiyor'})`;
+                            }
+
+                            showModal('❌ Giriş Hatası', errorMessage);
+                            console.error("Google Giriş Hatası:", error);
                         });
                 });
             }
@@ -797,9 +816,10 @@
                 })
                 .catch(error => {
                     console.error("Anket gönderme hatası:", error);
+                    // ⚠️ UYARI: Bu hata büyük ihtimalle Firebase Rules yüzündendir.
                     showModal(
                         '❌ Gönderme Hatası',
-                        `Anket gönderilirken bir hata oluştu: ${error.message}. Lütfen Firebase Güvenlik Kurallarınızın (auth != null) doğru olduğundan ve ağ bağlantınızı kontrol edin.`
+                        `Anket gönderilirken bir hata oluştu: ${error.message}. Lütfen <b class="text-red-600">Firebase Güvenlik Kurallarınızın (Rules)</b> doğru ayarlandığından (auth != null) ve ağ bağlantınızı kontrol edin.`
                     );
                     startTimer(); 
                 });
@@ -1170,7 +1190,7 @@
                 "Hasta verilerine erişim ve kayıt sistemlerinin hızı ve güvenilirliği tatmin edici mi?",
                 "Laboratuvar ve görüntüleme hizmetlerinin sonuç verme süresi tanı sürecini aksatıyor mu?",
                 "Zor vakalarda hastane bünyesinde konsültasyon desteği kolaylıkla sağlanabiliyor mu?",
-                "Hastane Enfeksiyon Kontrol Komitesi'nin çalışmalarını ve sonuçlarını yeterli buluyor musunuz?",
+                "Hastanenin Enfeksiyon Kontrol Komitesi'nin çalışmalarını ve sonuçlarını yeterli buluyor musunuz?",
                 "Tıbbi uygulama hatalarının (malpraktis) önlenmesi konusunda hastanenin politikaları net mi?",
                 "Hastanenin uzmanlık alanınızdaki gelişmelere yatırım yapma isteğini nasıl değerlendirirsiniz?",
                 // Kategori 2: Personel Davranışları ve İletişim (11-20)
