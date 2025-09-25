@@ -565,7 +565,7 @@ function closeModal() {
             const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
-            const selectedJobType = window.selectedJobType || '';
+            // selectedJobType artık global değişken
 
             // Zorunlu alanlar kontrolü
             let missingFields = [];
@@ -634,14 +634,14 @@ function closeModal() {
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let answers = [];
-        window.selectedJobType = '';
+        var selectedJobType = '';
         let loggedInCompany = null;
         let isAdminLoggedIn = false;
         let filteredSurveys = null;
 
         // Rol seçimi fonksiyonu
         function selectJobType(type) {
-            window.selectedJobType = type;
+            selectedJobType = type;
             // Butonları vurgula
             document.getElementById('patientBtn').classList.remove('bg-blue-200', 'ring-2', 'ring-blue-400', 'font-bold');
             document.getElementById('doctorBtn').classList.remove('bg-green-200', 'ring-2', 'ring-green-400', 'font-bold');
