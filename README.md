@@ -174,18 +174,15 @@
                 <div class="mb-3">
                     <p class="text-xs text-gray-600 mb-2">Rolünüzü seçin:</p>
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="selectJobType('Hasta')" id="patientBtn" 
-                                class="job-btn py-3 px-2 text-xs rounded border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <button type="button" id="patientBtn" class="job-btn py-3 px-2 text-xs rounded border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
                             <div class="text-lg mb-1">🧑‍⚕️</div>
                             <div>Hasta</div>
                         </button>
-                        <button type="button" onclick="selectJobType('Doktor')" id="doctorBtn" 
-                                class="job-btn py-3 px-2 text-xs rounded border-2 border-green-300 hover:border-green-500 hover:bg-green-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-green-400">
+                        <button type="button" id="doctorBtn" class="job-btn py-3 px-2 text-xs rounded border-2 border-green-300 hover:border-green-500 hover:bg-green-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-green-400">
                             <div class="text-lg mb-1">👨‍⚕️</div>
                             <div>Doktor/Hemşire</div>
                         </button>
-                        <button type="button" onclick="selectJobType('Yönetim')" id="managementBtn" 
-                                class="job-btn py-3 px-2 text-xs rounded border-2 border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-purple-400">
+                        <button type="button" id="managementBtn" class="job-btn py-3 px-2 text-xs rounded border-2 border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-purple-400">
                             <div class="text-lg mb-1">👩‍🔬</div>
                             <div>Yönetim</div>
                         </button>
@@ -522,6 +519,9 @@ function closeModal() {
             const dropdownSelect = document.getElementById('existingCompanySelect');
             if (newCompanyRadio && existingCompanyRadio && manualInput && dropdownSelect) {
                 function toggleCompanyInputType() {
+                    // Her iki radio butonunu da tekrar tekrar seçilebilir tut
+                    newCompanyRadio.disabled = false;
+                    existingCompanyRadio.disabled = false;
                     if (newCompanyRadio.checked) {
                         manualInput.classList.remove('hidden');
                         dropdownSelect.classList.add('hidden');
@@ -634,10 +634,35 @@ function closeModal() {
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let answers = [];
-        let selectedJobType = '';
+        window.selectedJobType = '';
         let loggedInCompany = null;
         let isAdminLoggedIn = false;
         let filteredSurveys = null;
+
+        // Rol seçimi fonksiyonu
+        function selectJobType(type) {
+            window.selectedJobType = type;
+            // Butonları vurgula
+            document.getElementById('patientBtn').classList.remove('bg-blue-200', 'ring-2', 'ring-blue-400', 'font-bold');
+            document.getElementById('doctorBtn').classList.remove('bg-green-200', 'ring-2', 'ring-green-400', 'font-bold');
+            document.getElementById('managementBtn').classList.remove('bg-purple-200', 'ring-2', 'ring-purple-400', 'font-bold');
+            if (type === 'Hasta') {
+                document.getElementById('patientBtn').classList.add('bg-blue-200', 'ring-2', 'ring-blue-400', 'font-bold');
+            } else if (type === 'Doktor') {
+                document.getElementById('doctorBtn').classList.add('bg-green-200', 'ring-2', 'ring-green-400', 'font-bold');
+            } else if (type === 'Yönetim') {
+                document.getElementById('managementBtn').classList.add('bg-purple-200', 'ring-2', 'ring-purple-400', 'font-bold');
+            }
+            // Seçili rolü ekrana yaz
+            document.getElementById('selectedJobDisplay').textContent = 'Seçilen Rol: ' + type;
+        }
+
+        // Butonlara tıklama eventlerini bağla
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('patientBtn').onclick = function() { selectJobType('Hasta'); };
+            document.getElementById('doctorBtn').onclick = function() { selectJobType('Doktor'); };
+            document.getElementById('managementBtn').onclick = function() { selectJobType('Yönetim'); };
+        });
 
         // Yönetici şifresi tanımı
 
