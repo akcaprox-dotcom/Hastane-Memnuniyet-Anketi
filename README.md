@@ -1618,7 +1618,7 @@ function closeModal() {
                 setTimeout(() => {
                     const btn = document.getElementById('aiInterpretBtn');
                     if (btn) btn.onclick = async function() {
-                        const apiKey = 'AIzaSyCJXufO8b2AMWRZpw-QctHSWgWSg2j8L1Y';
+                        const apiKey = 'AIzaSyDD9lwyo2viTAbHRy2nFpKZ0fUMGggS_ao';
                         btn.disabled = true;
                         btn.textContent = '🔄 AI sağlık analizi yapıyor...';
                         try {
@@ -1635,7 +1635,7 @@ function closeModal() {
                             - Düşük Memnuniyet (3- puan): ${lowSatisfaction} kişi (${Math.round((lowSatisfaction/totalParticipants)*100)}%)`;
                             
                             const prompt = `Bir sağlık hizmetleri uzmanı ve hastane yöneticisi gibi aşağıdaki hastane değerlendirme anket raporunu analiz et.\n\nRapor Özeti:\n${summary}\n\nAşağıdaki başlıklarla detaylı, profesyonel ve sağlık hizmetleri odaklı bir analiz yaz:\n\n1. Mevcut Sağlık Hizmetleri Durumu\n2. Hastane Hizmet Kalitesinde Nelerin İyileştirilmesi Gerekiyor\n3. Bu Durumun Devam Etmesi Halinde Hasta Memnuniyeti ve Hastane İtibarına Etkileri\n\nHer başlık için en az 3-4 cümlelik, sağlık hizmetleri kalitesine uygun, özgün ve uygulanabilir öneriler içeren bir metin oluştur. Hasta güvenliği ve hizmet kalitesi odaklı yaklaşım benimse.\n`;
-                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
+                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`, {
                                 method: 'POST',
                                 headers: { 
                                     'Content-Type': 'application/json',
@@ -2082,4 +2082,3 @@ function closeModal() {
     }
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
