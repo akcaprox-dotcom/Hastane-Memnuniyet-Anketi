@@ -169,7 +169,7 @@
                     <p class="text-xs text-gray-600 mb-2">Rolünüzü seçin:</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <button type="button" onclick="selectJobType('Hasta')" id="patientBtn" class="job-btn px-2 py-2 rounded border border-gray-300 bg-white hover:bg-purple-100 transition-colors">Hasta</button>
-                        <button type="button" onclick="selectJobType('Doktor')" id="doctorBtn" class="job-btn px-2 py-2 rounded border border-gray-300 bg-white hover:bg-blue-100 transition-colors">Doktor</button>
+                        <button type="button" onclick="selectJobType('Doktor/Hemşire')" id="doctorBtn" class="job-btn px-2 py-2 rounded border border-gray-300 bg-white hover:bg-blue-100 transition-colors">Doktor</button>
                         <button type="button" onclick="selectJobType('Yönetim')" id="managementBtn" class="job-btn px-2 py-2 rounded border border-gray-300 bg-white hover:bg-green-100 transition-colors">Yönetim</button>
                     </div>
                 </div>
