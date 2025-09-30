@@ -439,13 +439,11 @@ function closeModal() {
         // Google Sign-In logic
         // Kayıtlı kurumları select'e yükle
         async function loadExistingCompanies() {
-            // Firebase veya sistem verisinden kurumları çek
-            if (!window.systemData || !window.systemData.surveyData) {
-                // Eğer sistem verisi yoksa, örnek veri ekle (geliştirici/test amaçlı)
-                window.systemData = window.systemData || {};
-                window.systemData.surveyData = { companies: { 'ornek': { name: 'ÖRNEK HASTANE' } } };
+            // Her zaman Firebase'den güncel şirket listesini çek
+            if (typeof loadFromFirebase === 'function') {
+                await loadFromFirebase();
             }
-            const companies = (window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+            const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
             const existingCompanySelect = document.getElementById('existingCompanySelect');
             if (existingCompanySelect) {
                 existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
