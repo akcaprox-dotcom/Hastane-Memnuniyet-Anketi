@@ -549,13 +549,35 @@ function closeModal() {
                         const existingCompanySelect = document.getElementById('existingCompanySelect');
                         if (existingCompanySelect) {
                             existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
-                            Object.entries(fetchedSurvey.companies).forEach(([key, company]) => {
-                                const displayName = company && company.name ? company.name : '';
-                                if (displayName && displayName.trim() !== '') {
-                                    existingCompanySelect.innerHTML += `<option value="${key}">${displayName}</option>`;
-                                    console.log('[loadExistingCompanies] (fetch) Kayıtlı kurum eklendi:', key, displayName);
-                                }
-                            });
+                            // Sort entries A→Z by company.name (Turkish locale) for easier search
+                            try {
+                                const entries = Object.entries(fetchedSurvey.companies || {});
+                                entries.sort((a, b) => ((a[1].name || '').toString()).localeCompare((b[1].name || '').toString(), 'tr'));
+                                entries.forEach(([key, company]) => {
+                                    const displayName = company && company.name ? company.name : '';
+                                    if (displayName && displayName.trim() !== '') {
+                                        existingCompanySelect.innerHTML += `<option value="${key}">${displayName}</option>`;
+                                        console.log('[loadExistingCompanies] (fetch) Kayıtlı kurum eklendi:', key, displayName);
+                                    }
+                                });
+                            } catch (e) {
+                                console.warn('[loadExistingCompanies] fetch entries sort failed, falling back to unsorted', e);
+                                Object.entries(fetchedSurvey.companies).forEach(([key, company]) => {
+                                    const displayName = company && company.name ? company.name : '';
+                                    if (displayName && displayName.trim() !== '') {
+                                        existingCompanySelect.innerHTML += `<option value="${key}">${displayName}</option>`;
+                                    }
+                                });
+                            }
+                            // Persist fetched companies into global systemData so later lookups (by key) succeed
+                            window.systemData = window.systemData || {};
+                            window.systemData.surveyData = window.systemData.surveyData || {};
+                            try {
+                                window.systemData.surveyData.companies = fetchedSurvey.companies;
+                                console.log('[loadExistingCompanies] window.systemData.surveyData.companies güncellendi (fetch).');
+                            } catch (e) {
+                                console.warn('[loadExistingCompanies] window.systemData update failed:', e);
+                            }
                             console.log('[loadExistingCompanies] Select kutusu doğrudan fetch yanıtından dolduruldu.');
                             return;
                         }
@@ -649,9 +671,15 @@ function closeModal() {
                 existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
                 let foundAny = false;
 
-                // Iterate entries defensively
+                // Iterate entries defensively and add them sorted by name
                 try {
-                    Object.entries(companies || {}).forEach(([key, company]) => {
+                    const entries = Object.entries(companies || {});
+                    try {
+                        entries.sort((a, b) => ((a[1] && a[1].name) || '').toString().localeCompare(((b[1] && b[1].name) || '').toString(), 'tr'));
+                    } catch (eSort) {
+                        console.warn('[loadExistingCompanies] entries sort failed, continuing unsorted', eSort);
+                    }
+                    entries.forEach(([key, company]) => {
                         const displayName = company && company.name ? company.name : '';
                         if (displayName && displayName.trim() !== '') {
                             existingCompanySelect.innerHTML += `<option value="${key}">${displayName}</option>`;
@@ -742,8 +770,10 @@ function closeModal() {
                         // global değişkende seçili company key'i sakla
                         window.selectedCompanyKey = selectedKey;
                     } else {
-                        // fallback: direkt select value (eski davranış)
-                        companyNameInput.value = select.value;
+                        // fallback: use the displayed option text (human readable) instead of the raw value (id)
+                        const selectedOptionText = select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : select.value;
+                        companyNameInput.value = selectedOptionText || select.value;
+                        // we don't have a matching key in systemData, so clear selectedCompanyKey
                         window.selectedCompanyKey = null;
                     }
                     document.getElementById('companySelectModal').classList.add('hidden');
