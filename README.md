@@ -447,8 +447,12 @@ function closeModal() {
             const existingCompanySelect = document.getElementById('existingCompanySelect');
             if (existingCompanySelect) {
                 existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
-                Object.values(companies).forEach(company => {
-                    existingCompanySelect.innerHTML += `<option value="${company.name}">${company.name}</option>`;
+                Object.entries(companies).forEach(([key, company]) => {
+                    if (company && company.name && company.name.trim() !== "") {
+                        existingCompanySelect.innerHTML += `<option value="${company.name}">${company.name}</option>`;
+                        // Konsola logla (debug için)
+                        if (window.console) console.log('Kayıtlı kurum eklendi:', key, company.name);
+                    }
                 });
             }
         }
