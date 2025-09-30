@@ -2309,7 +2309,12 @@ function closeModal() {
                 'Pazarlama ve Marka Yönetimi',
                 'İnsan Kaynakları Yönetimi',
                 'Hasta İlişkileri ve Kalite Kontrol',
-                'Teknolojik Altyapı ve Gelecek Vizyonu'
+                'Teknolojik Altyapı ve Gelecek Vizyonu',
+                'Tıbbi Hizmet Kalitesi',
+                'İletişim ve Bilgilendirme',
+                'Doktor ve Hemşire Bakım Kalitesi',
+                'Hastane Hijyeni ve Fiziksel Çevre',
+                'Genel Başarı ve Kurumsal İtibar'
             ]
         };
         const groups = Object.keys(groupTitles);
@@ -2339,7 +2344,7 @@ function closeModal() {
                 const freq = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
                 
                 // Her kategori için soru aralığını hesapla
-                let questionsPerCategory = (group === 'Yönetim') ? 10 : 5;
+                let questionsPerCategory = 5;
                 let startQuestionIdx = catIdx * questionsPerCategory;
                 
                 // Bu kategoriye ait tüm soruları topla
