@@ -693,6 +693,13 @@ function closeModal() {
                     loadExistingCompanies();
                 }
             }
+            // Ek güvenlik: sayfa yüklendiğinde kayıtlı kurumları mutlaka yükle (modal açılmadan da select dolu olsun)
+            try {
+                console.debug('[DOMContentLoaded] Forcing loadExistingCompanies() to ensure options are populated');
+                loadExistingCompanies();
+            } catch (e) {
+                console.warn('[DOMContentLoaded] loadExistingCompanies() call failed:', e);
+            }
             // Sayfa ilk açıldığında doğru alanı göster
             toggleUserType();
         });
