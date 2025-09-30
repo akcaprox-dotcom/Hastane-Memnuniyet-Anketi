@@ -439,12 +439,14 @@ function closeModal() {
         // Google Sign-In logic
         // Kayıtlı kurumları select'e yükle
         async function loadExistingCompanies() {
+            // Firebase'den veri geldikten sonra companies'i konsola logla
             // Her zaman Firebase'den güncel şirket listesini çek
             try {
                 if (typeof loadFromFirebase === 'function') {
                     await loadFromFirebase();
                 }
                 const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                if (window.console) console.log('Firebase companies:', companies);
                 const existingCompanySelect = document.getElementById('existingCompanySelect');
                 if (existingCompanySelect) {
                     existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
