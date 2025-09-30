@@ -772,7 +772,7 @@ function closeModal() {
                     } else {
                         // fallback: use the displayed option text (human readable) instead of the raw value (id)
                         const selectedOptionText = select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : select.value;
-                        companyNameInput.value = selectedOptionText || select.value;
+                        companyNameInput.value = selectedOptionText || '';
                         // we don't have a matching key in systemData, so clear selectedCompanyKey
                         window.selectedCompanyKey = null;
                     }
@@ -785,6 +785,27 @@ function closeModal() {
             // expose to global so inline onclick handlers (modal buttons) can call it
             window.selectCompanyFromModal = selectCompanyFromModal;
             console.debug('selectCompanyFromModal exported to window');
+            // Keep the company input in sync when user changes the select directly
+            try {
+                const existingSelectEl = document.getElementById('existingCompanySelect');
+                if (existingSelectEl) {
+                    existingSelectEl.addEventListener('change', function () {
+                        const sel = this.value;
+                        const cnameInput = document.getElementById('companyName');
+                        const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                        if (sel && companies[sel] && companies[sel].name) {
+                            cnameInput.value = companies[sel].name;
+                            window.selectedCompanyKey = sel;
+                        } else {
+                            const optText = (this.options[this.selectedIndex] && this.options[this.selectedIndex].text) ? this.options[this.selectedIndex].text : '';
+                            cnameInput.value = (optText && optText.trim() !== '') ? optText : (sel || '');
+                            window.selectedCompanyKey = null;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('existingCompanySelect change handler install failed:', e);
+            }
             if (userTypeNew && userTypeExisting) {
                 userTypeNew.addEventListener('change', toggleUserType);
                 userTypeExisting.addEventListener('change', toggleUserType);
@@ -1188,25 +1209,47 @@ function closeModal() {
         }
 
         async function createCompanyIfNotExistsFirebase(companyName) {
+            // Defensive guard: ensure we never save a numeric key as the company name.
+            if (!companyName || String(companyName).trim() === '') {
+                return { success: false, error: 'Kurum adı boş olamaz' };
+            }
+
             if (!systemData.surveyData) await loadFromFirebase();
             if (!systemData.surveyData.companies) systemData.surveyData.companies = {};
-            const normalizedName = companyName.trim().toLowerCase();
+
+            const trimmed = String(companyName).trim();
+
+            // If caller passed a company key (the option value), return that key instead of using it as a name
+            if (systemData.surveyData.companies[trimmed]) {
+                // ensure status exists
+                if (!systemData.surveyData.companies[trimmed].status) {
+                    systemData.surveyData.companies[trimmed].status = 'Aktif';
+                    await saveToFirebase(systemData.surveyData);
+                }
+                return { success: true, key: trimmed };
+            }
+
+            // Try to find an existing company by human-readable name (case-insensitive)
+            const normalizedName = trimmed.toLowerCase();
             let companyKey = Object.keys(systemData.surveyData.companies).find(key => (systemData.surveyData.companies[key].name || '').trim().toLowerCase() === normalizedName);
+
             if (!companyKey) {
-                // Yeni şifre üret
+                // Yeni şifre üret ve yeni kurum oluştur
                 const password = generateCompanyPassword();
                 companyKey = Date.now().toString();
-                systemData.surveyData.companies[companyKey] = { name: companyName.trim(), password, createdAt: new Date().toISOString(), status: 'Aktif' };
+                systemData.surveyData.companies[companyKey] = { name: trimmed, password, createdAt: new Date().toISOString(), status: 'Aktif' };
                 const saveResult = await saveToFirebase(systemData.surveyData);
                 if (!saveResult.success) {
                     return { success: false, error: saveResult.error };
                 }
+            } else {
+                // Eğer eski kurum ise ve status yoksa, Aktif olarak ekle
+                if (!systemData.surveyData.companies[companyKey].status) {
+                    systemData.surveyData.companies[companyKey].status = 'Aktif';
+                    await saveToFirebase(systemData.surveyData);
+                }
             }
-            // Eğer eski kurum ise ve status yoksa, Aktif olarak ekle
-            if (!systemData.surveyData.companies[companyKey].status) {
-                systemData.surveyData.companies[companyKey].status = 'Aktif';
-                await saveToFirebase(systemData.surveyData);
-            }
+
             return { success: true, key: companyKey };
         }
 
@@ -1442,7 +1485,19 @@ function closeModal() {
                     } else {
                         const existingCompanySelect = document.getElementById('existingCompanySelect');
                         if (existingCompanySelect) {
-                            companyName = existingCompanySelect.value.trim();
+                            const selKey = existingCompanySelect.value;
+                            const comps = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                            if (selKey && comps[selKey] && comps[selKey].name) {
+                                companyName = comps[selKey].name;
+                                // ensure we remember the selected key
+                                window.selectedCompanyKey = selKey;
+                            } else {
+                                // fallback to visible option text (human-readable) instead of raw value (id)
+                                const optText = (existingCompanySelect.options[existingCompanySelect.selectedIndex] && existingCompanySelect.options[existingCompanySelect.selectedIndex].text) ? existingCompanySelect.options[existingCompanySelect.selectedIndex].text : '';
+                                companyName = (optText && optText.trim() !== '') ? optText.trim() : (selKey || '').trim();
+                                // clear selectedCompanyKey since we couldn't match by key
+                                window.selectedCompanyKey = null;
+                            }
                         }
                     }
                 }
