@@ -85,6 +85,45 @@
             background: #e3f2fd;
         }
     </style>
+    <script>
+    // Debug helper: çalıştırmak için konsolda `runFirebaseDiagnostics()` yazın.
+    // Bu fonksiyon hem fetch ile hem de firebase.database() ile veri çekmeye çalışır
+    // ve konsolda detaylı log verir (status, raw text, keys, stringify sonuçları).
+    async function runFirebaseDiagnostics() {
+        console.log('--- runFirebaseDiagnostics START ---');
+        try {
+            console.log('Diagnostik: fetch ile GET', FIREBASE_DB_URL + 'surveyData.json');
+            const resp = await fetch(FIREBASE_DB_URL + 'surveyData.json');
+            console.log('Diagnostik: fetch status', resp.status);
+            const text = await resp.text();
+            console.log('Diagnostik: fetch raw length', text ? text.length : 0);
+            try {
+                const parsed = JSON.parse(text);
+                console.log('Diagnostik: fetch parsed keys =', Object.keys(parsed || {}));
+                try { console.log('Diagnostik: fetch parsed companies keys =', Object.keys(parsed.companies || {})); } catch(e){ console.warn('Diagnostik: parsed.companies access error', e); }
+                try { console.log('Diagnostik: fetch companies stringify =', JSON.stringify(parsed.companies)); } catch(e){ console.warn('Diagnostik: fetch companies stringify error', e); }
+            } catch (e) {
+                console.warn('Diagnostik: fetch JSON.parse error', e);
+            }
+        } catch (e) {
+            console.error('Diagnostik: fetch error', e);
+        }
+
+        // Now try firebase.database() compat path
+        try {
+            const db = firebase.database();
+            console.log('Diagnostik: firebase.database() active, attempting once("value") on surveyData');
+            const snap = await db.ref('surveyData').once('value');
+            const val = snap.val();
+            console.log('Diagnostik: compat snapshot type =', typeof val, 'keys =', val ? Object.keys(val) : null);
+            try { console.log('Diagnostik: compat companies =', val.companies); } catch (e) { console.warn('Diagnostik: compat companies access error', e); }
+            try { console.log('Diagnostik: compat companies stringify =', JSON.stringify(val.companies)); } catch (e) { console.warn('Diagnostik: compat companies stringify error', e); }
+        } catch (e) {
+            console.error('Diagnostik: firebase.database() read error', e);
+        }
+        console.log('--- runFirebaseDiagnostics END ---');
+    }
+    </script>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <!-- Ana Navigasyon -->
@@ -447,8 +486,10 @@ function closeModal() {
         // Global değişkeni başlat
         window.systemData = window.systemData || {};
 
-        // 🔥 EKSİK OLAN loadFromFirebase FONKSİYONU 🔥
-        async function loadFromFirebase() {
+        // NOTE: legacy firebase-compat loader (renamed to avoid duplicate function definitions)
+        // The real, fetch-based loadFromFirebase is declared later in this file. Keep this
+        // legacy wrapper for reference/debugging but renamed to prevent being overwritten.
+        async function loadFromFirebase_compat() {
             return new Promise((resolve, reject) => {
                 if (window.console) console.log('loadFromFirebase: Veri çekme başlatıldı...');
                 // 1. Database servisini başlatın
@@ -487,41 +528,77 @@ function closeModal() {
                     console.log('[loadExistingCompanies] loadFromFirebase çağrılıyor...');
                     await loadFromFirebase();
                 }
-                let companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
-                // Eğer companies boşsa, admin panelinde gözüken veriyi fallback olarak kullan
-                if (Object.keys(companies).length === 0 && window.systemData && window.systemData.surveyData) {
-                    // Admin paneli için kullanılan company listesini fallback olarak kullan
-                    companies = window.systemData.surveyData.companies || {};
-                    console.warn('[loadExistingCompanies] Fallback: Admin panelindeki companies kullanıldı.');
-                }
-                console.log('[loadExistingCompanies] companies:', companies);
+                // Pull raw companies from systemData
+                let companiesRaw = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                console.log('[loadExistingCompanies] companiesRaw (pre-clone):', companiesRaw);
+
+                // Try to deep-clone into a plain object (handles SNAPSHOT-like or proxy cases)
+                let companies = {};
                 try {
-                    console.log('[loadExistingCompanies] companies (stringify):', JSON.stringify(companies));
+                    companies = JSON.parse(JSON.stringify(companiesRaw || {}));
+                    console.log('[loadExistingCompanies] companies after JSON clone, keys =', Object.keys(companies));
                 } catch (e) {
-                    console.warn('[loadExistingCompanies] companies JSON.stringify hatası:', e);
+                    console.warn('[loadExistingCompanies] JSON clone failed, falling back to manual copy:', e);
+                    // Manual shallow copy fallback (including non-enumerable via for..in)
+                    try {
+                        for (const k in companiesRaw) {
+                            if (Object.prototype.hasOwnProperty.call(companiesRaw, k) || typeof companiesRaw[k] !== 'undefined') {
+                                companies[k] = companiesRaw[k];
+                            }
+                        }
+                        console.log('[loadExistingCompanies] companies after manual copy, keys =', Object.keys(companies));
+                    } catch (e2) {
+                        console.warn('[loadExistingCompanies] manual copy failed:', e2);
+                        companies = {};
+                    }
                 }
+
+                // If still empty, try compat loader (firebase.database) as a last resort
+                if ((!companies || Object.keys(companies).length === 0) && typeof loadFromFirebase_compat === 'function') {
+                    console.warn('[loadExistingCompanies] companies empty after clone — trying compat loader...');
+                    try {
+                        await loadFromFirebase_compat();
+                        const cr = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                        try { companies = JSON.parse(JSON.stringify(cr || {})); } catch(e){ companies = cr || {}; }
+                        console.log('[loadExistingCompanies] compat loader result keys =', Object.keys(companies));
+                    } catch (e) {
+                        console.error('[loadExistingCompanies] compat loader failed:', e);
+                    }
+                }
+
+                // Final diagnostic logs
+                console.log('[loadExistingCompanies] companies (final):', companies);
+                try { console.log('[loadExistingCompanies] companies (stringify):', JSON.stringify(companies)); } catch(e) { console.warn('[loadExistingCompanies] stringify error', e); }
+
                 const existingCompanySelect = document.getElementById('existingCompanySelect');
-                if (existingCompanySelect) {
-                    existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
-                    let foundAny = false;
-                    Object.entries(companies).forEach(([key, company]) => {
-                        // Admin panelindeki company adını da select'e ekle
-                        let displayName = company && company.name ? company.name : '';
-                        if (displayName && displayName.trim() !== "") {
-                            existingCompanySelect.innerHTML += `<option value="${displayName}">${displayName}</option>`;
+                if (!existingCompanySelect) {
+                    console.error('[loadExistingCompanies] existingCompanySelect bulunamadı!');
+                    return;
+                }
+
+                existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
+                let foundAny = false;
+
+                // Iterate entries defensively
+                try {
+                    Object.entries(companies || {}).forEach(([key, company]) => {
+                        const displayName = company && company.name ? company.name : '';
+                        if (displayName && displayName.trim() !== '') {
+                            existingCompanySelect.innerHTML += `<option value="${key}">${displayName}</option>`;
                             foundAny = true;
                             console.log('[loadExistingCompanies] Kayıtlı kurum eklendi:', key, displayName);
                         } else {
-                            console.warn('[loadExistingCompanies] Kayıtlı kurumda eksik/bilinmeyen isim:', key, company);
+                            console.warn('[loadExistingCompanies] Geçersiz company entry:', key, company);
                         }
                     });
-                    if (!foundAny) {
-                        console.warn('[loadExistingCompanies] Hiçbir kayıtlı kurum bulunamadı!');
-                    } else {
-                        console.log('[loadExistingCompanies] Select kutusu başarıyla güncellendi.');
-                    }
+                } catch (e) {
+                    console.error('[loadExistingCompanies] companies iteration failed:', e, 'companiesRaw=', companiesRaw);
+                }
+
+                if (!foundAny) {
+                    console.warn('[loadExistingCompanies] Hiçbir kayıtlı kurum bulunamadı! (companies objesi boş veya uygun değil)');
                 } else {
-                    console.error('[loadExistingCompanies] existingCompanySelect bulunamadı!');
+                    console.log('[loadExistingCompanies] Select kutusu başarıyla güncellendi.');
                 }
             } catch (err) {
                 console.error('[loadExistingCompanies] Kayıtlı kurumlar yüklenirken hata:', err);
@@ -582,18 +659,32 @@ function closeModal() {
                 }
             }
 
-            // Modalda kurum seçilince inputa yaz
+            // Modalda kurum seçilince inputa yaz (seçilen option'un değeri companyKey olacak)
             function selectCompanyFromModal() {
                 const select = document.getElementById('existingCompanySelect');
                 const companyNameInput = document.getElementById('companyName');
                 if (select && companyNameInput) {
-                    companyNameInput.value = select.value;
+                    const selectedKey = select.value;
+                    // Eğer sistemde bu key mevcutsa gerçek isim ile doldur
+                    const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                    if (selectedKey && companies[selectedKey] && companies[selectedKey].name) {
+                        companyNameInput.value = companies[selectedKey].name;
+                        // global değişkende seçili company key'i sakla
+                        window.selectedCompanyKey = selectedKey;
+                    } else {
+                        // fallback: direkt select value (eski davranış)
+                        companyNameInput.value = select.value;
+                        window.selectedCompanyKey = null;
+                    }
                     document.getElementById('companySelectModal').classList.add('hidden');
-                    // Yeni kullanıcı alanını göster
+                    // Yeni kullanıcı alanını göster (kullanıcı şimdi kurum alanını görebilsin)
                     document.getElementById('newUserArea').classList.remove('hidden');
                     document.getElementById('userTypeNew').checked = true;
                 }
             }
+            // expose to global so inline onclick handlers (modal buttons) can call it
+            window.selectCompanyFromModal = selectCompanyFromModal;
+            console.debug('selectCompanyFromModal exported to window');
             if (userTypeNew && userTypeExisting) {
                 userTypeNew.addEventListener('change', toggleUserType);
                 userTypeExisting.addEventListener('change', toggleUserType);
@@ -942,13 +1033,26 @@ function closeModal() {
         // Firebase Realtime Database API fonksiyonları (GLOBAL SCOPE)
         async function loadFromFirebase() {
             try {
+                console.log('loadFromFirebase (fetch): GET', FIREBASE_DB_URL + 'surveyData.json');
                 const response = await fetch(FIREBASE_DB_URL + 'surveyData.json');
+                console.log('loadFromFirebase (fetch): response.status =', response.status);
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('loadFromFirebase (fetch): raw data type =', typeof data, 'keys =', data ? Object.keys(data) : null);
+                    // log companies separately (may be a firebase snapshot object/Ref proxy in compat mode)
+                    try { console.log('loadFromFirebase (fetch): companies raw =', data.companies); } catch (e) { console.warn('companies log error', e); }
                     systemData.surveyData = data || { companies: {}, responses: [], statistics: {} };
+                    // extra diagnostic: log companies keys and JSON.stringify
+                    try {
+                        const comps = systemData.surveyData.companies || {};
+                        console.log('loadFromFirebase (fetch): companies keys =', Object.keys(comps));
+                        console.log('loadFromFirebase (fetch): companies stringify =', JSON.stringify(comps));
+                    } catch (e) {
+                        console.warn('loadFromFirebase (fetch): companies stringify error', e);
+                    }
                     return systemData.surveyData;
                 } else {
-                    throw new Error('Firebase veri yükleme hatası');
+                    throw new Error('Firebase veri yükleme hatası: HTTP ' + response.status);
                 }
             } catch (error) {
                 console.error('Firebase yükleme hatası:', error);
@@ -1223,9 +1327,16 @@ function closeModal() {
                 if (userTypeNew && userTypeNew.checked) {
                     companyName = document.getElementById('companyName').value.trim();
                 } else if (userTypeExisting && userTypeExisting.checked) {
-                    const existingCompanySelect = document.getElementById('existingCompanySelect');
-                    if (existingCompanySelect) {
-                        companyName = existingCompanySelect.value.trim();
+                    // Eğer kullanıcı modal üzerinden bir company key seçtiyse, onun gerçek adını al
+                    if (window.selectedCompanyKey) {
+                        const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                        const c = companies[window.selectedCompanyKey];
+                        companyName = (c && c.name) ? c.name : '';
+                    } else {
+                        const existingCompanySelect = document.getElementById('existingCompanySelect');
+                        if (existingCompanySelect) {
+                            companyName = existingCompanySelect.value.trim();
+                        }
                     }
                 }
                 const firstName = document.getElementById('firstName').value.trim() || 'Anonim';
@@ -2249,5 +2360,5 @@ function closeModal() {
         }
     }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981af265f22bd620',t:'MTc1ODMwNDQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
+    </body>
+    </html>
