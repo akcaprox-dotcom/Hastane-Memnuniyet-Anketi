@@ -161,11 +161,18 @@
                     <input type="text" id="companyName" placeholder="Kurum adınızı girin (Hastane, Klinik vb.)" 
                         class="w-full border-2 border-purple-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
                 </div>
-                <!-- Kayıtlı Kullanıcı Alanı -->
-                <div class="mb-3 hidden" id="existingUserArea">
-                    <select id="existingCompanySelect" class="w-full border-2 border-blue-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-auto">
+                <!-- Kayıtlı Kullanıcı Alanı (Artık sağda ayrı bir pencere/modal) -->
+                <div class="mb-3 hidden" id="existingUserArea"></div>
+                <!-- Sağda açılan kurum seçme modalı -->
+                <div id="companySelectModal" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl border-l border-gray-200 z-50 hidden flex-col p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">Kayıtlı Kurum Seç</h3>
+                        <button onclick="document.getElementById('companySelectModal').classList.add('hidden')" class="text-gray-500 hover:text-red-600 text-2xl font-bold">&times;</button>
+                    </div>
+                    <select id="existingCompanySelect" class="w-full border-2 border-blue-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-auto mb-4">
                         <option value="">Kayıtlı kurum seçin...</option>
                     </select>
+                    <button onclick="selectCompanyFromModal()" class="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700">Kurumu Seç</button>
                 </div>
                 <div class="mb-3">
                     <p class="text-xs text-gray-600 mb-2">Rolünüzü seçin:</p>
@@ -480,7 +487,13 @@ function closeModal() {
                     console.log('[loadExistingCompanies] loadFromFirebase çağrılıyor...');
                     await loadFromFirebase();
                 }
-                const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                let companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                // Eğer companies boşsa, admin panelinde gözüken veriyi fallback olarak kullan
+                if (Object.keys(companies).length === 0 && window.systemData && window.systemData.surveyData) {
+                    // Admin paneli için kullanılan company listesini fallback olarak kullan
+                    companies = window.systemData.surveyData.companies || {};
+                    console.warn('[loadExistingCompanies] Fallback: Admin panelindeki companies kullanıldı.');
+                }
                 console.log('[loadExistingCompanies] companies:', companies);
                 try {
                     console.log('[loadExistingCompanies] companies (stringify):', JSON.stringify(companies));
@@ -492,11 +505,12 @@ function closeModal() {
                     existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
                     let foundAny = false;
                     Object.entries(companies).forEach(([key, company]) => {
-                        console.log('[loadExistingCompanies] key:', key, 'company:', company);
-                        if (company && company.name && company.name.trim() !== "") {
-                            existingCompanySelect.innerHTML += `<option value="${company.name}">${company.name}</option>`;
+                        // Admin panelindeki company adını da select'e ekle
+                        let displayName = company && company.name ? company.name : '';
+                        if (displayName && displayName.trim() !== "") {
+                            existingCompanySelect.innerHTML += `<option value="${displayName}">${displayName}</option>`;
                             foundAny = true;
-                            console.log('[loadExistingCompanies] Kayıtlı kurum eklendi:', key, company.name);
+                            console.log('[loadExistingCompanies] Kayıtlı kurum eklendi:', key, displayName);
                         } else {
                             console.warn('[loadExistingCompanies] Kayıtlı kurumda eksik/bilinmeyen isim:', key, company);
                         }
@@ -557,11 +571,27 @@ function closeModal() {
                 if (userTypeNew && userTypeNew.checked) {
                     newUserArea.classList.remove('hidden');
                     existingUserArea.classList.add('hidden');
+                    // Modalı da gizle
+                    document.getElementById('companySelectModal').classList.add('hidden');
                 } else {
                     newUserArea.classList.add('hidden');
-                    existingUserArea.classList.remove('hidden');
-                    // Select kutusu DOM'da görünürken her zaman güncelle
+                    existingUserArea.classList.add('hidden');
+                    // Modalı aç ve select'i güncelle
+                    document.getElementById('companySelectModal').classList.remove('hidden');
                     await loadExistingCompanies();
+                }
+            }
+
+            // Modalda kurum seçilince inputa yaz
+            function selectCompanyFromModal() {
+                const select = document.getElementById('existingCompanySelect');
+                const companyNameInput = document.getElementById('companyName');
+                if (select && companyNameInput) {
+                    companyNameInput.value = select.value;
+                    document.getElementById('companySelectModal').classList.add('hidden');
+                    // Yeni kullanıcı alanını göster
+                    document.getElementById('newUserArea').classList.remove('hidden');
+                    document.getElementById('userTypeNew').checked = true;
                 }
             }
             if (userTypeNew && userTypeExisting) {
