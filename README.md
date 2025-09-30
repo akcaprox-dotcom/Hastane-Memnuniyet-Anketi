@@ -440,20 +440,32 @@ function closeModal() {
         // Kayıtlı kurumları select'e yükle
         async function loadExistingCompanies() {
             // Her zaman Firebase'den güncel şirket listesini çek
-            if (typeof loadFromFirebase === 'function') {
-                await loadFromFirebase();
-            }
-            const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
-            const existingCompanySelect = document.getElementById('existingCompanySelect');
-            if (existingCompanySelect) {
-                existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
-                Object.entries(companies).forEach(([key, company]) => {
-                    if (company && company.name && company.name.trim() !== "") {
-                        existingCompanySelect.innerHTML += `<option value="${company.name}">${company.name}</option>`;
-                        // Konsola logla (debug için)
-                        if (window.console) console.log('Kayıtlı kurum eklendi:', key, company.name);
+            try {
+                if (typeof loadFromFirebase === 'function') {
+                    await loadFromFirebase();
+                }
+                const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+                const existingCompanySelect = document.getElementById('existingCompanySelect');
+                if (existingCompanySelect) {
+                    existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
+                    let foundAny = false;
+                    Object.entries(companies).forEach(([key, company]) => {
+                        if (company && company.name && company.name.trim() !== "") {
+                            existingCompanySelect.innerHTML += `<option value="${company.name}">${company.name}</option>`;
+                            foundAny = true;
+                            if (window.console) console.log('Kayıtlı kurum eklendi:', key, company.name);
+                        } else {
+                            if (window.console) console.warn('Kayıtlı kurumda eksik/bilinmeyen isim:', key, company);
+                        }
+                    });
+                    if (!foundAny) {
+                        if (window.console) console.warn('Hiçbir kayıtlı kurum bulunamadı!');
                     }
-                });
+                } else {
+                    if (window.console) console.error('existingCompanySelect bulunamadı!');
+                }
+            } catch (err) {
+                if (window.console) console.error('Kayıtlı kurumlar yüklenirken hata:', err);
             }
         }
         let googleUser = null;
