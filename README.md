@@ -515,12 +515,17 @@ function closeModal() {
                 } else {
                     newUserArea.classList.add('hidden');
                     existingUserArea.classList.remove('hidden');
+                    // Select kutusu DOM'da görünürken her zaman güncelle
                     await loadExistingCompanies();
                 }
             }
             if (userTypeNew && userTypeExisting) {
                 userTypeNew.addEventListener('change', toggleUserType);
                 userTypeExisting.addEventListener('change', toggleUserType);
+                // Sayfa yüklendiğinde de select kutusunu güncelle
+                if (userTypeExisting.checked) {
+                    loadExistingCompanies();
+                }
             }
             // Sayfa ilk açıldığında doğru alanı göster
             toggleUserType();
