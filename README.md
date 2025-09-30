@@ -616,93 +616,194 @@ function closeModal() {
 
         // Soru setleri
         const questions = {
-            "Hasta": [
-                "Hasta kayıt sisteminin, hasta bilgilerine hızlı ve güvenli erişim sağladığına inanıyor musunuz?",
-                "Meslektaşlarınızla olan iş birliğinizin verimli ve yapıcı olduğunu düşünüyor musunuz?",
-                "Hastaların tedavi süreçlerine katılımlarını teşvik eden bir ortam olduğuna inanıyor musunuz?",
-                // Mesleki Gelişim ve Eğitim (10 Soru)
-                "Hastanenin, mesleki gelişiminize yönelik yeterli fırsatlar sunduğunu düşünüyor musunuz?",
-                "Konferans, seminer ve eğitimlere katılma konusunda desteklendiğinize inanıyor musunuz?",
-                "Hastanenin araştırma ve bilimsel çalışmalara yeterli bütçe ayırdığını düşünüyor musunuz?",
-                "Mesleki literatürü takip etme konusunda hastanenin size destek olduğunu düşünüyor musunuz?",
-                "Hastanenin, yeni ve güncel tıbbi yöntemleri uygulamaya açık olduğuna inanıyor musunuz?",
-                "Deneyimli doktorların, genç meslektaşlarına mentorluk yaptığını düşünüyor musunuz?",
-                "Hastanenin, uzmanlık alanınıza yönelik özel eğitimler sağladığına inanıyor musunuz?",
-                "Kariyerinizde yükselme olanaklarının adil ve liyakate dayalı olduğunu düşünüyor musunuz?",
-                "Hastanenin, çalışan memnuniyetini artırmaya yönelik çabalarını yeterli buluyor musunuz?",
-                "Hastanede çalışmaktan genel olarak memnun musunuz?",
-                // Çalışan Refahı ve Sosyal Denge (10 Soru)
-                "Hastanenin, çalışanların fiziksel ve ruhsal sağlığını önemsediğine inanıyor musunuz?",
-                "Çalışanlar için sosyal ve sportif faaliyetlerin düzenlendiğini düşünüyor musunuz?",
-                "Hastanenin, iş-özel yaşam dengesini korumanıza yardımcı olduğuna inanıyor musunuz?",
-                "Çalışanlara yönelik psikolojik destek hizmetlerinin yeterli olduğuna inanıyor musunuz?",
-                "Hastanenin, çalışanlar arasında eşitlik ve adalet sağladığına inanıyor musunuz?",
-                "İşten duyduğunuz tatminin, yaptığınız işin toplumsal faydasından kaynaklandığını düşünüyor musunuz?",
-                "Hastane içinde kendinizi değerli ve takdir edilmiş hissettiğinize inanıyor musunuz?",
-                "Hastanenin, çalışanların şikayetlerine karşı duyarlı bir yaklaşım sergilediğini düşünüyor musunuz?",
-                "Hastanenin, iş güvenliği ve sağlığına yönelik önlemlerini yeterli buluyor musunuz?",
-                "Hastanedeki genel çalışan refahı seviyesini nasıl değerlendiriyorsunuz?"
-            ],
-            "Personel": [
-            ],
-            "Yönetim": [
-                // Finansal Performans ve Operasyonel Verimlilik (10 Soru)
-                "Hastanenin genel finansal performansından ne kadar memnunsunuz?",
-                "Bütçe planlama ve yönetim süreçlerinin verimliliğinden ne kadar memnunsunuz?",
-                "Gelir ve gider takibinin doğruluğundan ne kadar memnunsunuz?",
-                "Hasta yatış süreçlerinin ne kadar verimli işlediğinden ne kadar memnunsunuz?",
-                "Fatura ve ödeme süreçlerinin hasta ve kurum için kolaylığından ne kadar memnunsunuz?",
-                "Tıbbi malzeme ve ilaç tedarik süreçlerinin yönetiminden ne kadar memnunsunuz?",
-                "Hastanenin genel karlılığından ne kadar memnunsunuz?",
-                "Yatırım geri dönüşlerinin (ROI) beklenen seviyede olmasından ne kadar memnunsunuz?",
-                "Finansal risklerin yönetilme şeklinden ne kadar memnunsunuz?",
-                "Hastanenin genel operasyonel verimliliğinden ne kadar memnunsunuz?",
-                // Pazarlama ve Marka Yönetimi (10 Soru)
-                "Pazarlama stratejilerinizin hastane marka bilinirliğine katkısından ne kadar memnunsunuz?",
-                "Dijital pazarlama kampanyalarının (reklamlar, sosyal medya) etkinliğinden ne kadar memnunsunuz?",
-                "Hastanenin web sitesi ve dijital varlıklarının profesyonelliğinden ne kadar memnunsunuz?",
-                "Markanızın sektördeki itibarından ve algısından ne kadar memnunsunuz?",
-                "Halkla ilişkiler faaliyetlerinin kurum imajına katkısından ne kadar memnunsunuz?",
-                "Hastanenin sunduğu hizmetlerin hedef kitleye ulaşma başarısından ne kadar memnunsunuz?",
-                "Medya ilişkilerinin yönetiminden ne kadar memnunsunuz?",
-                "Hasta referanslarının pazarlama aracı olarak kullanılmasından ne kadar memnunsunuz?",
-                "Kurumsal kimlik çalışmalarının tutarlılığından ne kadar memnunsunuz?",
-                "Pazarlama bütçesinin etkin bir şekilde kullanılmasından ne kadar memnunsunuz?",
-                // İnsan Kaynakları Yönetimi (10 Soru)
-                "Çalışan işe alım süreçlerinin etkinliğinden ne kadar memnunsunuz?",
-                "Çalışanların performans değerlendirme sisteminin adilliğinden ne kadar memnunsunuz?",
-                "Çalışan memnuniyeti ve motivasyonunun yönetilme şeklinden ne kadar memnunsunuz?",
-                "Personel sirkülasyon oranlarının yönetiminden ne kadar memnunsunuz?",
-                "Çalışanların eğitim ve gelişim planlamasının etkinliğinden ne kadar memnunsunuz?",
-                "Liderlik ve yöneticilik becerilerinin geliştirilmesine yönelik programlardan ne kadar memnunsunuz?",
-                "Çalışanlara sunulan ücret ve yan hakların sektör ortalamasına uygunluğundan ne kadar memnunsunuz?",
-                "İş yerinde sağlıklı ve güvenli bir ortamın sağlanmasından ne kadar memnunsunuz?",
-                "Çalışanların kariyer planlamasına sağlanan destekten ne kadar memnunsunuz?",
-                "İnsan kaynakları süreçlerinin genel şeffaflığından ne kadar memnunsunuz?",
-                // Hasta İlişkileri ve Kalite Kontrol (10 Soru)
-                "Hasta şikayet ve geri bildirimlerinin yönetiminden ne kadar memnunsunuz?",
-                "Hastalara sunulan hizmetlerin genel kalitesinden ne kadar memnunsunuz?",
-                "Hastaların beklentilerinin ne kadar karşılandığından ne kadar memnunsunuz?",
-                "Tedavi sonuçlarının izlenme ve değerlendirilme şeklinden ne kadar memnunsunuz?",
-                "Hasta memnuniyeti anketlerinin düzenliliğinden ve sonuçlarının analizinden ne kadar memnunsunuz?",
-                "Hastane içinde kalite kontrol standartlarının uygulanma şeklinden ne kadar memnunsunuz?",
-                "Hastaların kişisel verilerinin korunmasından ne kadar memnunsunuz?",
-                "Hasta mahremiyetine verilen önemden ne kadar memnunsunuz?",
-                "Hasta ilişkileri departmanının etkinliğinden ne kadar memnunsunuz?",
-                "Hastane içinde hasta güvenliğine verilen önemden ne kadar memnunsunuz?",
-                // Teknolojik Altyapı ve Gelecek Vizyonu (10 Soru)
-                "Hastanenin kullandığı tıbbi cihaz ve ekipmanların güncelliğinden ne kadar memnunsunuz?",
-                "Hastane yönetiminin uyguladığı bilişim ve teknoloji stratejisinden ne kadar memnunsunuz?",
-                "Yeni teknolojilere yapılan yatırımların etkinliğinden ne kadar memnunsunuz?",
-                "Hastanenin dijitalleşme sürecinden ve otomasyon seviyesinden ne kadar memnunsunuz?",
-                "E-Sağlık ve dijital hizmetlerin (uzaktan hasta takibi, online randevu vb.) geliştirilme hızından ne kadar memnunsunuz?",
-                "Hastane yönetiminin, geleceğe yönelik stratejik planlamasından ne kadar memnunsunuz?",
-                "Hastanenin bölgesel ve ulusal düzeyde rekabet gücünden ne kadar memnunsunuz?",
-                "Hastanenin kriz ve acil durum planlarının ne kadar etkin olduğundan ne kadar memnunsunuz?",
-                "Hastanenin sürdürülebilirlik ve çevresel etki hedeflerinden ne kadar memnunsunuz?",
-                "Hastanenin genel olarak geleceğe ne kadar hazır olduğundan ne kadar memnunsunuz?"
-            ]
-        };
+           
+                "Hasta": [
+                    // 1.1 Randevu, Kabul ve Taburcu Süreçleri
+                    "Randevu alma sürecim (online, telefon vb.) kolay ve hızlı gerçekleşti.",
+                    "Hastaneye giriş (kabul) işlemlerim ve kayıt süreçlerim hızlı ve sorunsuzdu.",
+                    "Hastane personeli, randevu/kabul sırasında bana doğru ve yeterli bilgi verdi.",
+                    "Tedavim bittiğinde taburcu olma (çıkış) süreçlerim karmaşık değildi ve hızlıydı.",
+                    "Taburcu olurken sonraki tedavi ve ilaç kullanımı hakkında net talimatlar aldım.",
+                    // 1.2 Tıbbi İletişim ve Bilgilendirme
+                    "Doktorum, hastalığımın teşhisini ve tedavi seçeneklerini anlaşılır bir dille açıkladı.",
+                    "Tıbbi personel, yapılan işlemler ve testler hakkında beni her adımda bilgilendirdi.",
+                    "Tedavi süreciyle ilgili sorularıma her zaman sabırlı ve tatmin edici cevaplar aldım.",
+                    "Doktorum, tedaviye başlamadan önce riskler ve olası yan etkiler konusunda beni uyardı.",
+                    "Tıbbi kararlara aktif olarak katılımım teşvik edildi ve fikrim soruldu.",
+                    // 1.3 Doktor ve Hemşire Bakım Kalitesi
+                    "Doktorumun mesleki bilgi ve tecrübesi bana güven verdi.",
+                    "Hemşireler, ihtiyaç duyduğum anda hızlı bir şekilde yanımda oldu.",
+                    "Hemşireler, ağrı yönetimimi etkili bir şekilde sağladı ve düzenli kontrol etti.",
+                    "Tıbbi personel, bana saygılı, nazik ve şefkatli davrandı.",
+                    "Hemşirelerin yaptığı işlemlerde (iğne, pansuman vb.) kendimi güvende hissettim.",
+                    // 1.4 Hastane Hijyeni ve Fiziksel Çevre
+                    "Kaldığım oda/servis alanı temiz ve düzenliydi.",
+                    "Hastane genelindeki tuvalet, bekleme alanı gibi ortak yerler hijyenikti.",
+                    "Hastanenin genel atmosferi (sessizlik, aydınlatma) iyileşme sürecime katkı sağladı.",
+                    "Hastane binası içi ve dışı yönlendirme tabelaları kolay anlaşılırdı.",
+                    "Kullanılan tıbbi ekipmanların temiz ve güvenli olduğuna inanıyorum.",
+                    // 1.5 İlaç ve Tedavi Süreçleri
+                    "İlaçlarım ve tedavilerim her zaman doğru zamanda uygulandı.",
+                    "İlaçların dozajı ve uygulama şekli hakkında net bilgi aldım.",
+                    "Tedavi sürecimde gereksiz beklemeler ve gecikmeler yaşanmadı.",
+                    "İlaçlarımın muhtemel yan etkileri hakkında bilgilendirildim ve izlendim.",
+                    "Tedavi planının beklenen sonuçları konusunda gerçekçi bir bilgilendirme yapıldı.",
+                    // 1.6 Yemek ve Beslenme Hizmetleri
+                    "Hastanede sunulan yemeklerin lezzeti ve kalitesi tatmin ediciydi.",
+                    "Diyetime uygun beslenme gereksinimlerim (alerji, özel diyet) dikkate alındı.",
+                    "Yemekler doğru saatte ve hijyenik bir şekilde servis edildi.",
+                    "Beslenme uzmanından diyetim hakkında ek bilgi alma imkanı buldum.",
+                    "Yemek servis personelinin ilgisi ve nazikliği yeterliydi.",
+                    // 1.7 Hasta Hakları ve Etik
+                    "Hastane personelinin gizlilik ve mahremiyet kurallarına uyduğuna inanıyorum.",
+                    "Hastanede inançlarıma ve kültürel değerlerime saygı gösterildi.",
+                    "Hastane, şikayet ve geri bildirim mekanizmalarını bana açıkça sundu.",
+                    "Tıbbi uygulamalar için benden onay alınması süreci şeffaftı.",
+                    "Hastanede uygulanan fiyatlandırma ve faturalandırma süreci anlaşılırdı.",
+                    // 1.8 Güvenlik ve Ağrı Yönetimi
+                    "Hastanede düşme, yanma gibi kazalara karşı alınan önlemler yeterliydi.",
+                    "Bakımım boyunca kimlik doğrulama süreçleri (doğru hasta, doğru ilaç) titizlikle uygulandı.",
+                    "Ağrı hissettiğimde, hızlı ve etkili bir şekilde müdahale edildi.",
+                    "Odada/Serviste güvenlik ve çağrı zili kolay erişilebilir durumdaydı.",
+                    "Hastane personelinin kişisel eşyalarıma saygılı davrandığına inanıyorum.",
+                    // 1.9 Acil Servis ve Yoğun Bakım Deneyimi
+                    "(Acil serviste hizmet aldıysam) Bekleme sürem makuldü ve erken müdahale sağlandı.",
+                    "(Acil serviste hizmet aldıysam) Acil personelinin hızı ve yetkinliği güven verdi.",
+                    "(Yoğun bakımda kaldıysam) Yoğun bakım ziyaret saatleri ve iletişim süreci yeterliydi.",
+                    "(Yoğun bakımda kaldıysam) Yoğun bakım personelinin hasta ve yakınlarına yaklaşımı destekleyiciydi.",
+                    "Acil durumlarda hastane ekibinin koordinasyonu başarılıydı.",
+                    // 1.10 Genel Memnuniyet ve Tavsiye
+                    "Bu hastaneyi aileme ve arkadaşlarıma tavsiye ederim.",
+                    "Genel olarak, hastaneden aldığım tıbbi bakım kalitesi beklentilerimi karşıladı.",
+                    "Hastanenin online iletişim ve bilgilendirme kanalları (web sitesi vb.) yeterliydi.",
+                    "Hastaneden genel sağlık durumumun iyileştiği hissiyle ayrılıyorum.",
+                    "Toplam deneyimim, hastane personelinin üst düzeyde özen gösterdiğini gösteriyor."
+                ],
+                "Doktor/Hemşire": [
+                    // 2.1 Randevu, Kabul ve Taburcu Süreçleri
+                    "Hastaların kabul ve taburcu işlemleri, benim tıbbi iş yükümü artırmayacak şekilde verimli ilerlemektedir.",
+                    "Hastane bilgi yönetim sistemi, hastaların geçmiş verilerine hızlı erişimimi sağlamaktadır.",
+                    "Ameliyat/işlem randevu sistemleri, zaman yönetimi ve planlama açısından yeterlidir.",
+                    "Sekreterya ve idari personel ile hasta kabul süreçlerinde koordinasyonumuz güçlüdür.",
+                    "Hastaların taburcu sonrası evde bakım/destek hizmetleri konusunda net protokoller mevcuttur.",
+                    // 2.2 Tıbbi İletişim ve Bilgilendirme
+                    "Hastalara teşhis ve tedavi süreçlerini açıklarken kullanacağım eğitim materyalleri (broşür, model) mevcuttur.",
+                    "Hastane, meslektaşlarım ve uzmanlarla konsültasyon yapmamı desteklemektedir.",
+                    "Hastalarla duygusal ve hassas konuları konuşurken yönetimden destek hissediyorum.",
+                    "Hasta yakınlarına bilgi verme prosedürleri net ve tutarlıdır.",
+                    "Hastane, hata bildirim sistemini kullanarak iletişimi ve şeffaflığı teşvik etmektedir.",
+                    // 2.3 Doktor ve Hemşire Bakım Kalitesi
+                    "Çalıştığım birimde yeterli sayıda nitelikli hemşire mevcuttur.",
+                    "Ekibimdeki uzmanlık seviyesi ve işbirliği, en iyi bakımı sunmamızı sağlamaktadır.",
+                    "İş yükü dağılımı, hastalarla yeterli zaman geçirmeme olanak verecek şekilde dengelenmiştir.",
+                    "Hastanenin sürekli mesleki gelişim (CME) programları bilgi ve becerilerimi güncel tutmaktadır.",
+                    "Hastalara yüksek kalitede bakım sağlama konusunda kendimi yetkin hissediyorum.",
+                    // 2.4 Hastane Hijyeni ve Fiziksel Çevre
+                    "Çalıştığım serviste enfeksiyon kontrol prosedürleri (el hijyeni, izolasyon) titizlikle uygulanmaktadır.",
+                    "Hastane, steril ve hijyenik koşulları sağlamak için yeterli personel ve kaynak sağlamaktadır.",
+                    "Tıbbi atıkların yönetimi prosedürlere uygun ve güvenli bir şekilde yapılmaktadır.",
+                    "Hastanenin fiziki altyapısı ve mimarisi, iş akışımı ve hasta bakımını desteklemektedir.",
+                    "Çalıştığım alanların bakım ve onarımı, taleplerime hızlı yanıt vermektedir.",
+                    // 2.5 İlaç ve Tedavi Süreçleri
+                    "Hastanenin ilaç yönetim sistemi (dozaj, dağıtım, stok) hatasız çalışmaktadır.",
+                    "Gerekli tüm tıbbi cihazlar, sarf malzemeleri ve ilaçlar her zaman stokta mevcuttur.",
+                    "Tıbbi cihazların kalibrasyon ve bakımları düzenli olarak yapılmaktadır.",
+                    "Yeni tedavi protokolleri ve ilaçlar konusunda zamanında ve eksiksiz eğitim alıyorum.",
+                    "Hasta güvenliği protokolleri, tıbbi hataları (ilaç hatası vb.) en aza indirmektedir.",
+                    // 2.6 Çalışma Koşulları ve Sosyal Haklar
+                    "Çalıştığım hastanenin maaş ve yan hakları sektör ortalamasına göre tatmin edicidir.",
+                    "Vardiya ve nöbet planlamaları, dinlenmeme ve özel hayatıma saygı gösterecek şekilde yapılmaktadır.",
+                    "Hastanenin sosyal imkanları ve dinlenme alanları yeterli ve konforludur.",
+                    "Hastanede iş arkadaşlarımla ve amirlerimle güçlü ve destekleyici bir ilişkimiz var.",
+                    "Hastane, tükenmişlik sendromunu (burnout) önlemeye yönelik programlar sunmaktadır.",
+                    // 2.7 Hasta Hakları ve Etik
+                    "Hastane, etik kurulların kararlarına ve yönlendirmelerine saygı duymaktadır.",
+                    "Çalışırken karşılaştığım etik ikilemleri tartışabileceğim bir mekanizma mevcuttur.",
+                    "Hastaların mahremiyetini ve kişisel verilerini koruma konusunda net talimatlara sahibim.",
+                    "Hastane, hasta hakları ve etik konularında düzenli eğitim vermektedir.",
+                    "Hastaların dini ve kültürel ihtiyaçlarına uygun hizmet sunma konusunda destekleniyorum.",
+                    // 2.8 Eğitim ve Kariyer Gelişimi
+                    "Hastanede yükselme ve kariyer geliştirme fırsatları konusunda şeffaflık vardır.",
+                    "Yöneticilerim, akademik çalışmalarımı ve araştırmalarımı desteklemektedir.",
+                    "Hastane, özel uzmanlık alanlarımda sertifika ve kurs almam için bütçe sağlamaktadır.",
+                    "Koçluk ve mentorluk programları, genç meslektaşlarımın gelişimine katkı sağlamaktadır.",
+                    "Hastanedeki eğitimler, sektördeki en son tıbbi gelişmeleri takip etmeme yardımcı olmaktadır.",
+                    // 2.9 Acil Servis ve Yoğun Bakım İşleyişi
+                    "(Acil/Yoğun Bakım personeli isem) Çalıştığım birimde ekipman ve personel sayısı gelen hasta yoğunluğuna yeterlidir.",
+                    "Travma ve acil müdahale odaları, uluslararası standartlara uygun donanıma sahiptir.",
+                    "Yoğun bakım yatak doluluk oranları ve hasta sevk süreçleri etkin yönetilmektedir.",
+                    "Acil servis ve yoğun bakımdaki izin/tatil planlaması adil yapılmaktadır.",
+                    "Acil durumlarda departmanlar arası koordinasyon (ameliyathane, laboratuvar) sorunsuz ve hızlıdır.",
+                    // 2.10 Kurumsal Bağlılık ve Memnuniyet
+                    "Hastanenin kurumsal misyonu ve değerleri, benim hizmet anlayışımla örtüşmektedir.",
+                    "Yöneticilerim ve idarecilerim, mesleki çabalarımı takdir etmektedir.",
+                    "Hastane yönetiminin kararları, hasta bakımının kalitesini önceliklendirmektedir.",
+                    "Meslektaşlarımla birlikte çalışmaktan ve bu kurumun bir parçası olmaktan gurur duyuyorum.",
+                    "Genel olarak, bu hastanede çalışmaktan memnunum ve kurumuma bağlıyım."
+                ],
+                "Yönetim": [
+                    // 3.1 Randevu, Kabul ve Taburcu Süreçleri
+                    "Hastane Randevu ve Kayıt Sistemi, bekleme sürelerini minimize etme hedefine ulaşmıştır.",
+                    "Hasta kabul ve taburcu personeli, süreç verimliliği ve iletişim becerileri konusunda düzenli eğitim almaktadır.",
+                    "Hastanenin kapasite yönetimi (yatak doluluk, ameliyathane kullanımı) verimli bir şekilde yapılmaktadır.",
+                    "Taburcu sonrası takip ve geri bildirim süreçleri sistematik olarak uygulanmaktadır.",
+                    "Hastanenin online/dijital randevu kanallarının kullanımı hedeflenen orana ulaşmıştır.",
+                    // 3.2 Tıbbi İletişim ve Bilgilendirme
+                    "Hastanemiz, Hasta Memnuniyeti Skorlarında iletişim ve bilgilendirme başlıklarında sektör ortalamasının üzerindedir.",
+                    "Hata bildirimi ve kök neden analizi (RCA) sistemi, öğrenen bir kurum kültürünü desteklemektedir.",
+                    "Tıbbi personelin hasta ve hasta yakınlarıyla iletişim becerileri düzenli olarak değerlendirilmektedir.",
+                    "Hastaların sağlık okuryazarlığını artırmaya yönelik kurumsal programlarımız mevcuttur.",
+                    "Açık Kapı Politikası ile hasta ve personel şikayetleri hızlı ve şeffaf çözülmektedir.",
+                    // 3.3 Doktor ve Hemşire Bakım Kalitesi
+                    "Hastanenin Hemşire-Hasta Oranı, güvenli ve kaliteli bakım standartlarına uygundur.",
+                    "Doktor ve hemşire personelinin maaş ve yan hakları, kurumun kalifiye personel çekme hedefine uygundur.",
+                    "Tıbbi hataların bildirim oranı, risk yönetimi hedeflerimize uygundur (Gizli hataların bildirilmesi teşvik edilmektedir).",
+                    "Yüksek riskli tıbbi işlemler için net ve güncel protokollerimiz mevcuttur.",
+                    "Periyodik Denetimler (Tıbbi Kalite Denetimi) objektif ve etkin bir şekilde yapılmaktadır.",
+                    // 3.4 Hastane Hijyeni ve Fiziksel Çevre
+                    "Hastanenin Enfeksiyon Kontrol Oranları (örneğin hastane kaynaklı enfeksiyonlar) kabul edilebilir limitlerin altındadır.",
+                    "Temizlik ve hijyen hizmetleri için ayrılan bütçe, yüksek standartları korumaya yeterlidir.",
+                    "Hastane, fiziki altyapı ve medikal ekipman yenileme konusunda uzun vadeli yatırım planına sahiptir.",
+                    "Hasta odası ve ortak alan konforu, hasta memnuniyetini doğrudan etkileyecek seviyededir.",
+                    "Hastane, yeşil hastane ve çevre dostu sertifikasyon hedeflerini gerçekleştirmektedir.",
+                    // 3.5 İlaç ve Tedavi Süreçleri
+                    "Hastanenin ilaç stok yönetimi, kritik ilaçlarda eksiklik yaşanmasını önlemektedir.",
+                    "Yeni medikal teknoloji ve cihaz yatırımları, kurumun stratejik büyüme hedeflerini desteklemektedir.",
+                    "Ameliyathane kullanım verimliliği ve doluluk oranları optimize edilmiştir.",
+                    "Tedavi gecikmeleri ve aksaklıkları için düzenli olarak kök neden analizleri yapılmaktadır.",
+                    "Hastanenin satın alma süreçleri, en yüksek kalitede sarf malzemeleri ve cihazları sağlamaktadır.",
+                    // 3.6 Yemek ve Beslenme Hizmetleri
+                    "Hastanenin yemek hizmetleri maliyetleri, bütçe hedeflerini aşmamaktadır.",
+                    "Diyetisyen ve mutfak personeli, tıbbi gereksinimlere uygun menüler hazırlama konusunda koordinelidir.",
+                    "Gıda güvenliği ve hijyen denetimleri (HACCP vb.) etkin bir şekilde uygulanmaktadır.",
+                    "Beslenme hizmetlerinin hasta memnuniyetine etkisi düzenli ölçülmektedir.",
+                    "Hastane, çalışanları ve ziyaretçileri için de sağlıklı yiyecek seçenekleri sunmaktadır.",
+                    // 3.7 Hasta Hakları ve Etik
+                    "Hastanenin hasta hakları birimi, şikayetleri tarafsız ve hızlı bir şekilde çözmektedir.",
+                    "Etik Kurul, zorlu tıbbi ve etik kararlarda etkin bir rol üstlenmektedir.",
+                    "Hastane veri güvenliği ve KVKK (Kişisel Verilerin Korunması) mevzuatına tam uyum sağlamaktadır.",
+                    "Hastanenin finansal şeffaflık ve faturalandırma politikaları, hasta güvenini sağlamaktadır.",
+                    "İnsan Kaynakları Politikaları, personel arasında ayrımcılığı önlemektedir.",
+                    // 3.8 Eğitim ve Kariyer Gelişimi
+                    "Tıbbi kadronun kariyer gelişim planları, kurumun uzun vadeli uzmanlık ihtiyacıyla uyumludur.",
+                    "Hizmet içi eğitim bütçesi, doktor ve hemşirelerin sürekli gelişimini desteklemeye yeterlidir.",
+                    "Hastane, tıbbi araştırmalar ve yayınlar için akademik teşvikler sunmaktadır.",
+                    "Yeni mezun ve genç personel için etkin mentorluk ve koçluk programları mevcuttur.",
+                    "Hastane, çalışan memnuniyeti ve bağlılığını artırmaya yönelik somut aksiyon planları yürütmektedir.",
+                    // 3.9 Acil Servis ve Yoğun Bakım İşleyişi
+                    "Acil servis bekleme süreleri ve hasta akışı, kabul edilebilir limitlerin altında tutulmaktadır.",
+                    "Afet ve acil durum planlarımız, olası krizlere karşı yeterli hazırlığı sağlamaktadır.",
+                    "Hastanenin Yoğun Bakım Yatak Kapasitesi stratejik ihtiyaca uygun optimize edilmiştir.",
+                    "Acil personel devir hızı (turnover rate), hizmet kalitesini olumsuz etkilemeyecek seviyededir.",
+                    "Acil ve yoğun bakım hizmetlerinin maliyetleri, karlılık hedefleriyle uyumlu yönetilmektedir.",
+                    // 3.10 Genel Başarı ve Kurumsal İtibar
+                    "Hastanenin kurumsal itibarı ve marka değeri, sektörde lider konumdadır.",
+                    "Finansal performans ve karlılık hedefleri düzenli olarak aşılmaktadır.",
+                    "Hastanenin toplumsal sağlık projeleri ve sosyal sorumluluk çalışmaları etkilidir.",
+                    "Hastanemiz, ulusal ve uluslararası akreditasyonları sürdürmektedir.",
+                    "Yönetim olarak, hastanenin gelecekteki büyüme ve gelişme potansiyeli hakkında iyimseriz."
+                ]
+            };
 
         // Sistem verileri
         let systemData = {
