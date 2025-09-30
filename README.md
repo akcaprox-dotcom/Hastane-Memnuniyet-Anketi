@@ -2292,7 +2292,7 @@ function closeModal() {
                 'Güven ve İtibar',
                 'Genel Memnuniyet'
             ],
-            'Doktor': [
+            'Doktor/Hemşire': [
                 'Çalışma Ortamı',
                 'Yönetim ve Liderlik',
                 'İş Yükü ve Dengesi',
