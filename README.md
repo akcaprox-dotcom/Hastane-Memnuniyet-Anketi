@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <!-- Firebase Auth -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <!-- Firebase Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -431,9 +433,41 @@ function closeModal() {
             storageBucket: "akcaprox-anket.appspot.com",
             messagingSenderId: "426135179922",
             appId: "1:426135179922:web:c16b3fd6fa5f3d9224cc4b",
-            measurementId: "G-CD1ET7RGX1"
+            measurementId: "G-CD1ET7RGX1",
+            databaseURL: "https://json-19344-default-rtdb.europe-west1.firebasedatabase.app/"
         };
         firebase.initializeApp(firebaseConfig);
+        // Global değişkeni başlat
+        window.systemData = window.systemData || {};
+
+        // 🔥 EKSİK OLAN loadFromFirebase FONKSİYONU 🔥
+        async function loadFromFirebase() {
+            return new Promise((resolve, reject) => {
+                if (window.console) console.log('loadFromFirebase: Veri çekme başlatıldı...');
+                // 1. Database servisini başlatın
+                const db = firebase.database(); 
+                // 2. Veri tabanınızdaki yolu dinleyin ('surveyData')
+                // Kurum verisi (companies) bu yolun altındadır.
+                const dataRef = db.ref('surveyData'); 
+                // 'value' listener'ı ile veriyi bir kereye mahsus çekin
+                dataRef.once('value', (snapshot) => { // once() kullanımı daha verimli olur
+                    const data = snapshot.val();
+                    if (data) {
+                        // 3. Çekilen veriyi window.systemData altına kaydedin
+                        window.systemData.surveyData = data;
+                        if (window.console) console.log('loadFromFirebase: Veri başarıyla yüklendi.');
+                        // Konsolda şirketlerin görünüp görünmediğini kontrol edin
+                        if (window.console) console.log('loadFromFirebase: Companies data:', data.companies);
+                    } else {
+                        if (window.console) console.warn('loadFromFirebase: Firebase surveyData yolunda veri bulunamadı.');
+                    }
+                    resolve();
+                }, (error) => {
+                    if (window.console) console.error("loadFromFirebase: Firebase veri okuma hatası:", error);
+                    reject(error);
+                });
+            });
+        }
         const auth = firebase.auth();
 
         // Google Sign-In logic
@@ -443,38 +477,40 @@ function closeModal() {
             // Her zaman Firebase'den güncel şirket listesini çek
             try {
                 if (typeof loadFromFirebase === 'function') {
+                    console.log('[loadExistingCompanies] loadFromFirebase çağrılıyor...');
                     await loadFromFirebase();
                 }
                 const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
-                if (window.console) {
-                    console.log('Firebase companies:', companies);
-                    try {
-                        console.log('Firebase companies (stringify):', JSON.stringify(companies));
-                    } catch (e) {
-                        console.warn('companies JSON.stringify hatası:', e);
-                    }
+                console.log('[loadExistingCompanies] companies:', companies);
+                try {
+                    console.log('[loadExistingCompanies] companies (stringify):', JSON.stringify(companies));
+                } catch (e) {
+                    console.warn('[loadExistingCompanies] companies JSON.stringify hatası:', e);
                 }
                 const existingCompanySelect = document.getElementById('existingCompanySelect');
                 if (existingCompanySelect) {
                     existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
                     let foundAny = false;
                     Object.entries(companies).forEach(([key, company]) => {
+                        console.log('[loadExistingCompanies] key:', key, 'company:', company);
                         if (company && company.name && company.name.trim() !== "") {
                             existingCompanySelect.innerHTML += `<option value="${company.name}">${company.name}</option>`;
                             foundAny = true;
-                            if (window.console) console.log('Kayıtlı kurum eklendi:', key, company.name);
+                            console.log('[loadExistingCompanies] Kayıtlı kurum eklendi:', key, company.name);
                         } else {
-                            if (window.console) console.warn('Kayıtlı kurumda eksik/bilinmeyen isim:', key, company);
+                            console.warn('[loadExistingCompanies] Kayıtlı kurumda eksik/bilinmeyen isim:', key, company);
                         }
                     });
                     if (!foundAny) {
-                        if (window.console) console.warn('Hiçbir kayıtlı kurum bulunamadı!');
+                        console.warn('[loadExistingCompanies] Hiçbir kayıtlı kurum bulunamadı!');
+                    } else {
+                        console.log('[loadExistingCompanies] Select kutusu başarıyla güncellendi.');
                     }
                 } else {
-                    if (window.console) console.error('existingCompanySelect bulunamadı!');
+                    console.error('[loadExistingCompanies] existingCompanySelect bulunamadı!');
                 }
             } catch (err) {
-                if (window.console) console.error('Kayıtlı kurumlar yüklenirken hata:', err);
+                console.error('[loadExistingCompanies] Kayıtlı kurumlar yüklenirken hata:', err);
             }
         }
         let googleUser = null;
