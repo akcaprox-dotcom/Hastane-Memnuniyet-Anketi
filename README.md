@@ -143,28 +143,34 @@
                     </button>
                     <div id="googleUserInfo" class="text-xs text-green-700 font-medium hidden"></div>
                 </div>
-                <div class="mb-3">
-                    <input type="text" id="companyName" placeholder="Kurum adınızı girin (Okul, Üniversite vb.)" 
-                           class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                <!-- Kullanıcı Tipi Seçimi -->
+                <div class="mb-3 flex gap-4 items-center">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="userType" id="userTypeNew" value="new" checked class="accent-purple-600">
+                        <span>Yeni Kullanıcı</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="userType" id="userTypeExisting" value="existing" class="accent-blue-600">
+                        <span>Kayıtlı Kullanıcı</span>
+                    </label>
+                </div>
+                <!-- Yeni Kullanıcı Alanı -->
+                <div class="mb-3" id="newUserArea">
+                    <input type="text" id="companyName" placeholder="Kurum adınızı girin (Hastane, Klinik vb.)" 
+                        class="w-full border-2 border-purple-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                </div>
+                <!-- Kayıtlı Kullanıcı Alanı -->
+                <div class="mb-3 hidden" id="existingUserArea">
+                    <select id="existingCompanySelect" class="w-full border-2 border-blue-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-auto">
+                        <option value="">Kayıtlı kurum seçin...</option>
+                    </select>
                 </div>
                 <div class="mb-3">
                     <p class="text-xs text-gray-600 mb-2">Rolünüzü seçin:</p>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="selectJobType('Hasta')" id="patientBtn" 
-                                class="job-btn py-3 px-2 text-xs rounded border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <div class="text-lg mb-1">🧑‍⚕️</div>
-                            <div>Hasta</div>
-                        </button>
-                        <button type="button" onclick="selectJobType('Doktor')" id="doctorBtn" 
-                                class="job-btn py-3 px-2 text-xs rounded border-2 border-green-300 hover:border-green-500 hover:bg-green-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-green-400">
-                            <div class="text-lg mb-1">👨‍⚕️</div>
-                            <div>Doktor/Hemşire</div>
-                        </button>
-                        <button type="button" onclick="selectJobType('Yönetim')" id="managementBtn" 
-                                class="job-btn py-3 px-2 text-xs rounded border-2 border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 cursor-pointer font-medium bg-white text-center focus:outline-none focus:ring-2 focus:ring-purple-400">
-                            <div class="text-lg mb-1">👩‍🔬</div>
-                            <div>Yönetim</div>
-                        </button>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <button type="button" onclick="selectJobType('Hasta')" id="patientBtn" class="job-btn px-2 py-2 rounded border border-gray-300 bg-white hover:bg-purple-100 transition-colors">Hasta</button>
+                        <button type="button" onclick="selectJobType('Doktor')" id="doctorBtn" class="job-btn px-2 py-2 rounded border border-gray-300 bg-white hover:bg-blue-100 transition-colors">Doktor</button>
+                        <button type="button" onclick="selectJobType('Yönetim')" id="managementBtn" class="job-btn px-2 py-2 rounded border border-gray-300 bg-white hover:bg-green-100 transition-colors">Yönetim</button>
                     </div>
                 </div>
                 <div id="selectedJobDisplay" class="text-center text-sm text-gray-600 mb-3 min-h-[20px]"></div>
@@ -431,6 +437,23 @@ function closeModal() {
         const auth = firebase.auth();
 
         // Google Sign-In logic
+        // Kayıtlı kurumları select'e yükle
+        async function loadExistingCompanies() {
+            // Firebase veya sistem verisinden kurumları çek
+            if (!window.systemData || !window.systemData.surveyData) {
+                // Eğer sistem verisi yoksa, örnek veri ekle (geliştirici/test amaçlı)
+                window.systemData = window.systemData || {};
+                window.systemData.surveyData = { companies: { 'ornek': { name: 'ÖRNEK HASTANE' } } };
+            }
+            const companies = (window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+            const existingCompanySelect = document.getElementById('existingCompanySelect');
+            if (existingCompanySelect) {
+                existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
+                Object.values(companies).forEach(company => {
+                    existingCompanySelect.innerHTML += `<option value="${company.name}">${company.name}</option>`;
+                });
+            }
+        }
         let googleUser = null;
         document.addEventListener('DOMContentLoaded', function() {
             // Anket başlatma butonunu startSurvey fonksiyonuna bağla
@@ -462,6 +485,31 @@ function closeModal() {
                         });
                 });
             }
+
+            // Kullanıcı tipi alanlarını dinamik göster/gizle
+            const userTypeNew = document.getElementById('userTypeNew');
+            const userTypeExisting = document.getElementById('userTypeExisting');
+            const newUserArea = document.getElementById('newUserArea');
+            const existingUserArea = document.getElementById('existingUserArea');
+            const companyNameInput = document.getElementById('companyName');
+            const existingCompanySelect = document.getElementById('existingCompanySelect');
+
+            async function toggleUserType() {
+                if (userTypeNew && userTypeNew.checked) {
+                    newUserArea.classList.remove('hidden');
+                    existingUserArea.classList.add('hidden');
+                } else {
+                    newUserArea.classList.add('hidden');
+                    existingUserArea.classList.remove('hidden');
+                    await loadExistingCompanies();
+                }
+            }
+            if (userTypeNew && userTypeExisting) {
+                userTypeNew.addEventListener('change', toggleUserType);
+                userTypeExisting.addEventListener('change', toggleUserType);
+            }
+            // Sayfa ilk açıldığında doğru alanı göster
+            toggleUserType();
         });
 
         // Anket başlatma butonuna Google ile giriş kontrolü ekle
@@ -563,93 +611,6 @@ function closeModal() {
         // Soru setleri
         const questions = {
             "Hasta": [
-                // Tıbbi Hizmet Kalitesi (10 Soru)
-                "Doktorunuzun teşhis ve tedavi sürecine ne kadar güveniyorsunuz?",
-                "Aldığınız tıbbi tedavinin açıklayıcı ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Doktorunuzun sorularınıza yeterli zaman ayırdığına inanıyor musunuz?",
-                "Tedavi sürecinde ağrı veya rahatsızlığınızın yönetilmesinden memnun musunuz?",
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "İlaçlarınız ve tedaviniz hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin laboratuvar ve görüntüleme hizmetlerinin hızından memnun musunuz?",
-                "Aldığınız tedavinin beklediğiniz faydayı sağladığını düşünüyor musunuz?",
-                "Doktorunuzun sizi tedavi planı konusunda karar sürecine dahil ettiğine inanıyor musunuz?",
-                "Tıbbi hizmetlerin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Personel Davranışları ve İletişim (10 Soru)
-                "Hemşire ve diğer sağlık personelinin size karşı nazik ve saygılı davrandığına inanıyor musunuz?",
-                "Personelin, ihtiyaç duyduğunuzda size hızlı bir şekilde yanıt verdiğini düşünüyor musunuz?",
-                "Sağlık personelinin, sizi bilgilendirme konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
-                "Personelin, mahremiyetinize ve kişisel alanınıza saygı duyduğunu düşünüyor musunuz?",
-                "Hemşirenizin veya sağlık ekibinizin size karşı sabırlı ve anlayışlı davrandığına inanıyor musunuz?",
-                "Hasta bakımı sırasında size yeterli ilginin gösterildiğine inanıyor musunuz?",
-                "Personel ile iletişim kurarken kendinizi rahat ve güvende hissettiniz mi?",
-                "Sağlık personelinin size güvence ve moral verdiğini düşünüyor musunuz?",
-                "Tedaviniz sırasında duygusal olarak desteklendiğinize inanıyor musunuz?",
-                "Personel ile iletişiminizin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Hastane Ortamı ve İmkanlar (10 Soru)
-                "Hastane odasının temizliğinden ve konforundan memnun musunuz?",
-                "Genel hastane ortamının (koridorlar, bekleme alanları) temiz ve düzenli olduğunu düşünüyor musunuz?",
-                "Hastanenin genel gürültü seviyesinin kabul edilebilir olduğunu düşünüyor musunuz?",
-                "Hastanenin yemek hizmetlerinin kalitesinden ve çeşitliliğinden memnun musunuz?",
-                "Hastanenin otopark ve ulaşım imkanlarının yeterli olduğunu düşünüyor musunuz?",
-                "Ziyaret saatlerinin ve kurallarının makul olduğunu düşünüyor musunuz?",
-                "Hastane içinde yol bulmanın kolay olduğuna inanıyor musunuz?",
-                "Tuvaletlerin ve banyo imkanlarının hijyenik olduğunu düşünüyor musunuz?",
-                "Hastanenin güvenlik önlemlerinin yeterli olduğuna inanıyor musunuz?",
-                "Hastane ortamının genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Yönlendirme ve Bilgilendirme (10 Soru)
-                "Hastaneye yatış sürecinin kolay ve anlaşılır olduğunu düşünüyor musunuz?",
-                "Hastane personeli tarafından randevu ve kayıt işlemlerinde yeterince yönlendirildiğinize inanıyor musunuz?",
-                "Tıbbi prosedürler ve riskler hakkında size yeterli bilgi verildiğini düşünüyor musunuz?",
-                "Hastanenin, size özel bilgilerinizi koruduğuna ve gizliliğe önem verdiğine inanıyor musunuz?",
-                "Taburcu sürecinin düzenli ve anlaşılır bir şekilde yönetildiğini düşünüyor musunuz?",
-                "Taburcu sonrası bakım ve takip süreci hakkında yeterli bilgi aldığınıza inanıyor musunuz?",
-                "Hastanenin web sitesi veya bilgilendirme materyallerinin anlaşılır ve faydalı olduğunu düşünüyor musunuz?",
-                "Hastane çalışanlarının sizi doğru servislere ve birimlere yönlendirmesinden memnun musunuz?",
-                "Hasta haklarınız konusunda yeterli bilgiye sahip olduğunuza inanıyor musunuz?",
-                "Hastaneye yatış sürecinin genel kalitesini nasıl değerlendiriyorsunuz?",
-                // Genel Deneyim ve Tavsiye (10 Soru)
-                "Hastanede yaşadığınız genel deneyimden memnun musunuz?",
-                "Hastaneyi, yakınlarınıza veya arkadaşlarınıza tavsiye eder misiniz?",
-                "Acil durumlar için bu hastaneyi tekrar tercih eder misiniz?",
-                "Hastane personelinin, beklentilerinizi aştığını düşünüyor musunuz?",
-                "Hastanede aldığınız hizmetin, ödediğiniz ücrete değdiğini düşünüyor musunuz?",
-                "Şikayet veya önerileriniz için kolayca iletişim kurabildiğinize inanıyor musunuz?",
-                "Hastanenin, hasta geri bildirimlerine önem verdiğini düşünüyor musunuz?",
-                "Hastanenin, sunduğu hizmetlerin kalitesini sürekli iyileştirdiğine inanıyor musunuz?",
-                "Hastanenin, hasta memnuniyetini önceliklendirdiğini düşünüyor musunuz?",
-                "Hastanede geçirdiğiniz süre boyunca kendinizi değerli hissettiniz mi?"
-            ],
-            "Doktor": [
-                // Çalışma Ortamı ve Kaynaklar (10 Soru)
-                "Hastanenin tıbbi cihaz ve ekipmanlarının yeterli ve güncel olduğunu düşünüyor musunuz?",
-                "Çalışma saatlerinizin makul ve yönetilebilir olduğunu düşünüyor musunuz?",
-                "Hastanenin fiziksel ortamının (muayene odası, ameliyathane) verimli çalışmaya uygun olduğuna inanıyor musunuz?",
-                "İdari personel ve destek birimlerinin (laboratuvar, radyoloji) iş birliğinden memnun musunuz?",
-                "Acil durumlar için gerekli kaynaklara ve protokollere kolayca erişebildiğinizi düşünüyor musunuz?",
-                "Hastanenin hasta kayıt sistemi ve dijital altyapısının işinizi kolaylaştırdığına inanıyor musunuz?",
-                "Hastanenin, mesleki güvenliğinizi ve sağlığınızı önemsediğini düşünüyor musunuz?",
-                "Tıbbi malzeme ve sarf ürünlerine kolayca erişebildiğinize inanıyor musunuz?",
-                "Hastanenin temizlik ve hijyen standartlarının yeterli olduğuna inanıyor musunuz?",
-                "Hastanedeki çalışma ortamınızdan genel olarak memnun musunuz?",
-                // Yönetim ve İletişim (10 Soru)
-                "Hastane yönetiminin aldığı kararların şeffaf ve anlaşılır olduğuna inanıyor musunuz?",
-                "Yönetimin, doktorların fikirlerine ve önerilerine değer verdiğini düşünüyor musunuz?",
-                "Yönetimle iletişim kanallarının açık ve etkili olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin, hasta memnuniyetini önceliklendirdiğine inanıyor musunuz?",
-                "Yönetimin, doktorlar arasında iş birliğini ve takım çalışmasını teşvik ettiğini düşünüyor musunuz?",
-                "Maaş ve yan haklarınızın adil ve rekabetçi olduğunu düşünüyor musunuz?",
-                "Yönetimin, akademik ve bilimsel çalışmalarınıza destek verdiğine inanıyor musunuz?",
-                "Yöneticilerinizin, hasta bakımı süreçlerinde size yeterli özerkliği tanıdığına inanıyor musunuz?",
-                "Yönetimle olan ilişkinizin genel olarak güvene dayalı olduğunu düşünüyor musunuz?",
-                "Hastane yönetiminin genel performansını nasıl değerlendiriyorsunuz?",
-                // Hasta Bakım ve İş Birliği (10 Soru)
-                "Hasta bakımının kalitesini nasıl değerlendiriyorsunuz?",
-                "Diğer birimlerdeki sağlık profesyonelleriyle (hemşireler, terapistler) iş birliğinizden memnun musunuz?",
-                "Hastane genelinde hasta güvenliğine verilen önemin yeterli olduğunu düşünüyor musunuz?",
-                "Hastalarla iletişim kurmak ve onları tedavi süreçleri hakkında bilgilendirmek için yeterli zamana sahip olduğunuza inanıyor musunuz?",
-                "Hastane personelinin, hasta beklentilerini karşılama konusunda yeterli çaba gösterdiğine inanıyor musunuz?",
-                "Hasta ve yakınlarının geri bildirimlerinin, hizmet kalitesini artırdığını düşünüyor musunuz?",
-                "Hasta bakımı konusunda etik ve ahlaki değerlere yeterli önemin verildiğine inanıyor musunuz?",
                 "Hasta kayıt sisteminin, hasta bilgilerine hızlı ve güvenli erişim sağladığına inanıyor musunuz?",
                 "Meslektaşlarınızla olan iş birliğinizin verimli ve yapıcı olduğunu düşünüyor musunuz?",
                 "Hastaların tedavi süreçlerine katılımlarını teşvik eden bir ortam olduğuna inanıyor musunuz?",
