@@ -527,16 +527,22 @@ function closeModal() {
     // ...existing code...
         // Anket başlatma fonksiyonu: Google ile giriş zorunluluğu ve erişilebilir uyarı
         function startSurvey(e) {
+
             const companyName = document.getElementById('companyName').value.trim();
             const disclaimerAccepted = document.getElementById('acceptDisclaimer').checked;
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const selectedJobType = window.selectedJobType || '';
 
-            // Zorunlu alanlar kontrolü
+            // Kullanıcı tipi kontrolü
+            const userTypeNew = document.getElementById('userTypeNew');
+            const userTypeExisting = document.getElementById('userTypeExisting');
             let missingFields = [];
             if (!disclaimerAccepted) missingFields.push('Veri koruma beyanı');
-            if (!companyName) missingFields.push('Kurum adı');
+            // Sadece yeni kullanıcıda kurum adı zorunlu
+            if (userTypeNew && userTypeNew.checked) {
+                if (!companyName) missingFields.push('Kurum adı');
+            }
             if (!firstName) missingFields.push('Adınız');
             if (!lastName) missingFields.push('Soyadınız');
             if (!selectedJobType) missingFields.push('Rolünüz');
