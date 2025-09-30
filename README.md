@@ -482,7 +482,9 @@ function closeModal() {
             measurementId: "G-CD1ET7RGX1",
             databaseURL: "https://json-19344-default-rtdb.europe-west1.firebasedatabase.app/"
         };
-        firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+    // Diagnostic: print the active firebase app options to help debug live auth/config issues
+    try { console.log('[Firebase] app options =', firebase.app && firebase.app().options); } catch(e) { console.warn('[Firebase] app.options log failed', e); }
         // Global değişkeni başlat
         window.systemData = window.systemData || {};
 
@@ -524,33 +526,101 @@ function closeModal() {
             // Firebase'den veri geldikten sonra companies'i konsola logla
             // Her zaman Firebase'den güncel şirket listesini çek
             try {
+                // First, attempt to get the canonical data returned by the REST fetch loader.
+                let fetchedSurvey = null;
                 if (typeof loadFromFirebase === 'function') {
-                    console.log('[loadExistingCompanies] loadFromFirebase çağrılıyor...');
-                    await loadFromFirebase();
+                    console.log('[loadExistingCompanies] loadFromFirebase (fetch) çağrılıyor...');
+                    try {
+                        fetchedSurvey = await loadFromFirebase();
+                        console.log('[loadExistingCompanies] loadFromFirebase returned, fetchedSurvey keys =', fetchedSurvey && fetchedSurvey.companies ? Object.keys(fetchedSurvey.companies) : null);
+                    } catch (e) {
+                        console.warn('[loadExistingCompanies] loadFromFirebase threw:', e);
+                        fetchedSurvey = null;
+                    }
                 }
-                // Pull raw companies from systemData
-                let companiesRaw = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
+
+                // Prefer the fetch-returned companies object (plain JS) when available — avoids snapshot/proxy cloning issues.
+                let companiesRaw = (fetchedSurvey && fetchedSurvey.companies) || ((window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {});
+                if (fetchedSurvey && fetchedSurvey.companies) console.log('[loadExistingCompanies] Using companies from fetch response (preferred)');
+
+                // If the fetch returned a usable companies object, populate the select immediately and return.
+                try {
+                    if (fetchedSurvey && fetchedSurvey.companies && Object.keys(fetchedSurvey.companies).length > 0) {
+                        const existingCompanySelect = document.getElementById('existingCompanySelect');
+                        if (existingCompanySelect) {
+                            existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
+                            Object.entries(fetchedSurvey.companies).forEach(([key, company]) => {
+                                const displayName = company && company.name ? company.name : '';
+                                if (displayName && displayName.trim() !== '') {
+                                    existingCompanySelect.innerHTML += `<option value="${key}">${displayName}</option>`;
+                                    console.log('[loadExistingCompanies] (fetch) Kayıtlı kurum eklendi:', key, displayName);
+                                }
+                            });
+                            console.log('[loadExistingCompanies] Select kutusu doğrudan fetch yanıtından dolduruldu.');
+                            return;
+                        }
+                    }
+                } catch(e) {
+                    console.warn('[loadExistingCompanies] fetch-populate fallback failed:', e);
+                }
                 console.log('[loadExistingCompanies] companiesRaw (pre-clone):', companiesRaw);
 
-                // Try to deep-clone into a plain object (handles SNAPSHOT-like or proxy cases)
+                // Normalize companiesRaw into a plain object.
+                // Handle three common shapes:
+                //  - Firebase snapshot-like object with .val()
+                //  - Objects with toJSON()
+                //  - Plain objects or proxy-like objects (try JSON clone, then manual copy)
                 let companies = {};
                 try {
-                    companies = JSON.parse(JSON.stringify(companiesRaw || {}));
-                    console.log('[loadExistingCompanies] companies after JSON clone, keys =', Object.keys(companies));
-                } catch (e) {
-                    console.warn('[loadExistingCompanies] JSON clone failed, falling back to manual copy:', e);
-                    // Manual shallow copy fallback (including non-enumerable via for..in)
-                    try {
-                        for (const k in companiesRaw) {
-                            if (Object.prototype.hasOwnProperty.call(companiesRaw, k) || typeof companiesRaw[k] !== 'undefined') {
-                                companies[k] = companiesRaw[k];
+                    console.log('[loadExistingCompanies] companiesRaw type info:', Object.prototype.toString.call(companiesRaw));
+                    try { console.log('[loadExistingCompanies] companiesRaw own keys via Object.keys:', Object.keys(companiesRaw || {})); } catch(e) { console.warn('Object.keys failed', e); }
+
+                    // 1) Firebase snapshot (compat) often exposes .val()
+                    if (companiesRaw && typeof companiesRaw.val === 'function') {
+                        console.log('[loadExistingCompanies] Detected Firebase snapshot (.val). Using snapshot.val()');
+                        try { companies = companiesRaw.val() || {}; } catch (e) { console.warn('snapshot.val() threw', e); companies = {}; }
+
+                    // 2) toJSON helper
+                    } else if (companiesRaw && typeof companiesRaw.toJSON === 'function') {
+                        console.log('[loadExistingCompanies] Detected toJSON(), using toJSON()');
+                        try { companies = companiesRaw.toJSON() || {}; } catch (e) { console.warn('toJSON() threw', e); companies = {}; }
+
+                    // 3) Try JSON clone for plain serializable objects
+                    } else {
+                        try {
+                            companies = JSON.parse(JSON.stringify(companiesRaw || {}));
+                            console.log('[loadExistingCompanies] companies after JSON clone, keys =', Object.keys(companies));
+                        } catch (e) {
+                            console.warn('[loadExistingCompanies] JSON clone failed, falling back to manual property copy:', e);
+                            // Manual copy: include own property names and symbols, then enumerable via for..in
+                            try {
+                                const src = companiesRaw || {};
+                                const names = Object.getOwnPropertyNames(src || {});
+                                for (const n of names) {
+                                    try { companies[n] = src[n]; } catch (ee) { console.warn('copy prop failed', n, ee); }
+                                }
+                                try {
+                                    const syms = Object.getOwnPropertySymbols(src || {});
+                                    for (const s of syms) {
+                                        try { companies[s.toString()] = src[s]; } catch (ee) { console.warn('copy symbol failed', s, ee); }
+                                    }
+                                } catch (eSym) { /* ignore symbols if not supported */ }
+                                // ensure enumerable props are also copied
+                                for (const k in src) {
+                                    if (!Object.prototype.hasOwnProperty.call(companies, k)) {
+                                        try { companies[k] = src[k]; } catch (ee) { console.warn('for..in copy failed', k, ee); }
+                                    }
+                                }
+                                console.log('[loadExistingCompanies] companies after manual copy, keys =', Object.keys(companies));
+                            } catch (e2) {
+                                console.warn('[loadExistingCompanies] manual copy failed:', e2);
+                                companies = {};
                             }
                         }
-                        console.log('[loadExistingCompanies] companies after manual copy, keys =', Object.keys(companies));
-                    } catch (e2) {
-                        console.warn('[loadExistingCompanies] manual copy failed:', e2);
-                        companies = {};
                     }
+                } catch (outerErr) {
+                    console.error('[loadExistingCompanies] companies normalization failed:', outerErr);
+                    companies = {};
                 }
 
                 // If still empty, try compat loader (firebase.database) as a last resort
