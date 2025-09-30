@@ -1230,7 +1230,7 @@ function closeModal() {
 
             // Seçili butonu vurgula
             const selectedBtn = document.getElementById(jobType === 'Hasta' ? 'patientBtn' : 
-                                                      jobType === 'Doktor' ? 'doctorBtn' : 'managementBtn');
+                                                      jobType === 'Doktor/Hemşire' ? 'doctorBtn' : 'managementBtn');
             if (selectedBtn) {
                 selectedBtn.classList.add('selected-job');
                 selectedBtn.style.border = '3px solid #6366f1';
