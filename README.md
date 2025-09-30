@@ -446,7 +446,14 @@ function closeModal() {
                     await loadFromFirebase();
                 }
                 const companies = (window.systemData && window.systemData.surveyData && window.systemData.surveyData.companies) || {};
-                if (window.console) console.log('Firebase companies:', companies);
+                if (window.console) {
+                    console.log('Firebase companies:', companies);
+                    try {
+                        console.log('Firebase companies (stringify):', JSON.stringify(companies));
+                    } catch (e) {
+                        console.warn('companies JSON.stringify hatası:', e);
+                    }
+                }
                 const existingCompanySelect = document.getElementById('existingCompanySelect');
                 if (existingCompanySelect) {
                     existingCompanySelect.innerHTML = '<option value="">Kayıtlı kurum seçin...</option>';
