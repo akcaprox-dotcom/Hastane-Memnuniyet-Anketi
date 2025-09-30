@@ -1021,21 +1021,27 @@ function closeModal() {
         async function submitSurvey() {
             try {
                 console.log('Anket gönderiliyor...');
-                
-                const companyName = document.getElementById('companyName').value.trim();
+                // Kullanıcı tipi kontrolü
+                const userTypeNew = document.getElementById('userTypeNew');
+                const userTypeExisting = document.getElementById('userTypeExisting');
+                let companyName = '';
+                if (userTypeNew && userTypeNew.checked) {
+                    companyName = document.getElementById('companyName').value.trim();
+                } else if (userTypeExisting && userTypeExisting.checked) {
+                    const existingCompanySelect = document.getElementById('existingCompanySelect');
+                    if (existingCompanySelect) {
+                        companyName = existingCompanySelect.value.trim();
+                    }
+                }
                 const firstName = document.getElementById('firstName').value.trim() || 'Anonim';
                 const lastName = document.getElementById('lastName').value.trim() || 'Kullanıcı';
-                
                 if (!companyName || !selectedJobType || !answers || answers.length === 0) {
                     throw new Error('Eksik bilgi: Kurum adı, iş türü ve anket yanıtları gerekli');
                 }
-                
                 const companyResult = await createCompanyIfNotExistsFirebase(companyName);
-                
                 if (!companyResult.success) {
                     throw new Error(`Kurum işlemi başarısız: ${companyResult.error}`);
                 }
-                
                 systemData.surveyData = await loadFromFirebase();
                 
                 const surveyResponse = {
