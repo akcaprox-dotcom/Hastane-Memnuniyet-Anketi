@@ -1203,98 +1203,6 @@ function closeModal() {
                 ]
             };
 
-        // Kategori adları (her biri 5 soruluk bloklara karşılık gelir) - sıra soruların kod sırasına göre
-        const hospitalCategoryNames = {
-            'Hasta': [
-                'Randevu / Kabul / Taburcu',
-                'Tıbbi İletişim',
-                'Doktor & Hemşire Bakımı',
-                'Hijyen ve Fiziksel Çevre',
-                'Beslenme & Yemek',
-                'Gizlilik ve Etik',
-                'Finans / Ücret / Faturalama',
-                'Güvenlik & Risk Önlemleri',
-                'Kişisel Hak / Saygı',
-                'Acil Durum Yönetimi',
-                'Genel Öneri / Tavsiye',
-                'Genel Memnuniyet'
-            ],
-            'Doktor/Hemşire': [
-                'Klinik Süreçler', 'İş Yükü', 'İletişim', 'Ekip İşbirliği', 'Eğitim & Gelişim',
-                'Altyapı / Donanım', 'Kalite & Prosedür', 'Yönetim Desteği', 'Motivasyon', 'Genel Memnuniyet'
-            ],
-            'Yönetim': [
-                'İş Güvenliği & Risk', 'Verimlilik & Süreç', 'Bakım & Teknoloji', 'Kalite Yönetimi',
-                'Eğitim & Yetkinlik', 'İletişim & İşbirliği', 'Çalışma Koşulları', 'İş Yükü & Zaman',
-                'Liderlik & Yönetim', 'Kurumsal Bağlılık'
-            ]
-        };
-
-        // Dinamik kategori butonlarını üret
-        function buildHospitalCategoryButtons(surveys){
-            if(!surveys || surveys.length===0) return '';
-            // Hangi roller (jobType) var?
-            const byRole = {};
-            surveys.forEach(s=>{ if(s.jobType) { (byRole[s.jobType] ||= []).push(s);} });
-            let html = '<div class="mt-6 space-y-6" id="hospitalCategorySection">';
-            Object.entries(byRole).forEach(([role, list])=>{
-                const qArr = questions[role];
-                if(!qArr) return;
-                const totalQuestions = qArr.length;
-                const catCount = Math.floor(totalQuestions/5);
-                const names = hospitalCategoryNames[role] || [];
-                html += `<div class="border rounded-lg p-4 bg-white shadow-sm"><div class="flex items-center justify-between mb-3"><h4 class="font-semibold text-gray-800 text-sm md:text-base">${role} - Kategori Detayları</h4><span class="text-xs text-gray-500">${list.length} katılımcı</span></div>`;
-                html += '<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-2">';
-                for(let i=0;i<catCount;i++){
-                    const label = names[i] || `Kategori ${i+1}`;
-                    html += `<button class="text-left px-3 py-2 rounded border text-xs bg-indigo-50 hover:bg-indigo-100 transition flex items-center justify-between" onclick="showHospitalCategoryDetail('${role}', ${i})"><span class="font-medium text-indigo-700">${(i+1).toString().padStart(2,'0')} - ${label}</span><span class='text-[10px] text-indigo-500'>Detay ▶</span></button>`;
-                }
-                html += '</div></div>';
-            });
-            html += '</div>';
-            return html;
-        }
-
-        // Kategori detay modalı
-        function showHospitalCategoryDetail(role, categoryIndex){
-            if(!systemData.surveyData) return;
-            const all = systemData.surveyData.responses || [];
-            const surveys = all.filter(s=> s.companyName && loggedInCompany && s.companyName.toLowerCase()===loggedInCompany.name.toLowerCase() && s.jobType===role);
-            if(surveys.length===0){ showModal('Bilgi', 'Bu kategori için veri yok.'); return; }
-            const qArr = questions[role];
-            if(!qArr){ showModal('Hata','Rol bulunamadı'); return; }
-            const start = categoryIndex*5;
-            const slice = qArr.slice(start, start+5);
-            if(slice.length===0){ showModal('Hata','Kategori boş'); return; }
-            // Frekansları hesapla: her soru için {1..5}
-            const rowsHTML = slice.map((q,localIdx)=>{
-                const globalIdx = start+localIdx;
-                const freq = {1:0,2:0,3:0,4:0,5:0};
-                surveys.forEach(s=>{
-                    const ansObj = s.answers && s.answers[globalIdx];
-                    if(!ansObj) return;
-                    const raw = ansObj.score ?? ansObj.value ?? ansObj.answer;
-                    const num = Number(raw);
-                    if(num>=1 && num<=5){ freq[num]++; }
-                });
-                const maxVal = Math.max(...Object.values(freq));
-                const total = Object.values(freq).reduce((a,b)=>a+b,0) || 1;
-                const cell = (v)=>{
-                    const isMax = v===maxVal && maxVal>0;
-                    const pct = ((v/total)*100).toFixed(0);
-                    return `<td class="px-2 py-1 text-center text-[11px] ${isMax? 'bg-red-100 font-semibold text-red-700':'text-gray-700'}">${v}<div class='text-[9px] text-gray-500'>${pct}%</div></td>`;
-                }
-                return `<tr class="border-b hover:bg-gray-50"><td class="align-top p-2 text-xs w-[45%]">${(globalIdx+1).toString().padStart(2,'0')}. ${q}</td>${cell(freq[1])}${cell(freq[2])}${cell(freq[3])}${cell(freq[4])}${cell(freq[5])}<td class="px-2 py-1 text-center text-[11px] font-medium">${total}</td></tr>`;
-            }).join('');
-            const names = hospitalCategoryNames[role] || [];
-            const catTitle = names[categoryIndex] || `Kategori ${categoryIndex+1}`;
-            const legend = `<div class='flex flex-wrap gap-2 text-[10px] mt-2'><span class='inline-flex items-center gap-1'><span class='w-3 h-3 bg-red-200 border border-red-300 inline-block'></span> En yüksek frekans</span><span class='text-gray-500'>Yüzdeler soru bazında hesaplanır</span></div>`;
-            const table = `<div class='max-h-[65vh] overflow-auto border rounded-md'><table class='w-full text-xs'><thead class='bg-gray-100 text-[11px] text-gray-700 sticky top-0'><tr><th class='p-2 text-left'>Soru</th><th class='p-2'>1</th><th class='p-2'>2</th><th class='p-2'>3</th><th class='p-2'>4</th><th class='p-2'>5</th><th class='p-2'>Toplam</th></tr></thead><tbody>${rowsHTML}</tbody></table></div>${legend}`;
-            const footer = `<div class='mt-4 flex justify-end'><button onclick="closeModal()" class='px-3 py-1.5 text-xs rounded bg-gray-200 hover:bg-gray-300'>Kapat</button></div>`;
-            document.getElementById('modalContent').innerHTML = `<h3 class='text-sm font-semibold text-gray-800 mb-2'>${role} • ${catTitle} Detayları</h3>${table}${footer}`;
-            document.getElementById('modal').classList.add('show');
-        }
-
         // Sistem verileri
         let systemData = {
             adminPassword: '030714',
@@ -2226,36 +2134,68 @@ function closeModal() {
         // Katılımcı detay tablosunu dolduran fonksiyon
         function generateSimpleReport(surveys) {
             loadParticipantTable(surveys);
-            const container = document.getElementById('detailedReport');
-            if(!surveys || surveys.length===0){
-                container.innerHTML = '<p class="text-gray-500 text-center py-8">Henüz değerlendirme verisi bulunmuyor.</p>';
-                return;
+            
+            // AI butonunu detailedReport alanına ekle
+            if (surveys && surveys.length > 0) {
+                const aiButtonHTML = `
+                    <div class="mt-6 bg-white rounded-lg border p-4 hidden" data-ai-section="wrapper" style="display:none !important;">
+                        <div class="text-center">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 hidden" data-ai-section="heading" style="display:none !important;">🤖 Yapay Zeka ile Sağlık Hizmetleri Analizi</h4>
+                            <button id="aiInterpretBtn" class="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold text-sm hover:from-red-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hidden" data-ai-section="button" style="display:none !important;">
+                                🏥 Hastane Değerlendirmesini AI ile Analiz Et
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('detailedReport').innerHTML = aiButtonHTML;
+                
+                // AI buton eventini ekle
+                setTimeout(() => {
+                    const btn = document.getElementById('aiInterpretBtn');
+                    if (btn) btn.onclick = async function() {
+                        const apiKey = 'AIzaSyCJXufO8b2AMWRZpw-QctHSWgWSg2j8L1Y';
+                        btn.disabled = true;
+                        btn.textContent = '🔄 AI sağlık analizi yapıyor...';
+                        try {
+                            // Hastane anket verilerini hazırla
+                            const totalParticipants = surveys.length;
+                            const avgScore = surveys.reduce((sum, s) => sum + parseFloat(s.averageScore), 0) / surveys.length;
+                            const highSatisfaction = surveys.filter(s => parseFloat(s.averageScore) >= 4).length;
+                            const lowSatisfaction = surveys.filter(s => parseFloat(s.averageScore) < 3).length;
+                            
+                            const summary = `Hastane Değerlendirme Raporu:
+                            - Toplam Katılımcı: ${totalParticipants}
+                            - Ortalama Memnuniyet Puanı: ${avgScore.toFixed(2)}/5
+                            - Yüksek Memnuniyet (4+ puan): ${highSatisfaction} kişi (${Math.round((highSatisfaction/totalParticipants)*100)}%)
+                            - Düşük Memnuniyet (3- puan): ${lowSatisfaction} kişi (${Math.round((lowSatisfaction/totalParticipants)*100)}%)`;
+                            
+                            const prompt = `Bir sağlık hizmetleri uzmanı ve hastane yöneticisi gibi aşağıdaki hastane değerlendirme anket raporunu analiz et.\n\nRapor Özeti:\n${summary}\n\nAşağıdaki başlıklarla detaylı, profesyonel ve sağlık hizmetleri odaklı bir analiz yaz:\n\n1. Mevcut Sağlık Hizmetleri Durumu\n2. Hastane Hizmet Kalitesinde Nelerin İyileştirilmesi Gerekiyor\n3. Bu Durumun Devam Etmesi Halinde Hasta Memnuniyeti ve Hastane İtibarına Etkileri\n\nHer başlık için en az 3-4 cümlelik, sağlık hizmetleri kalitesine uygun, özgün ve uygulanabilir öneriler içeren bir metin oluştur. Hasta güvenliği ve hizmet kalitesi odaklı yaklaşım benimse.\n`;
+                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'x-goog-api-key': apiKey
+                                },
+                                body: JSON.stringify({
+                                    contents: [{ parts: [{ text: prompt }] }]
+                                })
+                            });
+                            if (!response.ok) throw new Error('API Hatası: ' + response.status);
+                            const result = await response.json();
+                            let text = (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts[0].text) || 'AI yanıtı alınamadı.';
+                            document.getElementById('aiInterpretationContent').innerHTML = `<pre class="whitespace-pre-wrap bg-gray-50 p-4 rounded text-sm border">${text}</pre>`;
+                            document.getElementById('aiInterpretationModal').classList.add('show');
+                        } catch (e) {
+                            alert('AI yorumlama hatası: ' + e.message);
+                        } finally {
+                            btn.disabled = false;
+                            btn.textContent = '🏥 Hastane Değerlendirmesini AI ile Analiz Et';
+                        }
+                    }
+                }, 500);
+            } else {
+                document.getElementById('detailedReport').innerHTML = '<p class="text-gray-500 text-center py-8">Henüz değerlendirme verisi bulunmuyor.</p>';
             }
-            // Rol bazında kategori özet blokları (her kategori için satır + Detay Göster butonu)
-            const roles = [...new Set(surveys.map(s=>s.jobType).filter(Boolean))];
-            let html = '<div class="space-y-8">';
-            roles.forEach(role=>{
-                const qArr = questions[role];
-                if(!qArr) return;
-                const catNames = hospitalCategoryNames[role] || [];
-                const catCount = Math.floor(qArr.length/5);
-                html += `<div class='border rounded-lg bg-white shadow-sm'>`;
-                html += `<div class='px-4 py-3 flex items-center justify-between border-b'><h3 class='font-semibold text-gray-800 text-sm md:text-base'>${role} Kategoriler</h3><span class='text-xs text-gray-500'>${surveys.filter(s=>s.jobType===role).length} katılımcı</span></div>`;
-                html += `<div class='overflow-x-auto'><table class='w-full text-xs'><thead class='bg-gray-100 text-gray-600'><tr><th class='p-2 text-left w-1/3'>Kategori</th><th class='p-2'>Sorular</th><th class='p-2'>Detay</th></tr></thead><tbody>`;
-                for(let i=0;i<catCount;i++){
-                    const label = catNames[i] || `Kategori ${i+1}`;
-                    const start = i*5;
-                    const nums = Array.from({length:5},(_,k)=>start+k+1).map(n=>n.toString().padStart(2,'0')).join(', ');
-                    html += `<tr class='border-b hover:bg-gray-50'>
-                        <td class='p-2 font-medium text-gray-800'>${(i+1).toString().padStart(2,'0')} - ${label}</td>
-                        <td class='p-2 text-gray-500'>${nums}</td>
-                        <td class='p-2 text-center'><button class='px-2 py-1.5 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-medium shadow' onclick="showHospitalCategoryDetail('${role}', ${i})">Detay Göster</button></td>
-                    </tr>`;
-                }
-                html += `</tbody></table></div></div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
         }
 
         function getParticipantCount(surveys) {
