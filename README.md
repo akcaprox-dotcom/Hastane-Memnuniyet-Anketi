@@ -471,20 +471,109 @@ function showModal(title, content) {
 function closeModal() {
     document.getElementById('modal').classList.remove('show');
 }
-        // Firebase config
+        // Firebase config - HASTANE PROJESİ için DOĞRU yapılandırma
         const firebaseConfig = {
-            apiKey: "AIzaSyDp2Yh8hamXi6OTfw03MT0S4rp5CjnlAcg",
-            authDomain: "akcaprox-anket.firebaseapp.com",
-            projectId: "akcaprox-anket",
-            storageBucket: "akcaprox-anket.appspot.com",
-            messagingSenderId: "426135179922",
-            appId: "1:426135179922:web:c16b3fd6fa5f3d9224cc4b",
-            measurementId: "G-CD1ET7RGX1",
-            databaseURL: "https://json-19344-default-rtdb.europe-west1.firebasedatabase.app/"
+            apiKey: "AIzaSyC6uy479GOHG9BYIhn3ga98VD2wTmAFDxQ",
+            authDomain: "json-19344.firebaseapp.com",
+            databaseURL: "https://json-19344-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "json-19344",
+            storageBucket: "json-19344.firebasestorage.app",
+            messagingSenderId: "1097509344739",
+            appId: "1:1097509344739:web:8cff3903205438ea2b3cd6",
+            measurementId: "G-F9CP7JPEKE"
         };
     firebase.initializeApp(firebaseConfig);
     // Diagnostic: print the active firebase app options to help debug live auth/config issues
     try { console.log('[Firebase] app options =', firebase.app && firebase.app().options); } catch(e) { console.warn('[Firebase] app.options log failed', e); }
+    
+    const auth = firebase.auth();
+
+    // Google Authentication token sistemi
+    async function getFirebaseAuthToken() {
+        return new Promise((resolve, reject) => {
+            const unsubscribe = auth.onAuthStateChanged((user) => {
+                unsubscribe();
+                if (user) {
+                    user.getIdToken()
+                        .then(token => resolve(token))
+                        .catch(error => {
+                            console.error('Token alma hatası:', error);
+                            reject(new Error('Token alınamadı'));
+                        });
+                } else {
+                    reject(new Error('Kullanıcı giriş yapmamış'));
+                }
+            });
+        });
+    }
+
+    // Google Sign-In fonksiyonu
+    async function signInWithGoogle() {
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const result = await auth.signInWithPopup(provider);
+            googleUser = result.user;
+            console.log('Google ile giriş başarılı:', googleUser.displayName);
+            
+            // UI güncellemesi
+            updateGoogleSignInUI();
+            showModal('✅ Giriş Başarılı', `Merhaba ${googleUser.displayName}! Artık ankete başlayabilirsiniz.`);
+            
+        } catch (error) {
+            console.error('Google giriş hatası:', error);
+            showModal('❌ Giriş Hatası', 'Google ile giriş yapılamadı. Lütfen tekrar deneyin.');
+        }
+    }
+
+    // Google Sign-Out fonksiyonu
+    async function signOutFromGoogle() {
+        try {
+            await auth.signOut();
+            googleUser = null;
+            updateGoogleSignInUI();
+            showModal('👋 Çıkış Yapıldı', 'Google hesabınızdan çıkış yapıldı.');
+        } catch (error) {
+            console.error('Google çıkış hatası:', error);
+        }
+    }
+
+    // Google Sign-In UI güncellemesi
+    function updateGoogleSignInUI() {
+        const googleBtn = document.getElementById('googleSignInBtn');
+        const userInfoDiv = document.getElementById('googleUserInfo');
+        
+        if (googleUser) {
+            googleBtn.style.display = 'none';
+            userInfoDiv.innerHTML = `
+                <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded p-3 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-green-700">✅ ${googleUser.displayName}</span>
+                        <span class="text-sm text-green-600">(${googleUser.email})</span>
+                    </div>
+                    <button onclick="signOutFromGoogle()" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                        Çıkış Yap
+                    </button>
+                </div>
+            `;
+            userInfoDiv.style.display = 'block';
+            
+            // Kullanıcı bilgilerini otomatik doldur
+            if (googleUser.displayName) {
+                const nameParts = googleUser.displayName.split(' ');
+                document.getElementById('firstName').value = nameParts[0] || '';
+                document.getElementById('lastName').value = nameParts.slice(1).join(' ') || '';
+                document.getElementById('firstName').removeAttribute('readonly');
+                document.getElementById('lastName').removeAttribute('readonly');
+            }
+        } else {
+            googleBtn.style.display = 'block';
+            userInfoDiv.style.display = 'none';
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('firstName').setAttribute('readonly', '');
+            document.getElementById('lastName').setAttribute('readonly', '');
+        }
+    }
         // Global değişkeni başlat
         window.systemData = window.systemData || {};
 
@@ -518,8 +607,7 @@ function closeModal() {
                 });
             });
         }
-        const auth = firebase.auth();
-
+        
         // Google Sign-In logic
         // Kayıtlı kurumları select'e yükle
         async function loadExistingCompanies() {
@@ -712,26 +800,7 @@ function closeModal() {
             const googleBtn = document.getElementById('googleSignInBtn');
             const userInfoDiv = document.getElementById('googleUserInfo');
             if (googleBtn) {
-                googleBtn.addEventListener('click', function() {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    auth.signInWithPopup(provider)
-                        .then((result) => {
-                            const user = result.user;
-                            if (user) {
-                                googleUser = user;
-                                document.getElementById('firstName').value = user.displayName ? user.displayName.split(' ')[0] : '';
-                                document.getElementById('lastName').value = user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '';
-                                userInfoDiv.textContent = `Giriş yapıldı: ${user.displayName} (${user.email})`;
-                                userInfoDiv.classList.remove('hidden');
-                                // Make name fields editable after login
-                                document.getElementById('firstName').readOnly = false;
-                                document.getElementById('lastName').readOnly = false;
-                            }
-                        })
-                        .catch((error) => {
-                            alert('Google ile giriş başarısız: ' + error.message);
-                        });
-                });
+                googleBtn.addEventListener('click', signInWithGoogle);
             }
 
             // Kullanıcı tipi alanlarını dinamik göster/gizle
@@ -859,6 +928,20 @@ function closeModal() {
             if (!firstName) missingFields.push('Adınız');
             if (!lastName) missingFields.push('Soyadınız');
             if (!selectedJobType) missingFields.push('Rolünüz');
+
+            // Google Sign-In enforcement
+            if (!googleUser) {
+                showModal(
+                    '🔒 Google ile Giriş Gerekli', 
+                    `Ankete başlamadan önce kimlik doğrulaması yapmanız gerekiyor.<br><br>
+                    ✅ Firebase güvenlik kuralları gereği<br>
+                    ✅ Veri güvenliği için zorunlu<br>
+                    ✅ Spam ve sahte yanıtları önlemek için<br><br>
+                    Lütfen yukarıdaki "Google ile Giriş Yap" butonuna tıklayın.`
+                );
+                if (e) e.preventDefault();
+                return;
+            }
 
             // Google Sign-In enforcement
             if (!googleUser) {
@@ -1161,50 +1244,59 @@ function closeModal() {
         // Firebase Realtime Database API fonksiyonları (GLOBAL SCOPE)
         async function loadFromFirebase() {
             try {
-                console.log('loadFromFirebase (fetch): GET', FIREBASE_DB_URL + 'surveyData.json');
-                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json');
-                console.log('loadFromFirebase (fetch): response.status =', response.status);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('loadFromFirebase (fetch): raw data type =', typeof data, 'keys =', data ? Object.keys(data) : null);
-                    // log companies separately (may be a firebase snapshot object/Ref proxy in compat mode)
-                    try { console.log('loadFromFirebase (fetch): companies raw =', data.companies); } catch (e) { console.warn('companies log error', e); }
-                    systemData.surveyData = data || { companies: {}, responses: [], statistics: {} };
-                    // extra diagnostic: log companies keys and JSON.stringify
-                    try {
-                        const comps = systemData.surveyData.companies || {};
-                        console.log('loadFromFirebase (fetch): companies keys =', Object.keys(comps));
-                        console.log('loadFromFirebase (fetch): companies stringify =', JSON.stringify(comps));
-                    } catch (e) {
-                        console.warn('loadFromFirebase (fetch): companies stringify error', e);
-                    }
-                    return systemData.surveyData;
-                } else {
-                    throw new Error('Firebase veri yükleme hatası: HTTP ' + response.status);
+                console.log('Firebase veri yükleme başlıyor...');
+                // Firebase Auth token'ını güvenli şekilde al
+                const token = await getFirebaseAuthToken();
+                const url = `${FIREBASE_DB_URL}surveyData.json?auth=${token}`;
+                console.log('Firebase URL:', FIREBASE_DB_URL);
+                console.log('İstek gönderiliyor...');
+                
+                const response = await fetch(url);
+                console.log('Firebase response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Firebase HTTP hatası: ${response.status} - ${response.statusText}`);
                 }
+                const data = await response.json();
+                console.log('Firebase veri başarıyla yüklendi');
+                systemData.surveyData = data || { companies: {}, responses: [], statistics: {} };
+                return systemData.surveyData;
             } catch (error) {
                 console.error('Firebase yükleme hatası:', error);
-                const defaultData = { companies: {}, responses: [], statistics: {} };
-                systemData.surveyData = defaultData;
-                return defaultData;
+                // Auth hatası durumunda kullanıcıyı bilgilendir
+                if (error.message.includes('giriş yapmamış')) {
+                    showModal('🔒 Giriş Gerekli', 'Firebase veritabanına erişim için Google ile giriş yapmanız gerekiyor.');
+                }
+                systemData.surveyData = { companies: {}, responses: [], statistics: {} };
+                return systemData.surveyData;
             }
         }
 
         async function saveToFirebase(data) {
             try {
-                const response = await fetch(FIREBASE_DB_URL + 'surveyData.json', {
+                console.log('Firebase veri kaydetme başlıyor...');
+                // Firebase Auth token'ını güvenli şekilde al
+                const token = await getFirebaseAuthToken();
+                const url = `${FIREBASE_DB_URL}surveyData.json?auth=${token}`;
+                console.log('Firebase kayıt URL:', FIREBASE_DB_URL);
+                console.log('Kaydet isteği gönderiliyor...');
+                
+                const response = await fetch(url, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                if (response.ok) {
-                    return { success: true };
-                } else {
-                    return { success: false, error: 'Firebase veri kaydetme hatası' };
+                console.log('Firebase kayıt response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Firebase HTTP hatası: ${response.status} - ${response.statusText}`);
                 }
+                console.log('Firebase veri başarıyla kaydedildi');
+                return { success: true };
             } catch (error) {
-                console.error('Firebase bağlantı hatası:', error);
-                return { success: false, error: `Bağlantı Hatası: ${error.message}` };
+                console.error('Firebase kaydetme hatası:', error);
+                if (error.message.includes('giriş yapmamış')) {
+                    showModal('🔒 Giriş Gerekli', 'Firebase veritabanına veri kaydetmek için Google ile giriş yapmanız gerekiyor.');
+                }
+                return { success: false, error: `Firebase Hatası: ${error.message}` };
             }
         }
 
