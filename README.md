@@ -1203,6 +1203,98 @@ function closeModal() {
                 ]
             };
 
+        // Kategori adları (her biri 5 soruluk bloklara karşılık gelir) - sıra soruların kod sırasına göre
+        const hospitalCategoryNames = {
+            'Hasta': [
+                'Randevu / Kabul / Taburcu',
+                'Tıbbi İletişim',
+                'Doktor & Hemşire Bakımı',
+                'Hijyen ve Fiziksel Çevre',
+                'Beslenme & Yemek',
+                'Gizlilik ve Etik',
+                'Finans / Ücret / Faturalama',
+                'Güvenlik & Risk Önlemleri',
+                'Kişisel Hak / Saygı',
+                'Acil Durum Yönetimi',
+                'Genel Öneri / Tavsiye',
+                'Genel Memnuniyet'
+            ],
+            'Doktor/Hemşire': [
+                'Klinik Süreçler', 'İş Yükü', 'İletişim', 'Ekip İşbirliği', 'Eğitim & Gelişim',
+                'Altyapı / Donanım', 'Kalite & Prosedür', 'Yönetim Desteği', 'Motivasyon', 'Genel Memnuniyet'
+            ],
+            'Yönetim': [
+                'İş Güvenliği & Risk', 'Verimlilik & Süreç', 'Bakım & Teknoloji', 'Kalite Yönetimi',
+                'Eğitim & Yetkinlik', 'İletişim & İşbirliği', 'Çalışma Koşulları', 'İş Yükü & Zaman',
+                'Liderlik & Yönetim', 'Kurumsal Bağlılık'
+            ]
+        };
+
+        // Dinamik kategori butonlarını üret
+        function buildHospitalCategoryButtons(surveys){
+            if(!surveys || surveys.length===0) return '';
+            // Hangi roller (jobType) var?
+            const byRole = {};
+            surveys.forEach(s=>{ if(s.jobType) { (byRole[s.jobType] ||= []).push(s);} });
+            let html = '<div class="mt-6 space-y-6" id="hospitalCategorySection">';
+            Object.entries(byRole).forEach(([role, list])=>{
+                const qArr = questions[role];
+                if(!qArr) return;
+                const totalQuestions = qArr.length;
+                const catCount = Math.floor(totalQuestions/5);
+                const names = hospitalCategoryNames[role] || [];
+                html += `<div class="border rounded-lg p-4 bg-white shadow-sm"><div class="flex items-center justify-between mb-3"><h4 class="font-semibold text-gray-800 text-sm md:text-base">${role} - Kategori Detayları</h4><span class="text-xs text-gray-500">${list.length} katılımcı</span></div>`;
+                html += '<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-2">';
+                for(let i=0;i<catCount;i++){
+                    const label = names[i] || `Kategori ${i+1}`;
+                    html += `<button class="text-left px-3 py-2 rounded border text-xs bg-indigo-50 hover:bg-indigo-100 transition flex items-center justify-between" onclick="showHospitalCategoryDetail('${role}', ${i})"><span class="font-medium text-indigo-700">${(i+1).toString().padStart(2,'0')} - ${label}</span><span class='text-[10px] text-indigo-500'>Detay ▶</span></button>`;
+                }
+                html += '</div></div>';
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // Kategori detay modalı
+        function showHospitalCategoryDetail(role, categoryIndex){
+            if(!systemData.surveyData) return;
+            const all = systemData.surveyData.responses || [];
+            const surveys = all.filter(s=> s.companyName && loggedInCompany && s.companyName.toLowerCase()===loggedInCompany.name.toLowerCase() && s.jobType===role);
+            if(surveys.length===0){ showModal('Bilgi', 'Bu kategori için veri yok.'); return; }
+            const qArr = questions[role];
+            if(!qArr){ showModal('Hata','Rol bulunamadı'); return; }
+            const start = categoryIndex*5;
+            const slice = qArr.slice(start, start+5);
+            if(slice.length===0){ showModal('Hata','Kategori boş'); return; }
+            // Frekansları hesapla: her soru için {1..5}
+            const rowsHTML = slice.map((q,localIdx)=>{
+                const globalIdx = start+localIdx;
+                const freq = {1:0,2:0,3:0,4:0,5:0};
+                surveys.forEach(s=>{
+                    const ansObj = s.answers && s.answers[globalIdx];
+                    if(!ansObj) return;
+                    const raw = ansObj.score ?? ansObj.value ?? ansObj.answer;
+                    const num = Number(raw);
+                    if(num>=1 && num<=5){ freq[num]++; }
+                });
+                const maxVal = Math.max(...Object.values(freq));
+                const total = Object.values(freq).reduce((a,b)=>a+b,0) || 1;
+                const cell = (v)=>{
+                    const isMax = v===maxVal && maxVal>0;
+                    const pct = ((v/total)*100).toFixed(0);
+                    return `<td class="px-2 py-1 text-center text-[11px] ${isMax? 'bg-red-100 font-semibold text-red-700':'text-gray-700'}">${v}<div class='text-[9px] text-gray-500'>${pct}%</div></td>`;
+                }
+                return `<tr class="border-b hover:bg-gray-50"><td class="align-top p-2 text-xs w-[45%]">${(globalIdx+1).toString().padStart(2,'0')}. ${q}</td>${cell(freq[1])}${cell(freq[2])}${cell(freq[3])}${cell(freq[4])}${cell(freq[5])}<td class="px-2 py-1 text-center text-[11px] font-medium">${total}</td></tr>`;
+            }).join('');
+            const names = hospitalCategoryNames[role] || [];
+            const catTitle = names[categoryIndex] || `Kategori ${categoryIndex+1}`;
+            const legend = `<div class='flex flex-wrap gap-2 text-[10px] mt-2'><span class='inline-flex items-center gap-1'><span class='w-3 h-3 bg-red-200 border border-red-300 inline-block'></span> En yüksek frekans</span><span class='text-gray-500'>Yüzdeler soru bazında hesaplanır</span></div>`;
+            const table = `<div class='max-h-[65vh] overflow-auto border rounded-md'><table class='w-full text-xs'><thead class='bg-gray-100 text-[11px] text-gray-700 sticky top-0'><tr><th class='p-2 text-left'>Soru</th><th class='p-2'>1</th><th class='p-2'>2</th><th class='p-2'>3</th><th class='p-2'>4</th><th class='p-2'>5</th><th class='p-2'>Toplam</th></tr></thead><tbody>${rowsHTML}</tbody></table></div>${legend}`;
+            const footer = `<div class='mt-4 flex justify-end'><button onclick="closeModal()" class='px-3 py-1.5 text-xs rounded bg-gray-200 hover:bg-gray-300'>Kapat</button></div>`;
+            document.getElementById('modalContent').innerHTML = `<h3 class='text-sm font-semibold text-gray-800 mb-2'>${role} • ${catTitle} Detayları</h3>${table}${footer}`;
+            document.getElementById('modal').classList.add('show');
+        }
+
         // Sistem verileri
         let systemData = {
             adminPassword: '030714',
@@ -2137,17 +2229,9 @@ function closeModal() {
             
             // AI butonunu detailedReport alanına ekle
             if (surveys && surveys.length > 0) {
-                const aiButtonHTML = `
-                    <div class="mt-6 bg-white rounded-lg border p-4 hidden" data-ai-section="wrapper" style="display:none !important;">
-                        <div class="text-center">
-                            <h4 class="text-lg font-semibold text-gray-800 mb-4 hidden" data-ai-section="heading" style="display:none !important;">🤖 Yapay Zeka ile Sağlık Hizmetleri Analizi</h4>
-                            <button id="aiInterpretBtn" class="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold text-sm hover:from-red-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hidden" data-ai-section="button" style="display:none !important;">
-                                🏥 Hastane Değerlendirmesini AI ile Analiz Et
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('detailedReport').innerHTML = aiButtonHTML;
+                const categoryButtons = buildHospitalCategoryButtons(surveys);
+                const hiddenAI = `<!-- AI Alanı gizli bırakıldı -->`;
+                document.getElementById('detailedReport').innerHTML = hiddenAI + categoryButtons;
                 
                 // AI buton eventini ekle
                 setTimeout(() => {
