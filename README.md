@@ -2138,10 +2138,10 @@ function closeModal() {
             // AI butonunu detailedReport alanına ekle
             if (surveys && surveys.length > 0) {
                 const aiButtonHTML = `
-                    <div class="mt-6 bg-white rounded-lg border p-4">
+                    <div class="mt-6 bg-white rounded-lg border p-4 hidden" data-ai-section="wrapper" style="display:none !important;">
                         <div class="text-center">
-                            <h4 class="text-lg font-semibold text-gray-800 mb-4">🤖 Yapay Zeka ile Sağlık Hizmetleri Analizi</h4>
-                            <button id="aiInterpretBtn" class="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold text-sm hover:from-red-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 hidden" data-ai-section="heading" style="display:none !important;">🤖 Yapay Zeka ile Sağlık Hizmetleri Analizi</h4>
+                            <button id="aiInterpretBtn" class="bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold text-sm hover:from-red-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hidden" data-ai-section="button" style="display:none !important;">
                                 🏥 Hastane Değerlendirmesini AI ile Analiz Et
                             </button>
                         </div>
