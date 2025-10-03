@@ -1001,6 +1001,8 @@ function closeModal() {
         let currentQuestions = [];
         let currentQuestionIndex = 0;
         let answers = [];
+    // Nötr cevap (puanlamaya dahil değil) sabiti
+    const NEUTRAL_LABEL = 'Bu hizmeti almadım';
         let selectedJobType = '';
         let loggedInCompany = null;
         let isAdminLoggedIn = false;
@@ -1394,7 +1396,17 @@ function closeModal() {
         function displayCurrentQuestion() {
             const container = document.getElementById('questionContainer');
             const question = currentQuestions[currentQuestionIndex];
-            
+            const isHasta = (selectedJobType === 'Hasta');
+            const neutralBtn = isHasta ? `
+                <div class="mt-5 flex flex-wrap items-center gap-3">
+                  <button onclick="selectAnswer('neutral')" class="answer-btn group relative py-3 px-4 text-sm rounded-lg border-2 border-gray-300 hover:border-gray-500 hover:bg-gray-50 transition-all duration-200 text-center flex flex-col items-center justify-center">
+                    <span class="font-medium text-gray-700">${NEUTRAL_LABEL}</span>
+                    <span class="mt-1 text-[11px] tracking-wide text-gray-500">NÖTR / PUAN DIŞI</span>
+                    <span class="absolute top-1 right-1 text-[10px] px-2 py-[2px] rounded bg-gray-200 text-gray-700">Skora Dahil Değil</span>
+                  </button>
+                  <div class="text-xs text-gray-500 max-w-sm leading-5">Bu hizmet size hiç sunulmadıysa bu seçeneği işaretleyin. Bu soru ortalama hesaplanırken devre dışı bırakılır.</div>
+                </div>` : '';
+
             container.innerHTML = `
                 <div class="bg-gray-50 p-8 rounded-lg border-l-4 border-purple-500">
                     <h3 class="text-xl font-semibold mb-6">${question}</h3>
@@ -1420,6 +1432,7 @@ function closeModal() {
                             <div class="text-sm font-medium text-gray-700">Çok Memnunum</div>
                         </button>
                     </div>
+                    ${neutralBtn}
                 </div>
             `;
             
@@ -1427,11 +1440,14 @@ function closeModal() {
         }
 
         function selectAnswer(score) {
-            answers.push({
-                question: currentQuestions[currentQuestionIndex],
-                score: score,
-                timestamp: new Date().toISOString()
-            });
+            const qText = currentQuestions[currentQuestionIndex];
+            let entry;
+            if (score === 'neutral') {
+                entry = { question: qText, score: null, neutral: true, original: NEUTRAL_LABEL, timestamp: new Date().toISOString() };
+            } else {
+                entry = { question: qText, score: score, timestamp: new Date().toISOString() };
+            }
+            answers.push(entry);
             
             currentQuestionIndex++;
             
@@ -1443,10 +1459,15 @@ function closeModal() {
         }
 
         function updateProgress() {
+            // Hasta modunda nötr dahil edilmeden efektif ilerleme göstermek isteyebiliriz,
+            // ancak burada soru bazlı akış tek tek ilerlediği için index tabanlı ilerleme korunuyor.
             const progress = (currentQuestionIndex / currentQuestions.length) * 100;
             document.getElementById('progressBar').style.width = progress + '%';
+            const answered = answers.length;
+            const neutral = answers.filter(a=>a.neutral).length;
+            const effective = answered - neutral;
             document.getElementById('progressText').textContent = 
-                `Anket İlerlemesi ${currentQuestionIndex}/${currentQuestions.length} Yanıtlandı`;
+                `Anket İlerlemesi ${answered}/${currentQuestions.length} (Nötr: ${neutral}, Puanlanan: ${effective})`;
         }
 
         function showSubmitButton() {
@@ -1606,6 +1627,9 @@ function closeModal() {
                 }
                 systemData.surveyData = await loadFromFirebase();
                 
+                // Nötr cevapları (score=null, neutral:true) puanlamadan çıkar
+                const effectiveAnswers = answers.filter(a => !a.neutral);
+                const neutralCount = answers.filter(a => a.neutral).length;
                 const surveyResponse = {
                     id: 'survey_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     companyName: companyName,
@@ -1613,9 +1637,10 @@ function closeModal() {
                     lastName: lastName,
                     jobType: selectedJobType,
                     answers: answers,
+                    neutralCount: neutralCount,
                     submittedAt: new Date().toISOString(),
-                    totalScore: answers.reduce((sum, answer) => sum + answer.score, 0),
-                    averageScore: (answers.reduce((sum, answer) => sum + answer.score, 0) / answers.length).toFixed(2),
+                    totalScore: effectiveAnswers.reduce((sum, answer) => sum + (answer.score||0), 0),
+                    averageScore: effectiveAnswers.length > 0 ? (effectiveAnswers.reduce((sum, answer) => sum + (answer.score||0), 0) / effectiveAnswers.length).toFixed(2) : '0.00',
                     duration: document.getElementById('timeElapsed').textContent.split(': ')[1] || '00:00'
                 };
                 
@@ -1849,14 +1874,16 @@ function closeModal() {
             let totalAnswers = 0;
             surveys.forEach(s => {
                 totalScore += s.totalScore;
-                totalAnswers += s.answers.length;
+                // efektif cevap sayısı: nötr olmayanlar
+                const eff = (s.answers||[]).filter(a=>!a.neutral).length;
+                totalAnswers += eff;
             });
             const avgScore = totalAnswers > 0 ? (totalScore / totalAnswers).toFixed(1) : '0.0';
             document.getElementById('averageScore').textContent = avgScore;
             let highSatisfactionAnswers = 0;
             surveys.forEach(s => {
-                s.answers.forEach(answer => {
-                    if (answer.score >= 4) highSatisfactionAnswers++;
+                (s.answers||[]).forEach(answer => {
+                    if (!answer.neutral && answer.score >= 4) highSatisfactionAnswers++;
                 });
             });
             const overallSatisfactionPercent = totalAnswers > 0 ? 
@@ -1902,7 +1929,7 @@ function closeModal() {
             let totalAnswers = 0;
             surveys.forEach(s => {
                 totalScore += s.totalScore;
-                totalAnswers += s.answers.length;
+                totalAnswers += (s.answers||[]).filter(a=>!a.neutral).length;
             });
             const avgScore = totalAnswers > 0 ? (totalScore / totalAnswers).toFixed(1) : '0.0';
             const minPossibleScore = totalAnswers * 1;
@@ -1934,7 +1961,8 @@ function closeModal() {
             const answerLevels = ['Düşük Memnuniyet (1-2)', 'Orta Memnuniyet (3)', 'Yüksek Memnuniyet (4-5)'];
             const answerCounts = [0, 0, 0];
             surveys.forEach(s => {
-                s.answers.forEach(a => {
+                (s.answers||[]).forEach(a => {
+                    if (a.neutral) return;
                     if (a.score < 2.5) answerCounts[0]++;
                     else if (a.score < 3.5) answerCounts[1]++;
                     else answerCounts[2]++;
@@ -2371,7 +2399,7 @@ function closeModal() {
             let total = 0;
             surveys.forEach(s => {
                 const a = s.answers[qIdx];
-                if (a && a.score) {
+                if (a && !a.neutral && a.score) {
                     freq[a.score] = (freq[a.score] || 0) + 1;
                     total++;
                 }
@@ -2492,8 +2520,9 @@ function closeModal() {
                 for (let qIdx = startQuestionIdx; qIdx < startQuestionIdx + questionsPerCategory; qIdx++) {
                     surveys.forEach(s => {
                         if (s.jobType === group && s.answers[qIdx]) {
-                            const score = s.answers[qIdx].score;
-                            if (score) {
+                            const ans = s.answers[qIdx];
+                            if (ans && !ans.neutral && ans.score) {
+                                const score = ans.score;
                                 freq[score] = (freq[score] || 0) + 1;
                                 groupScoreTotals[score]++;
                                 groupTotal++;
