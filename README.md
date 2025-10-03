@@ -1397,15 +1397,15 @@ function closeModal() {
             const container = document.getElementById('questionContainer');
             const question = currentQuestions[currentQuestionIndex];
             const isHasta = (selectedJobType === 'Hasta');
-            const neutralBtn = isHasta ? `
-                <div class="mt-5 flex flex-wrap items-center gap-3">
-                  <button onclick="selectAnswer('neutral')" class="answer-btn group relative py-3 px-4 text-sm rounded-lg border-2 border-gray-300 hover:border-gray-500 hover:bg-gray-50 transition-all duration-200 text-center flex flex-col items-center justify-center">
-                    <span class="font-medium text-gray-700">${NEUTRAL_LABEL}</span>
-                    <span class="mt-1 text-[11px] tracking-wide text-gray-500">NÖTR / PUAN DIŞI</span>
-                    <span class="absolute top-1 right-1 text-[10px] px-2 py-[2px] rounded bg-gray-200 text-gray-700">Skora Dahil Değil</span>
-                  </button>
-                  <div class="text-xs text-gray-500 max-w-sm leading-5">Bu hizmet size hiç sunulmadıysa bu seçeneği işaretleyin. Bu soru ortalama hesaplanırken devre dışı bırakılır.</div>
-                </div>` : '';
+                        const neutralBtn = isHasta ? `
+                                <div class="mt-6 flex flex-col gap-2">
+                                    <button onclick="selectAnswer('neutral')" class="answer-btn relative w-full md:w-auto py-3 px-6 rounded-lg border-2 border-fuchsia-400 bg-fuchsia-50/80 hover:bg-fuchsia-100 hover:border-fuchsia-500 transition-all duration-200 text-center flex flex-col items-center justify-center shadow-sm">
+                                        <span class="font-semibold text-fuchsia-800 text-sm md:text-base">${NEUTRAL_LABEL}</span>
+                                        <span class="mt-1 text-[11px] md:text-[10px] tracking-wide text-fuchsia-600 font-medium">NÖTR • PUANA DAHİL DEĞİL</span>
+                                        <span class="absolute -top-2 -left-2 bg-gradient-to-r from-fuchsia-600 to-indigo-600 text-white text-[10px] px-2 py-[3px] rounded-full shadow font-semibold">PUAN YOK</span>
+                                    </button>
+                                    <div class="text-[11px] md:text-[11px] text-gray-600 leading-4 pl-0 md:pl-1">Bu hizmet sizin durumunuza hiç uygulanmadıysa işaretleyin. Ortalama hesap dışına alınır.</div>
+                                </div>` : '';
 
             container.innerHTML = `
                 <div class="bg-gray-50 p-8 rounded-lg border-l-4 border-purple-500">
